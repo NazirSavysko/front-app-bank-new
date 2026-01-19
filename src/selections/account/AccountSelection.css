@@ -1,0 +1,276 @@
+/* Горизонтальний список рахунків */
+.accounts-list {
+    display: flex;
+    gap: 1rem;
+    overflow-x: auto;
+    padding: 0.5rem 0;
+    scrollbar-width: thin;
+    scrollbar-color: rgba(102, 126, 234, 0.3) transparent;
+    scroll-snap-type: x mandatory;
+    -webkit-overflow-scrolling: touch;
+}
+.accounts-list::-webkit-scrollbar {
+    height: 6px;
+}
+.accounts-list::-webkit-scrollbar-track {
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 3px;
+}
+.accounts-list::-webkit-scrollbar-thumb {
+    background: rgba(102, 126, 234, 0.3);
+    border-radius: 3px;
+}
+
+.account-wrapper {
+    flex: 0 0 280px;
+    cursor: pointer;
+    transition: transform 0.2s;
+    scroll-snap-align: start;
+}
+.account-wrapper:hover {
+    transform: scale(1.02);
+}
+.account-wrapper.selected .account-card {
+    border: 2px solid #667eea;
+    box-shadow: 0 8px 32px rgba(102, 126, 234, 0.3);
+}
+
+/* Карточка рахунку */
+.account-card {
+    background: rgba(255, 255, 255, 0.95);
+    border-radius: 16px;
+    padding: 1.25rem;
+    box-shadow: 0 4px 20px rgba(31, 38, 135, 0.2);
+    backdrop-filter: blur(4px);
+    border: 1px solid rgba(255, 255, 255, 0.18);
+    transition: 0.3s;
+    min-height: 320px;
+    display: flex;
+    flex-direction: column;
+}
+.account-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 30px rgba(31, 38, 135, 0.3);
+}
+
+/* Карточка "Додати рахунок" */
+.account-wrapper.add-card .account-card.add-account {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    border: 2px dashed #cbd5e0;
+    background: rgba(255, 255, 255, 0.7);
+    color: #718096;
+    font-weight: 600;
+    text-align: center;
+}
+.account-wrapper.add-card .account-card.add-account:hover {
+    border-color: #667eea;
+    color: #667eea;
+    background: rgba(102, 126, 234, 0.05);
+}
+.plus-icon {
+    font-size: 2rem;
+    margin-bottom: 0.5rem;
+}
+
+/* Візуальна карта */
+.card-display {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    border-radius: 12px;
+    padding: 1rem;
+    color: #fff;
+    position: relative;
+    margin-bottom: 1rem;
+    min-height: 160px;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+}
+.bank-name {
+    font-size: 1rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+}
+.card-number-display {
+    font-size: 1.1rem;
+    font-weight: 600;
+    letter-spacing: 1px;
+    cursor: pointer;
+    margin: 0.75rem 0;
+    padding: 0.5rem;
+    border-radius: 6px;
+    transition: background-color 0.2s;
+}
+.card-number-display:hover {
+    background-color: rgba(255, 255, 255, 0.1);
+}
+.card-footer {
+    display: flex;
+    justify-content: flex-end;
+}
+.card-cvv-display {
+    position: absolute;
+    top: 1rem;
+    right: 1rem;
+    cursor: pointer;
+    padding: 0.4rem;
+    border-radius: 6px;
+    transition: 0.2s;
+    font-size: 0.8rem;
+}
+.card-cvv-display:hover {
+    background-color: rgba(255, 255, 255, 0.1);
+}
+
+/* Інформація про картку */
+.account-card .card-info {
+    display: flex;
+    flex-direction: column;
+    gap: 0.6rem;
+    flex: 1;
+}
+.card-balance {
+    font-size: 1.2rem;
+    font-weight: 700;
+    color: #2d3748;
+}
+.card-status {
+    font-size: 0.9rem;
+    color: #718096;
+}
+.account-number {
+    font-size: 0.8rem;
+    color: #4a5568;
+    cursor: pointer;
+    padding: 0.5rem;
+    border-radius: 6px;
+    transition: 0.2s;
+    word-break: break-all;
+    line-height: 1.4;
+}
+.account-number:hover {
+    background: rgba(0, 0, 0, 0.05);
+}
+
+/* --------------- МЕДІА --------------- */
+@media (max-width: 1024px) {
+    .account-wrapper {
+        flex: 0 0 230px;
+    }
+    .account-card {
+        min-height: 260px;
+        padding: 1rem;
+    }
+    .card-display {
+        min-height: 130px;
+    }
+    .bank-name {
+        font-size: 0.85rem;
+    }
+    .card-number-display {
+        font-size: 0.9rem;
+    }
+    .card-balance {
+        font-size: 1rem;
+    }
+}
+
+/* 768px: суттєво компактніше */
+@media (max-width: 768px) {
+    .accounts-list {
+        gap: 0.75rem;
+        padding: 0.25rem 0;
+    }
+    .account-wrapper {
+        flex: 0 0 190px;
+    }
+    .account-card {
+        min-height: 230px;
+        padding: 0.9rem;
+    }
+    .card-display {
+        min-height: 100px;
+        padding: 0.7rem;
+    }
+    .bank-name {
+        font-size: 0.8rem;
+    }
+    .card-number-display {
+        font-size: 0.85rem;
+    }
+    .card-balance {
+        font-size: 0.9rem;
+    }
+    .card-status {
+        font-size: 0.7rem;
+    }
+    .account-number {
+        font-size: 0.7rem;
+    }
+}
+
+/* 480px: ще менше */
+@media (max-width: 480px) {
+    .accounts-list {
+        gap: 0.6rem;
+    }
+    .account-wrapper {
+        flex: 0 0 170px;
+    }
+    .account-card {
+        min-height: 200px;
+        padding: 0.8rem;
+    }
+    .card-display {
+        min-height: 90px;
+        padding: 0.65rem;
+    }
+    .bank-name {
+        font-size: 0.7rem;
+    }
+    .card-number-display {
+        font-size: 0.8rem;
+    }
+    .card-balance {
+        font-size: 0.85rem;
+    }
+    .card-status {
+        font-size: 0.65rem;
+    }
+    .account-number {
+        font-size: 0.65rem;
+    }
+}
+
+/* 360px і менше: ультракомпактно */
+@media (max-width: 360px) {
+    .account-wrapper {
+        flex: 0 0 150px;
+    }
+    .account-card {
+        min-height: 180px;
+        padding: 0.7rem;
+    }
+    .card-display {
+        min-height: 80px;
+        padding: 0.6rem;
+    }
+    .bank-name {
+        font-size: 0.65rem;
+    }
+    .card-number-display {
+        font-size: 0.75rem;
+    }
+    .card-balance {
+        font-size: 0.8rem;
+    }
+    .card-status {
+        font-size: 0.6rem;
+    }
+    .account-number {
+        font-size: 0.6rem;
+    }
+}
