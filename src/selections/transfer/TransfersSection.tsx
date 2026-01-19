@@ -142,7 +142,7 @@ const TransfersSection: React.FC<TransfersSectionProps> = ({
         setTransferError('');
         try {
             const token = localStorage.getItem('accessToken');
-            const res = await fetch('api/email/send', {
+            const res = await fetch('/api/email/send', {
                 method: 'POST',
                 headers: {'Content-Type': 'application/json', Authorization: token ? `Bearer ${token}` : ''},
                 body: JSON.stringify({email: customer.email})
@@ -167,7 +167,7 @@ const TransfersSection: React.FC<TransfersSectionProps> = ({
         setTransferError('');
         try {
             const token = localStorage.getItem('accessToken');
-            const verifyRes = await fetch('http://localhost:8080/api/v1/email/check', {
+            const verifyRes = await fetch('/api/email/check', {
                 method: 'POST',
                 headers: {'Content-Type': 'application/json', Authorization: token ? `Bearer ${token}` : ''},
                 body: JSON.stringify({email: customer.email, code: verificationCode})
@@ -178,7 +178,7 @@ const TransfersSection: React.FC<TransfersSectionProps> = ({
                 setCodeVerifying(false);
                 return;
             }
-            const transferRes = await fetch('http://localhost:8080/api/v1/transactions/withdraw', {
+            const transferRes = await fetch('/api/transactions/withdraw', {
                 method: 'POST',
                 headers: {'Content-Type': 'application/json', Authorization: token ? `Bearer ${token}` : ''},
                 body: JSON.stringify(transferData)
