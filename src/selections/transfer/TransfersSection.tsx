@@ -1,5 +1,5 @@
-import React, { useEffect, useRef, useState } from 'react';
-import type { CustomerData, TransferSuccess } from '../../types.ts';
+import React, {useEffect, useRef, useState} from 'react';
+import type {CustomerData, TransferSuccess} from '../../types.ts';
 import './TransfersSection.css';
 
 export interface TransfersSectionProps {
@@ -41,7 +41,7 @@ const TransfersSection: React.FC<TransfersSectionProps> = ({
     }, [showEmailVerification]);
 
     const setCodeAt = (code: string, index: number, value: string) => {
-        const chars = Array.from({ length: CODE_LENGTH }, (_, i) => code[i] ?? '');
+        const chars = Array.from({length: CODE_LENGTH}, (_, i) => code[i] ?? '');
         chars[index] = value;
         return chars.join('').replace(/\s/g, '').slice(0, CODE_LENGTH);
     };
@@ -151,10 +151,10 @@ const TransfersSection: React.FC<TransfersSectionProps> = ({
         setTransferError('');
         try {
             const token = localStorage.getItem('accessToken');
-            const res = await fetch('http://localhost:8080/api/v1/email/send', {
+            const res = await fetch('api/email/send', {
                 method: 'POST',
-                headers: { 'Content-Type': 'application/json', Authorization: token ? `Bearer ${token}` : '' },
-                body: JSON.stringify({ email: customer.email })
+                headers: {'Content-Type': 'application/json', Authorization: token ? `Bearer ${token}` : ''},
+                body: JSON.stringify({email: customer.email})
             });
             if (!res.ok) {
                 const body = await res.json().catch(() => ({} as { message?: string }));
@@ -178,8 +178,8 @@ const TransfersSection: React.FC<TransfersSectionProps> = ({
             const token = localStorage.getItem('accessToken');
             const verifyRes = await fetch('http://localhost:8080/api/v1/email/check', {
                 method: 'POST',
-                headers: { 'Content-Type': 'application/json', Authorization: token ? `Bearer ${token}` : '' },
-                body: JSON.stringify({ email: customer.email, code: verificationCode })
+                headers: {'Content-Type': 'application/json', Authorization: token ? `Bearer ${token}` : ''},
+                body: JSON.stringify({email: customer.email, code: verificationCode})
             });
             if (!verifyRes.ok) {
                 const body = await verifyRes.json().catch(() => ({} as { message?: string }));
@@ -189,7 +189,7 @@ const TransfersSection: React.FC<TransfersSectionProps> = ({
             }
             const transferRes = await fetch('http://localhost:8080/api/v1/transactions/withdraw', {
                 method: 'POST',
-                headers: { 'Content-Type': 'application/json', Authorization: token ? `Bearer ${token}` : '' },
+                headers: {'Content-Type': 'application/json', Authorization: token ? `Bearer ${token}` : ''},
                 body: JSON.stringify(transferData)
             });
             if (!transferRes.ok) {
@@ -233,15 +233,15 @@ const TransfersSection: React.FC<TransfersSectionProps> = ({
         // Не разрешаем выбирать карту с нулевым балансом
         const acct = customer?.accounts.find(a => a.card.cardNumber === cardNumber);
         if (acct && acct.balance < 0.01) return;
-        setTransferData(p => ({ ...p, senderCardNumber: cardNumber }));
+        setTransferData(p => ({...p, senderCardNumber: cardNumber}));
     };
 
     const formatCardNumberInput = (v: string) => v.replace(/\D/g, '').replace(/(\d{4})(?=\d)/g, '$1 ');
     const handleCardNumberChange = (v: string) =>
-        setTransferData(p => ({ ...p, recipientCardNumber: v.replace(/\D/g, '') }));
+        setTransferData(p => ({...p, recipientCardNumber: v.replace(/\D/g, '')}));
     const handleAmountChange = (v: string) => {
         const clean = v.replace(/[^0-9.,]/g, '').replace(',', '.');
-        if (!clean.startsWith('-')) setTransferData(p => ({ ...p, amount: clean }));
+        if (!clean.startsWith('-')) setTransferData(p => ({...p, amount: clean}));
     };
 
     const selectedAccount = customer?.accounts.find(a => a.card.cardNumber === transferData.senderCardNumber);
@@ -324,11 +324,13 @@ const TransfersSection: React.FC<TransfersSectionProps> = ({
                                             <div className="selected-check">✓</div>
                                         )}
                                     </div>
-                                    <div className="card-number">**** **** **** {account.card.cardNumber.slice(-4)}</div>
+                                    <div className="card-number">**** ****
+                                        **** {account.card.cardNumber.slice(-4)}</div>
                                     <div className="card-info">
                                         <div className="card-balance">
                                             <span className="balance-label">Доступно:</span>
-                                            <span className={`balance-amount ${account.balance < 100 ? 'low-balance' : ''}`}>
+                                            <span
+                                                className={`balance-amount ${account.balance < 100 ? 'low-balance' : ''}`}>
                         {account.balance.toLocaleString()} {account.currency}
                       </span>
                                         </div>
@@ -442,7 +444,10 @@ const TransfersSection: React.FC<TransfersSectionProps> = ({
                                                 <button
                                                     key={amount}
                                                     className="amount-suggestion"
-                                                    onClick={() => setTransferData(p => ({ ...p, amount: amount.toString() }))}
+                                                    onClick={() => setTransferData(p => ({
+                                                        ...p,
+                                                        amount: amount.toString()
+                                                    }))}
                                                     type="button"
                                                 >
                                                     {amount}
@@ -479,7 +484,7 @@ const TransfersSection: React.FC<TransfersSectionProps> = ({
                                 type="text"
                                 className={`description-input ${transferData.description.length > 255 ? 'error' : ''}`}
                                 value={transferData.description}
-                                onChange={e => setTransferData(p => ({ ...p, description: e.target.value }))}
+                                onChange={e => setTransferData(p => ({...p, description: e.target.value}))}
                                 placeholder="Переказ власних коштів"
                                 maxLength={255}
                             />
@@ -567,7 +572,7 @@ const TransfersSection: React.FC<TransfersSectionProps> = ({
                             <div className="code-input-section">
                                 <label className="code-label">Введіть 5-значний код:</label>
                                 <div className="otp-container" onPaste={handleOtpPaste}>
-                                    {Array.from({ length: CODE_LENGTH }, (_, idx) => (
+                                    {Array.from({length: CODE_LENGTH}, (_, idx) => (
                                         <input
                                             key={idx}
                                             type="text"
@@ -596,14 +601,16 @@ const TransfersSection: React.FC<TransfersSectionProps> = ({
 
                             <div className="resend-section">
                                 <p className="resend-text">Не отримали код?</p>
-                                <button className="resend-button" onClick={sendEmailVerification} disabled={emailSending} type="button">
+                                <button className="resend-button" onClick={sendEmailVerification}
+                                        disabled={emailSending} type="button">
                                     {emailSending ? 'Відправляємо...' : 'Надіслати повторно'}
                                 </button>
                             </div>
                         </div>
 
                         <div className="verification-footer">
-                            <button className="btn-cancel" onClick={() => setShowEmailVerification(false)} disabled={codeVerifying} type="button">
+                            <button className="btn-cancel" onClick={() => setShowEmailVerification(false)}
+                                    disabled={codeVerifying} type="button">
                                 Скасувати
                             </button>
                             <button
