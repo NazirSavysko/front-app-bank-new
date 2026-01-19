@@ -30,15 +30,6 @@ const TransfersSection: React.FC<TransfersSectionProps> = ({
     const CODE_LENGTH = 5;
     const otpRefs = useRef<Array<HTMLInputElement | null>>([]);
 
-    // 🔒 Блокируем прокрутку фона, когда открыта модалка
-    // useEffect(() => {
-    //     if (!showEmailVerification) return;
-    //     const original = document.body.style.overflow;
-    //     document.body.style.overflow = 'hidden';
-    //     return () => {
-    //         document.body.style.overflow = original;
-    //     };
-    // }, [showEmailVerification]);
 
     const setCodeAt = (code: string, index: number, value: string) => {
         const chars = Array.from({length: CODE_LENGTH}, (_, i) => code[i] ?? '');
