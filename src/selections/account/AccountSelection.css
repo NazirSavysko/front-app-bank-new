@@ -41,7 +41,7 @@
 
 /* Обгортка картки на ПК */
 .account-wrapper {
-    flex: 0 0 320px; /* Фіксована ширина */
+    flex: 0 0 420px; /* Фіксована ширина */
     cursor: pointer;
     transition: transform 0.2s ease;
 
@@ -90,7 +90,7 @@
 */
 .account-wrapper.add-card {
     /* Наследуем ширину как у остальных карт */
-    flex: 0 0 320px;
+    flex: 0 0 420px;
 
     /* ВАЖНО: Делаем колонкой, чтобы работало растягивание по вертикали */
     display: flex;
@@ -163,7 +163,7 @@
 }
 
 .bank-name {
-    font-size: 0.9rem;
+    font-size: 1.1rem;
     font-weight: 700;
     text-transform: uppercase;
     letter-spacing: 1.5px;
@@ -172,12 +172,14 @@
 
 .card-number-display {
     font-family: 'Courier New', monospace;
-    font-size: 1.05rem; /* Decreased from 1.3rem for desktop */
+    font-size: 1.25rem;
     font-weight: 700;
-    letter-spacing: 2px;
+    letter-spacing: 1.5px;
     text-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
     margin: auto 0;
     text-align: center;
+    cursor: pointer;
+    user-select: none;
 }
 
 .card-footer {
@@ -207,7 +209,7 @@
 }
 
 .card-balance {
-    font-size: 1rem; /* Decreased from 1.5rem for desktop */
+    font-size: 1.25rem;
     font-weight: 800;
     color: #2d3748;
     background: linear-gradient(135deg, #2d3748 0%, #4a5568 100%);
@@ -223,6 +225,8 @@
     padding: 0.5rem;
     border-radius: 8px;
     font-family: monospace;
+    cursor: pointer;
+    user-select: none;
 }
 
 /* =========================================
