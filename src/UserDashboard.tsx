@@ -311,13 +311,14 @@ const UserDashboard: React.FC = () => {
                 {!loading && !error && (
                     <div className="dashboard-grid">
                         <div className="dashboard-section">
-                            <h2 className="section-title">
-                                {selectedTab === 'accounts' && 'Мої рахунки'}
-                                {selectedTab === 'transactions' && 'Транзакції'}
-                                {selectedTab === 'payments' && 'Платежі'}
-                                {selectedTab === 'transfers' && 'Перекази'}
-                                {selectedTab === 'analytics' && 'Аналітика'}
-                            </h2>
+                            {selectedTab !== 'transactions' && (
+                                <h2 className="section-title">
+                                    {selectedTab === 'accounts' && 'Мої рахунки'}
+                                    {selectedTab === 'payments' && 'Платежі'}
+                                    {selectedTab === 'transfers' && 'Перекази'}
+                                    {selectedTab === 'analytics' && 'Аналітика'}
+                                </h2>
+                            )}
                             {renderCurrentTab()}
                         </div>
                     </div>

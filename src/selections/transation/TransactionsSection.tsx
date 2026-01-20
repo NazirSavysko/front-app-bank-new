@@ -85,6 +85,15 @@ const TransactionsSection: React.FC<TransactionsSectionProps> = ({
 
     return (
         <div className="transactions-list">
+            {/* Головний заголовок "Транзакції" і кнопка аналітики */}
+            <div className="transactions-top-bar main-header">
+                <h2 className="section-title-internal">Транзакції</h2>
+                <button className="analytics-button" onClick={onAnalytics} title="Перейти до аналітики">
+                    <span className="analytics-icon">📊</span>
+                    Аналітика
+                </button>
+            </div>
+
             {/* Панель фільтрів */}
             <div className="transactions-filter">
                 <div className="filter-group">
@@ -132,14 +141,8 @@ const TransactionsSection: React.FC<TransactionsSectionProps> = ({
                 </div>
             </div>
 
-            {/* Заголовок і кнопка аналітики (після фільтрів) */}
-            <div className="transactions-top-bar">
-                <h3 className="section-headline">Історія транзакцій</h3>
-                <button className="analytics-button" onClick={onAnalytics} title="Перейти до аналітики">
-                    <span className="analytics-icon">📊</span>
-                    Аналітика
-                </button>
-            </div>
+            {/* Заголовок історії (схожий стиль, але менший або такий же) */}
+            <h3 className="history-headline">Історія транзакцій</h3>
 
             {/* Список карток (скролиться) */}
             <div className="account-transactions">
