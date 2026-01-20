@@ -36,39 +36,50 @@
 
 /* Контейнер і прокрутка */
 .transactions-list {
-    max-height: 420px;
-    overflow-y: auto;
+    min-height: auto;
     width: 100%;
-    max-width: 900px; /* чуть шире списку — меньше «зламаних» рядків */
+    max-width: 1200px; /* Розширюємо для ПК */
     margin: 0 auto;
-    scroll-behavior: smooth;
 }
-.transactions-list::-webkit-scrollbar { width: 10px; }
-.transactions-list::-webkit-scrollbar-thumb {
+
+/* Список карток: скролимо тільки його */
+.account-transactions {
+    width: 100%;
+    max-height: 520px; /* Висота області перегляду */
+    overflow-y: auto;
+    overflow-x: hidden;
+    padding-right: 0.5rem; /* Відступ під скролбар */
+    scroll-behavior: smooth;
+
+    /* Дизайн скролбару */
+    scrollbar-width: thin;
+    scrollbar-color: rgba(100,116,139,.35) transparent;
+}
+.account-transactions::-webkit-scrollbar { width: 8px; }
+.account-transactions::-webkit-scrollbar-thumb {
     background: rgba(100,116,139,.35);
     border-radius: 999px;
-    border: 2px solid transparent;
     background-clip: padding-box;
+    border: 2px solid transparent;
 }
-.transactions-list:hover::-webkit-scrollbar-thumb { background: rgba(100,116,139,.55); }
+.account-transactions:hover::-webkit-scrollbar-thumb { background: rgba(100,116,139,.55); }
 
-/* Липка панель фільтрів: завжди під рукою при скролі */
+/* Панель фільтрів: звичайна, не липка, щоб прокручувалася */
 .transactions-filter {
-    position: sticky;
-    top: .5rem;
+    position: relative;
     z-index: 10;
-
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(170px,1fr));
-    gap: 1rem;
-    margin-bottom: 1rem;
-    padding: var(--pad-filter);
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 1.5rem;
+    margin-bottom: 2rem;
+    padding: 2rem;
     background: var(--bg-filter);
     border-radius: var(--radius);
     box-shadow: var(--shadow-soft);
     backdrop-filter: blur(4px);
     border: 1px solid var(--border-soft);
 }
+
 
 .filter-group { display: flex; flex-direction: column; gap: .4rem; }
 .filter-label {
@@ -149,20 +160,46 @@
 .transaction-card {
     background: var(--bg-card);
     border-radius: var(--radius);
-    padding: var(--pad-card);
-    margin-bottom: .9rem;
+    padding: 1.5rem;
+    margin-bottom: 1rem;
     box-shadow: var(--shadow-soft);
     backdrop-filter: blur(4px);
     border: 1px solid var(--border-soft);
-    transition: transform .15s ease, box-shadow .15s ease, background .2s ease;
+    transition: all 0.3s ease;
     position: relative;
     overflow: hidden;
     cursor: pointer;
-    will-change: transform;
 }
-.transaction-card:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 10px 28px rgba(0,0,0,.1);
+
+.transaction-card:not(.expanded) .transaction-body,
+.transaction-card:not(.expanded) .transaction-footer {
+    display: none;
+}
+
+.transaction-card:not(.expanded) .transaction-header {
+    margin-bottom: 0;
+    padding-bottom: 0;
+    border-bottom: none;
+}
+
+.transaction-card.expanded {
+    background: #fff; /* Яскравіше при розгортанні */
+    box-shadow: 0 15px 30px rgba(0,0,0,0.15);
+    transform: scale(1.01);
+    color: var(--text-main); /* Гарантуємо темний текст на білому фоні */
+}
+
+/* Примусово фарбуємо текст всередині expanded картки у темний */
+.transaction-card.expanded strong,
+.transaction-card.expanded span,
+.transaction-card.expanded div {
+    /* Не чіпаємо кольори статусів і іконок, тільки звичайний текст */
+}
+.transaction-card.expanded .transaction-body strong {
+    color: var(--text-subtle); /* Темно-сірий для заголовків полів */
+}
+.transaction-card.expanded .transaction-body div {
+    color: var(--text-main); /* Основний темний для значень */
 }
 
 /* Лівий бордер за напрямом — трохи тонше, але контрастніше */
@@ -262,21 +299,68 @@
     border: 1px solid rgba(239,68,68,.25);
 }
 
-/* Індикатор розгортання (опціонально) */
-.transaction-card:not(.expanded) { padding: .9rem var(--pad-card); }
-.transaction-card:not(.expanded) .transaction-header { margin-bottom: .2rem; padding-bottom: 0; border-bottom: none; }
-.transaction-card:not(.expanded) .transaction-footer { padding-top: .4rem; border-top: none; margin-top: .25rem; }
-.transaction-card.expanded .transaction-header { margin-bottom: .8rem; padding-bottom: .65rem; border-bottom: 1px solid rgba(0,0,0,.05); }
-.transaction-card.expanded .transaction-footer { padding-top: .65rem; border-top: 1px solid rgba(0,0,0,.05); margin-top: .6rem; }
+/* Індикатор розгортання */
+.transaction-card {
+    background: var(--bg-card);
+    border-radius: var(--radius);
+    padding: 1.5rem;
+    margin-bottom: 1rem;
+    box-shadow: var(--shadow-soft);
+    backdrop-filter: blur(4px);
+    border: 1px solid var(--border-soft);
+    transition: all 0.3s ease;
+    position: relative;
+    overflow: hidden;
+    cursor: pointer;
+}
+
+.transaction-card:not(.expanded) .transaction-body,
+.transaction-card:not(.expanded) .transaction-footer {
+    display: none;
+}
+
+.transaction-card:not(.expanded) .transaction-header {
+    margin-bottom: 0;
+    padding-bottom: 0;
+    border-bottom: none;
+}
+
+.transaction-card.expanded {
+    background: #fff; /* Яскравіше при розгортанні */
+    box-shadow: 0 15px 30px rgba(0,0,0,0.15);
+    transform: scale(1.01);
+}
+
 .transaction-card::after {
     content:'▼';
-    position:absolute; top:.85rem; right:.9rem;
+    position: absolute;
+    top: 1.8rem;
+    right: 1.5rem;
     color: var(--text-muted);
-    font-size: .85rem;
-    transition: transform .15s ease, color .15s ease;
-    transform: rotate(0);
+    font-size: 1rem;
+    transition: transform .3s ease, color .3s ease;
 }
-.transaction-card.expanded::after { transform: rotate(180deg); color: var(--primary-600); }
+.transaction-card.expanded::after {
+    transform: rotate(180deg);
+    color: var(--primary-600);
+}
+
+/* Окремий контейнер для заголовку/аналітики */
+.transactions-top-bar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1rem; /* Відступ між заголовком і списком */
+    margin-top: 1.5rem; /* Відступ від фільтрів */
+    flex-wrap: wrap;
+    gap: 1rem;
+}
+
+.section-headline {
+    font-size: 1.5rem;
+    font-weight: 800;
+    color: var(--text-main);
+}
 
 /* Немає транзакцій */
 .account-transactions p {

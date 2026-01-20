@@ -130,14 +130,18 @@ const TransactionsSection: React.FC<TransactionsSectionProps> = ({
                         <option value="received">Тільки надходження</option>
                     </select>
                 </div>
-                <div className="transactions-header">
-                    <button className="analytics-button" onClick={onAnalytics} title="Перейти до аналітики">
-                        <span className="analytics-icon">📊</span>
-                        Аналітика
-                    </button>
-                </div>
             </div>
 
+            {/* Заголовок і кнопка аналітики (після фільтрів) */}
+            <div className="transactions-top-bar">
+                <h3 className="section-headline">Історія транзакцій</h3>
+                <button className="analytics-button" onClick={onAnalytics} title="Перейти до аналітики">
+                    <span className="analytics-icon">📊</span>
+                    Аналітика
+                </button>
+            </div>
+
+            {/* Список карток (скролиться) */}
             <div className="account-transactions">
 
                 {filtered.length > 0 ? (
