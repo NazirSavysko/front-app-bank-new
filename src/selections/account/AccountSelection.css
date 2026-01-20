@@ -1,34 +1,67 @@
 /* =========================================
-   DESKTOP DEFAULT (GRID)
-   На великих екранах це сітка
+   DESKTOP DEFAULT (HORIZONTAL SCROLL)
+   На ПК: Горизонтальний список (рядок)
    ========================================= */
 .accounts-list {
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+    display: flex; /* Flex-рядок */
     gap: 1.5rem;
-    padding: 0.5rem 0.25rem;
+    overflow-x: auto; /* Горизонтальний скрол */
+    padding: 1rem 0.5rem 2rem; /* Відступи */
     list-style: none;
     margin: 0;
+
+    /* Скролбар (Firefox) */
+    scrollbar-width: thin;
+    scrollbar-color: rgba(102, 126, 234, 0.3) transparent;
 }
 
-.account-wrapper {
+/* Скролбар (Chrome/Safari) */
+.accounts-list::-webkit-scrollbar {
+    height: 8px;
+}
+
+.accounts-list::-webkit-scrollbar-track {
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 4px;
+    margin: 0 1rem;
+}
+
+.accounts-list::-webkit-scrollbar-thumb {
+    background: rgba(102, 126, 234, 0.3);
+    border-radius: 4px;
     cursor: pointer;
-    transition: transform 0.2s;
-    /* На ПК висота підлаштовується під контент, але не менше 200px */
-    min-height: 220px;
+}
+
+.accounts-list::-webkit-scrollbar-thumb:hover {
+    background: rgba(102, 126, 234, 0.5);
+}
+
+/* Обгортка картки на ПК */
+.account-wrapper {
+    flex: 0 0 320px; /* Фіксована ширина */
+    cursor: pointer;
+    transition: transform 0.2s ease;
+
+    /* ВАЖЛИВО: Задаємо явну висоту, щоб всі були рівні */
+    display: flex;
+    flex-direction: column;
+    min-height: 260px; /* Мінімальна висота для всіх карток */
 }
 
 .account-wrapper:hover {
     transform: translateY(-4px);
+    z-index: 5;
 }
 
 .account-wrapper.selected .account-card {
     border: 2px solid #667eea;
-    box-shadow: 0 10px 25px rgba(102, 126, 234, 0.2);
+    box-shadow: 0 10px 25px rgba(102, 126, 234, 0.25);
     transform: scale(1.02);
 }
 
-/* Карточка рахунку (Базовий стиль) */
+/* =========================================
+   ЗАГАЛЬНІ СТИЛІ КАРТКИ
+   ========================================= */
 .account-card {
     background: rgba(255, 255, 255, 0.95);
     border-radius: 20px;
@@ -37,14 +70,28 @@
     backdrop-filter: blur(10px);
     border: 1px solid rgba(255, 255, 255, 0.4);
     transition: all 0.3s ease;
+
+    /* Розтягуємо картку на всю висоту обгортки */
+    flex: 1;
     height: 100%;
     display: flex;
     flex-direction: column;
     justify-content: space-between;
 }
 
-/* Картка "Додати рахунок" */
-.account-wrapper.add-card .account-card.add-account {
+/* FIX: Виправлення багу з кнопкою "Додати рахунок"
+   Робимо її такою ж високою, як і звичайні картки
+*/
+.account-wrapper.add-card {
+    min-height: 260px; /* Така ж висота, як у звичайних */
+    display: flex;
+}
+
+.account-card.add-account {
+    flex: 1; /* Займає весь простір обгортки */
+    height: 100%;
+    display: flex;
+    flex-direction: column;
     align-items: center;
     justify-content: center;
     border: 2px dashed #cbd5e0;
@@ -62,12 +109,18 @@
 }
 
 .plus-icon {
-    font-size: 2.5rem;
+    font-size: 3rem;
     font-weight: 300;
     line-height: 1;
+    color: #a0aec0;
+    transition: color 0.2s;
 }
 
-/* Внутрішня візуальна картка (кольорова) */
+.account-wrapper.add-card:hover .plus-icon {
+    color: #667eea;
+}
+
+/* Внутрішня кольорова картка (візуал пластику) */
 .card-display {
     background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
     border-radius: 14px;
@@ -75,7 +128,6 @@
     color: #fff;
     position: relative;
     margin-bottom: 1.25rem;
-    /* Фіксоване співвідношення сторін схоже на реальну картку */
     aspect-ratio: 1.586 / 1;
     display: flex;
     flex-direction: column;
@@ -120,7 +172,7 @@
     border-radius: 4px;
 }
 
-/* Блок з балансом */
+/* Блок інформації (Баланс) */
 .card-info {
     display: flex;
     flex-direction: column;
@@ -147,25 +199,23 @@
 }
 
 /* =========================================
-   MOBILE & TABLET (HORIZONTAL CAROUSEL)
+   MOBILE & TABLET (CAROUSEL / SWIPE)
+   На телефонах: Одна велика картка на весь екран + свайп
    ========================================= */
 @media (max-width: 992px) {
     .accounts-list {
-        display: flex; /* Вмикаємо горизонт */
-        grid-template-columns: none;
-        flex-wrap: nowrap; /* Забороняємо перенос */
-        overflow-x: auto; /* Скролл */
+        display: flex;
+        flex-wrap: nowrap;
+        overflow-x: auto;
         gap: 1rem;
-        padding: 0.5rem 1rem 1.5rem; /* Відступи по боках, щоб перша картка не прилипала */
+        padding: 0.5rem 1rem 1.5rem;
 
-        /* Прилипання (Snap) */
+        /* Магія прилипання */
         scroll-snap-type: x mandatory;
 
-        /* Ховаємо скроллбар */
+        /* Ховаємо скролбар */
         scrollbar-width: none;
         -ms-overflow-style: none;
-
-        /* Плавність на iOS */
         -webkit-overflow-scrolling: touch;
     }
 
@@ -174,15 +224,16 @@
     }
 
     .account-wrapper {
-        /* ГОЛОВНЕ: Ширина 88% від екрану */
+        /* ВЕЛИКА КАРТКА: 88% ширини екрану */
         flex: 0 0 88vw;
         width: 88vw;
-        scroll-snap-align: center; /* Центруємо при скролі */
+        scroll-snap-align: center; /* Центруємо при зупинці */
 
-        /* Трохи зменшуємо неактивні картки для ефекту глибини */
+        /* Ефект глибини для неактивних */
         transform: scale(0.96);
         opacity: 0.9;
         transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+        min-height: auto; /* На мобілках висота автоматична */
     }
 
     .account-wrapper.selected {
@@ -191,18 +242,14 @@
         z-index: 2;
     }
 
-    .account-wrapper.selected .account-card {
-        border-color: #667eea;
-        box-shadow: 0 8px 30px rgba(102, 126, 234, 0.25);
-    }
-
-    /* Додати картку теж велика */
+    /* Кнопка "Додати" теж велика на мобілках */
     .account-wrapper.add-card {
         flex: 0 0 88vw;
+        min-height: 220px; /* Мінімальна висота для мобілок */
     }
 }
 
-/* Для дуже маленьких телефонів трохи зменшимо шрифти */
+/* Адаптація під дуже вузькі телефони */
 @media (max-width: 380px) {
     .card-number-display {
         font-size: 1.1rem;
@@ -216,13 +263,8 @@
 /* Ландшафт на телефонах (поворот) */
 @media (max-height: 500px) and (orientation: landscape) {
     .account-wrapper {
-        /* У ландшафті робимо їх вужчими, щоб влазили по висоті */
         flex: 0 0 300px;
         width: 300px;
-    }
-
-    .card-display {
-        padding: 0.75rem;
-        margin-bottom: 0.75rem;
+        min-height: 200px;
     }
 }
