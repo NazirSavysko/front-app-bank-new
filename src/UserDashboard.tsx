@@ -1,26 +1,18 @@
-import React, { useCallback, useEffect, useRef, useState } from 'react';
+import React, {useCallback, useEffect, useRef, useState} from 'react';
 import AccountsSection from './selections/account/AccountsSection.tsx';
 import TransactionsSection from './selections/transation/TransactionsSection.tsx';
 import PaymentsSection from './selections/payment/PaymentsSection.tsx';
 import TransfersSection from './selections/transfer/TransfersSection.tsx';
 import AnalyticsSection from './selections/analytic/AnalyticsSection.tsx';
-import type { CustomerData, Account } from './types';
+import type {CustomerData, Account} from './types';
 import './UserDashboard.css';
 
-/**
- * The main dashboard component orchestrates high level state management
- * for accounts, transactions, payments, transfers and analytics. Each
- * subsection (tab) is rendered by a dedicated child component. Shared
- * state such as the selected account index and filters lives here.
- */
 const UserDashboard: React.FC = () => {
     const [customer, setCustomer] = useState<CustomerData | null>(null);
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState('');
     const [selectedTab, setSelectedTab] =
-        useState<'accounts' | 'transactions' | 'payments' | 'transfers' | 'analytics'>(
-            'accounts'
-        );
+        useState<'accounts' | 'transactions' | 'payments' | 'transfers' | 'analytics'>('accounts');
     const [selectedAccountIndex, setSelectedAccountIndex] = useState(0);
     const [showAddModal, setShowAddModal] = useState(false);
     const [showProfile, setShowProfile] = useState(false);
@@ -28,7 +20,6 @@ const UserDashboard: React.FC = () => {
     const [accountCreating, setAccountCreating] = useState(false);
     const [accountError, setAccountError] = useState('');
     const [copyMessage, setCopyMessage] = useState('');
-    const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
     // Transaction filters
     const [filterStartDate, setFilterStartDate] = useState('');
@@ -40,7 +31,7 @@ const UserDashboard: React.FC = () => {
     const [selectedMonth, setSelectedMonth] = useState<number>(new Date().getMonth());
     const [selectedYear, setSelectedYear] = useState<number>(new Date().getFullYear());
 
-    // Initialize analytics account when customer data is loaded
+    // Initialize analytics account
     useEffect(() => {
         if (customer?.accounts.length && !selectedAnalyticsAccount) {
             setSelectedAnalyticsAccount(customer.accounts[0].accountNumber);
@@ -51,7 +42,7 @@ const UserDashboard: React.FC = () => {
     const refreshIntervalRef = useRef<number | null>(null);
     const lastActivityRef = useRef<Date>(new Date());
 
-    // Fetch current customer data from backend
+    // Fetch customer data
     const fetchCustomerData = useCallback(async (silent = false) => {
         if (!silent) setLoading(true);
         setError('');
@@ -80,12 +71,11 @@ const UserDashboard: React.FC = () => {
         }
     }, []);
 
-    // Initial data load
     useEffect(() => {
         fetchCustomerData(false);
     }, [fetchCustomerData]);
 
-    // Set up periodic refresh when user is active
+    // Auto Refresh
     useEffect(() => {
         if (!customer) return;
         const startAutoRefresh = () => {
@@ -105,7 +95,7 @@ const UserDashboard: React.FC = () => {
         };
     }, [customer, fetchCustomerData]);
 
-    // Refresh on focus or visibility change
+    // Visibility change refresh
     useEffect(() => {
         const handleVisibilityChange = () => {
             if (!document.hidden && customer) {
@@ -127,24 +117,22 @@ const UserDashboard: React.FC = () => {
         };
     }, [customer, fetchCustomerData]);
 
-    // Track user activity to reset inactivity timer
+    // Activity tracker
     useEffect(() => {
         const updateActivity = () => (lastActivityRef.current = new Date());
         const events = ['mousedown', 'mousemove', 'keypress', 'scroll', 'touchstart', 'click'];
-        events.forEach(evt => document.addEventListener(evt, updateActivity, { passive: true }));
+        events.forEach(evt => document.addEventListener(evt, updateActivity, {passive: true}));
         return () => {
             events.forEach(evt => document.removeEventListener(evt, updateActivity));
         };
     }, []);
 
-    // Auto-hide copy toast
     useEffect(() => {
         if (!copyMessage) return;
         const timer = setTimeout(() => setCopyMessage(''), 3000);
         return () => clearTimeout(timer);
     }, [copyMessage]);
 
-    // Сброс формы создания счета при каждом открытии модалки
     useEffect(() => {
         if (showAddModal) {
             setAccountError('');
@@ -152,7 +140,6 @@ const UserDashboard: React.FC = () => {
         }
     }, [showAddModal]);
 
-    // Handle creating new account
     const handleAddAccount = async () => {
         setAccountCreating(true);
         setAccountError('');
@@ -164,7 +151,7 @@ const UserDashboard: React.FC = () => {
                     'Content-Type': 'application/json',
                     Authorization: token ? `Bearer ${token}` : ''
                 },
-                body: JSON.stringify({ accountType: newAccountType })
+                body: JSON.stringify({accountType: newAccountType})
             });
             if (!res.ok) {
                 const body = await res.json().catch(() => ({} as { message?: string }));
@@ -173,18 +160,15 @@ const UserDashboard: React.FC = () => {
                 setAccountCreating(false);
                 return;
             }
-            // Предполагаем, что сервер возвращает созданный аккаунт
             const createdAccount: Account = await res.json();
             setCustomer(prev => {
                 if (!prev) return prev;
-                const updated = { ...prev, accounts: [...prev.accounts, createdAccount] };
-                // Выбираем добавлений рахунок
+                const updated = {...prev, accounts: [...prev.accounts, createdAccount]};
                 setSelectedAccountIndex(updated.accounts.length - 1);
                 return updated;
             });
             setShowAddModal(false);
             setCopyMessage('Рахунок створено');
-            // Сброс формы после успешного создания
             setNewAccountType('UAH');
             setAccountError('');
         } catch {
@@ -194,7 +178,6 @@ const UserDashboard: React.FC = () => {
         }
     };
 
-    // Закрыть модалку и сбросить форму
     const handleCloseAddModal = () => {
         setShowAddModal(false);
         setNewAccountType('UAH');
@@ -202,11 +185,9 @@ const UserDashboard: React.FC = () => {
         setAccountCreating(false);
     };
 
-    // Tab selections handler
     const handleTabSelect = useCallback(
         (tab: 'accounts' | 'transactions' | 'payments' | 'transfers' | 'analytics') => {
             setSelectedTab(tab);
-            setIsMobileMenuOpen(false);
             lastActivityRef.current = new Date();
             if (tab === 'transactions' && customer) {
                 fetchCustomerData(true);
@@ -215,7 +196,6 @@ const UserDashboard: React.FC = () => {
         [customer, fetchCustomerData]
     );
 
-    // Determine content for each tab
     const renderCurrentTab = () => {
         if (!customer) return null;
         switch (selectedTab) {
@@ -292,22 +272,28 @@ const UserDashboard: React.FC = () => {
                             <p className="dashboard-subtitle">Керуйте своїми фінансами легко та безпечно</p>
                         </div>
                         <div className="dashboard-actions">
-                            <button className="profile-button" onClick={() => setShowProfile(!showProfile)} aria-label="Відкрити профіль">
+                            <button className="profile-button" onClick={() => setShowProfile(!showProfile)}
+                                    aria-label="Відкрити профіль">
                                 <div className="profile-avatar">
                                     {customer ? `${customer.firstName.charAt(0)}${customer.lastName.charAt(0)}`.toUpperCase() : 'U'}
                                 </div>
                             </button>
-                            <button className="mobile-menu-toggle d-lg-none" onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)} aria-label="Відкрити меню">
-                                ☰
-                            </button>
                         </div>
                     </div>
                 </div>
-                <div className={`dashboard-tabs ${isMobileMenuOpen ? 'mobile-open' : ''}`}>
-                    <button className={`tab-button ${selectedTab === 'accounts' ? 'active' : ''}`} onClick={() => handleTabSelect('accounts')}>💳 Рахунки</button>
-                    <button className={`tab-button ${selectedTab === 'transactions' ? 'active' : ''}`} onClick={() => handleTabSelect('transactions')}>📊 Транзакції</button>
-                    <button className={`tab-button ${selectedTab === 'payments' ? 'active' : ''}`} onClick={() => handleTabSelect('payments')}>💰 Платежі</button>
-                    <button className={`tab-button ${selectedTab === 'transfers' ? 'active' : ''}`} onClick={() => handleTabSelect('transfers')}>🔄 Перекази</button>
+                <div className="dashboard-tabs">
+                    <button className={`tab-button ${selectedTab === 'accounts' ? 'active' : ''}`}
+                            onClick={() => handleTabSelect('accounts')}>💳 Рахунки
+                    </button>
+                    <button className={`tab-button ${selectedTab === 'transactions' ? 'active' : ''}`}
+                            onClick={() => handleTabSelect('transactions')}>📊 Транзакції
+                    </button>
+                    <button className={`tab-button ${selectedTab === 'payments' ? 'active' : ''}`}
+                            onClick={() => handleTabSelect('payments')}>💰 Платежі
+                    </button>
+                    <button className={`tab-button ${selectedTab === 'transfers' ? 'active' : ''}`}
+                            onClick={() => handleTabSelect('transfers')}>🔄 Перекази
+                    </button>
                 </div>
                 {loading && (
                     <div className="loading">
@@ -318,7 +304,8 @@ const UserDashboard: React.FC = () => {
                 {error && (
                     <div className="dashboard-section">
                         <div className="error-message">{error}</div>
-                        <button className="btn btn-primary" onClick={() => fetchCustomerData(false)}>Спробувати знову</button>
+                        <button className="btn btn-primary" onClick={() => fetchCustomerData(false)}>Спробувати знову
+                        </button>
                     </div>
                 )}
                 {!loading && !error && (
@@ -336,7 +323,8 @@ const UserDashboard: React.FC = () => {
                     </div>
                 )}
             </div>
-            {/* Profile panel */}
+
+            {/* Profile Sidebar */}
             <div className={`profile-overlay ${showProfile ? 'open' : ''}`} onClick={() => setShowProfile(false)}></div>
             <div className={`profile-panel ${showProfile ? 'open' : ''}`}>
                 <div className="profile-header">
@@ -380,13 +368,15 @@ const UserDashboard: React.FC = () => {
                     </div>
                 </div>
             </div>
+
             {/* Add account modal */}
             {showAddModal && (
                 <div className="modal-overlay">
                     <div className="modal-content add-account-modal">
                         <div className="modal-header">
                             <h3 className="modal-title">Створити новий рахунок</h3>
-                            <button className="modal-close" onClick={handleCloseAddModal} aria-label="Закрити модальне вікно">
+                            <button className="modal-close" onClick={handleCloseAddModal}
+                                    aria-label="Закрити модальне вікно">
                                 ×
                             </button>
                         </div>

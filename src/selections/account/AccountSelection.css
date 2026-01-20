@@ -1,276 +1,228 @@
-/* Горизонтальний список рахунків */
+/* =========================================
+   DESKTOP DEFAULT (GRID)
+   На великих екранах це сітка
+   ========================================= */
 .accounts-list {
-    display: flex;
-    gap: 1rem;
-    overflow-x: auto;
-    padding: 0.5rem 0;
-    scrollbar-width: thin;
-    scrollbar-color: rgba(102, 126, 234, 0.3) transparent;
-    scroll-snap-type: x mandatory;
-    -webkit-overflow-scrolling: touch;
-}
-.accounts-list::-webkit-scrollbar {
-    height: 6px;
-}
-.accounts-list::-webkit-scrollbar-track {
-    background: rgba(255, 255, 255, 0.1);
-    border-radius: 3px;
-}
-.accounts-list::-webkit-scrollbar-thumb {
-    background: rgba(102, 126, 234, 0.3);
-    border-radius: 3px;
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+    gap: 1.5rem;
+    padding: 0.5rem 0.25rem;
+    list-style: none;
+    margin: 0;
 }
 
 .account-wrapper {
-    flex: 0 0 280px;
     cursor: pointer;
     transition: transform 0.2s;
-    scroll-snap-align: start;
+    /* На ПК висота підлаштовується під контент, але не менше 200px */
+    min-height: 220px;
 }
+
 .account-wrapper:hover {
-    transform: scale(1.02);
+    transform: translateY(-4px);
 }
+
 .account-wrapper.selected .account-card {
     border: 2px solid #667eea;
-    box-shadow: 0 8px 32px rgba(102, 126, 234, 0.3);
+    box-shadow: 0 10px 25px rgba(102, 126, 234, 0.2);
+    transform: scale(1.02);
 }
 
-/* Карточка рахунку */
+/* Карточка рахунку (Базовий стиль) */
 .account-card {
     background: rgba(255, 255, 255, 0.95);
-    border-radius: 16px;
-    padding: 1.25rem;
-    box-shadow: 0 4px 20px rgba(31, 38, 135, 0.2);
-    backdrop-filter: blur(4px);
-    border: 1px solid rgba(255, 255, 255, 0.18);
-    transition: 0.3s;
-    min-height: 320px;
-    display: flex;
-    flex-direction: column;
-}
-.account-card:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 8px 30px rgba(31, 38, 135, 0.3);
-}
-
-/* Карточка "Додати рахунок" */
-.account-wrapper.add-card .account-card.add-account {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    border: 2px dashed #cbd5e0;
-    background: rgba(255, 255, 255, 0.7);
-    color: #718096;
-    font-weight: 600;
-    text-align: center;
-}
-.account-wrapper.add-card .account-card.add-account:hover {
-    border-color: #667eea;
-    color: #667eea;
-    background: rgba(102, 126, 234, 0.05);
-}
-.plus-icon {
-    font-size: 2rem;
-    margin-bottom: 0.5rem;
-}
-
-/* Візуальна карта */
-.card-display {
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-    border-radius: 12px;
-    padding: 1rem;
-    color: #fff;
-    position: relative;
-    margin-bottom: 1rem;
-    min-height: 160px;
+    border-radius: 20px;
+    padding: 1.5rem;
+    box-shadow: 0 4px 20px rgba(31, 38, 135, 0.15);
+    backdrop-filter: blur(10px);
+    border: 1px solid rgba(255, 255, 255, 0.4);
+    transition: all 0.3s ease;
+    height: 100%;
     display: flex;
     flex-direction: column;
     justify-content: space-between;
 }
-.bank-name {
-    font-size: 1rem;
-    font-weight: 700;
-    text-transform: uppercase;
-    letter-spacing: 1px;
-}
-.card-number-display {
-    font-size: 1.1rem;
+
+/* Картка "Додати рахунок" */
+.account-wrapper.add-card .account-card.add-account {
+    align-items: center;
+    justify-content: center;
+    border: 2px dashed #cbd5e0;
+    background: rgba(255, 255, 255, 0.6);
+    color: #718096;
     font-weight: 600;
-    letter-spacing: 1px;
-    cursor: pointer;
-    margin: 0.75rem 0;
-    padding: 0.5rem;
-    border-radius: 6px;
-    transition: background-color 0.2s;
-}
-.card-number-display:hover {
-    background-color: rgba(255, 255, 255, 0.1);
-}
-.card-footer {
-    display: flex;
-    justify-content: flex-end;
-}
-.card-cvv-display {
-    position: absolute;
-    top: 1rem;
-    right: 1rem;
-    cursor: pointer;
-    padding: 0.4rem;
-    border-radius: 6px;
-    transition: 0.2s;
-    font-size: 0.8rem;
-}
-.card-cvv-display:hover {
-    background-color: rgba(255, 255, 255, 0.1);
+    text-align: center;
+    gap: 1rem;
 }
 
-/* Інформація про картку */
-.account-card .card-info {
+.account-wrapper.add-card:hover .account-card.add-account {
+    border-color: #667eea;
+    color: #667eea;
+    background: rgba(255, 255, 255, 0.9);
+}
+
+.plus-icon {
+    font-size: 2.5rem;
+    font-weight: 300;
+    line-height: 1;
+}
+
+/* Внутрішня візуальна картка (кольорова) */
+.card-display {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    border-radius: 14px;
+    padding: 1.25rem;
+    color: #fff;
+    position: relative;
+    margin-bottom: 1.25rem;
+    /* Фіксоване співвідношення сторін схоже на реальну картку */
+    aspect-ratio: 1.586 / 1;
     display: flex;
     flex-direction: column;
-    gap: 0.6rem;
-    flex: 1;
+    justify-content: space-between;
+    box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3);
 }
-.card-balance {
-    font-size: 1.2rem;
-    font-weight: 700;
-    color: #2d3748;
-}
-.card-status {
+
+.bank-name {
     font-size: 0.9rem;
-    color: #718096;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 1.5px;
+    opacity: 0.9;
 }
-.account-number {
+
+.card-number-display {
+    font-family: 'Courier New', monospace;
+    font-size: 1.3rem;
+    font-weight: 700;
+    letter-spacing: 2px;
+    text-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+    margin: auto 0;
+    text-align: center;
+}
+
+.card-footer {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-end;
+}
+
+.card-holder {
+    font-size: 0.85rem;
+    text-transform: uppercase;
+    opacity: 0.9;
+}
+
+.card-cvv-display {
     font-size: 0.8rem;
-    color: #4a5568;
-    cursor: pointer;
+    background: rgba(0, 0, 0, 0.2);
+    padding: 2px 6px;
+    border-radius: 4px;
+}
+
+/* Блок з балансом */
+.card-info {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+}
+
+.card-balance {
+    font-size: 1.5rem;
+    font-weight: 800;
+    color: #2d3748;
+    background: linear-gradient(135deg, #2d3748 0%, #4a5568 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+}
+
+.account-number {
+    font-size: 0.85rem;
+    color: #718096;
+    background: #f7fafc;
     padding: 0.5rem;
-    border-radius: 6px;
-    transition: 0.2s;
-    word-break: break-all;
-    line-height: 1.4;
-}
-.account-number:hover {
-    background: rgba(0, 0, 0, 0.05);
+    border-radius: 8px;
+    font-family: monospace;
 }
 
-/* --------------- МЕДІА --------------- */
-@media (max-width: 1024px) {
-    .account-wrapper {
-        flex: 0 0 230px;
-    }
-    .account-card {
-        min-height: 260px;
-        padding: 1rem;
-    }
-    .card-display {
-        min-height: 130px;
-    }
-    .bank-name {
-        font-size: 0.85rem;
-    }
-    .card-number-display {
-        font-size: 0.9rem;
-    }
-    .card-balance {
-        font-size: 1rem;
-    }
-}
-
-/* 768px: суттєво компактніше */
-@media (max-width: 768px) {
+/* =========================================
+   MOBILE & TABLET (HORIZONTAL CAROUSEL)
+   ========================================= */
+@media (max-width: 992px) {
     .accounts-list {
-        gap: 0.75rem;
-        padding: 0.25rem 0;
+        display: flex; /* Вмикаємо горизонт */
+        grid-template-columns: none;
+        flex-wrap: nowrap; /* Забороняємо перенос */
+        overflow-x: auto; /* Скролл */
+        gap: 1rem;
+        padding: 0.5rem 1rem 1.5rem; /* Відступи по боках, щоб перша картка не прилипала */
+
+        /* Прилипання (Snap) */
+        scroll-snap-type: x mandatory;
+
+        /* Ховаємо скроллбар */
+        scrollbar-width: none;
+        -ms-overflow-style: none;
+
+        /* Плавність на iOS */
+        -webkit-overflow-scrolling: touch;
     }
+
+    .accounts-list::-webkit-scrollbar {
+        display: none;
+    }
+
     .account-wrapper {
-        flex: 0 0 190px;
+        /* ГОЛОВНЕ: Ширина 88% від екрану */
+        flex: 0 0 88vw;
+        width: 88vw;
+        scroll-snap-align: center; /* Центруємо при скролі */
+
+        /* Трохи зменшуємо неактивні картки для ефекту глибини */
+        transform: scale(0.96);
+        opacity: 0.9;
+        transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
     }
-    .account-card {
-        min-height: 230px;
-        padding: 0.9rem;
+
+    .account-wrapper.selected {
+        transform: scale(1);
+        opacity: 1;
+        z-index: 2;
     }
-    .card-display {
-        min-height: 100px;
-        padding: 0.7rem;
+
+    .account-wrapper.selected .account-card {
+        border-color: #667eea;
+        box-shadow: 0 8px 30px rgba(102, 126, 234, 0.25);
     }
-    .bank-name {
-        font-size: 0.8rem;
-    }
-    .card-number-display {
-        font-size: 0.85rem;
-    }
-    .card-balance {
-        font-size: 0.9rem;
-    }
-    .card-status {
-        font-size: 0.7rem;
-    }
-    .account-number {
-        font-size: 0.7rem;
+
+    /* Додати картку теж велика */
+    .account-wrapper.add-card {
+        flex: 0 0 88vw;
     }
 }
 
-/* 480px: ще менше */
-@media (max-width: 480px) {
-    .accounts-list {
-        gap: 0.6rem;
-    }
-    .account-wrapper {
-        flex: 0 0 170px;
-    }
-    .account-card {
-        min-height: 200px;
-        padding: 0.8rem;
-    }
-    .card-display {
-        min-height: 90px;
-        padding: 0.65rem;
-    }
-    .bank-name {
-        font-size: 0.7rem;
-    }
+/* Для дуже маленьких телефонів трохи зменшимо шрифти */
+@media (max-width: 380px) {
     .card-number-display {
-        font-size: 0.8rem;
+        font-size: 1.1rem;
     }
+
     .card-balance {
-        font-size: 0.85rem;
-    }
-    .card-status {
-        font-size: 0.65rem;
-    }
-    .account-number {
-        font-size: 0.65rem;
+        font-size: 1.3rem;
     }
 }
 
-/* 360px і менше: ультракомпактно */
-@media (max-width: 360px) {
+/* Ландшафт на телефонах (поворот) */
+@media (max-height: 500px) and (orientation: landscape) {
     .account-wrapper {
-        flex: 0 0 150px;
+        /* У ландшафті робимо їх вужчими, щоб влазили по висоті */
+        flex: 0 0 300px;
+        width: 300px;
     }
-    .account-card {
-        min-height: 180px;
-        padding: 0.7rem;
-    }
+
     .card-display {
-        min-height: 80px;
-        padding: 0.6rem;
-    }
-    .bank-name {
-        font-size: 0.65rem;
-    }
-    .card-number-display {
-        font-size: 0.75rem;
-    }
-    .card-balance {
-        font-size: 0.8rem;
-    }
-    .card-status {
-        font-size: 0.6rem;
-    }
-    .account-number {
-        font-size: 0.6rem;
+        padding: 0.75rem;
+        margin-bottom: 0.75rem;
     }
 }

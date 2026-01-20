@@ -6,17 +6,11 @@ import { VerifyEmailForm } from './VerifyEmailForm';
 import { ForgotPasswordForm } from './ForgotPasswordForm';
 import UserDashboard from './UserDashboard';
 
-/**
- * Top level application component. Controls navigation between login,
- * registration, email verification and password reset screens.
- * After a successful login redirects user by role.
- */
 function App() {
     type Page = 'login' | 'register' | 'verify' | 'forgot' | 'user' | 'admin';
     const [page, setPage] = useState<Page>('login');
     const [emailToVerify, setEmailToVerify] = useState('');
 
-    /** Redirect based on role from backend */
     const handleLoginSuccess = (role: string) => {
         if (role && role.toUpperCase().includes('ADMIN')) {
             setPage('admin');
@@ -38,7 +32,6 @@ function App() {
         setPage('login');
     };
 
-    // Включаем блокировку скролла только на странице пользователя
     useEffect(() => {
         const cls = 'orientation-lock-open';
         if (page === 'user') {
@@ -79,11 +72,11 @@ function App() {
             )}
             {page === 'user' && (
                 <>
-                    <div className="orientation-lock" role="dialog" aria-modal="true" aria-label="Поверніть телефон">
+                    <div className="orientation-lock">
                         <div className="orientation-box">
-                            <div className="orientation-icon" aria-hidden>📱↔️</div>
+                            <div className="orientation-icon">📱</div>
                             <h2>Поверніть телефон</h2>
-                            <p>Будь ласка, переверніть пристрій у горизонтальне положення для комфортної роботи.</p>
+                            <p>Будь ласка, переверніть пристрій у вертикальне положення.</p>
                         </div>
                     </div>
                     <UserDashboard />

@@ -1,256 +1,368 @@
-/* Reset */
-* { box-sizing: border-box; margin: 0; padding: 0; }
+/* =========================================
+   GLOBAL RESET & BASICS
+   ========================================= */
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+    -webkit-tap-highlight-color: transparent;
+}
 
-/* Контейнер дашборда и общий layout */
 .user-dashboard {
-    min-height: 100vh;
+    min-height: 100dvh;
     background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
     padding: 0.5rem;
     font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
     overflow-x: hidden;
+    display: flex;
+    flex-direction: column;
 }
-.dashboard-content { max-width: 1400px; margin: 0 auto; display: grid; grid-template-columns: 1fr; gap: 1rem; }
-.dashboard-grid { display: grid; grid-template-columns: 1fr; gap: 1rem; }
 
+.dashboard-content {
+    width: 100%;
+    max-width: 1400px;
+    margin: 0 auto;
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+    flex-grow: 1;
+}
+
+/* =========================================
+   HEADER (COMPACT MOBILE ROW)
+   ========================================= */
 .dashboard-header {
     background: rgba(255, 255, 255, 0.95);
-    padding: 1rem; border-radius: 12px;
+    padding: 0.75rem 1rem; /* Уменьшили отступы */
+    border-radius: 16px;
     box-shadow: 0 4px 20px rgba(31, 38, 135, 0.2);
-    backdrop-filter: blur(4px);
+    backdrop-filter: blur(10px);
     border: 1px solid rgba(255, 255, 255, 0.18);
-    text-align: center;
 }
-.dashboard-title { font-size: 1.3rem; font-weight: 700; color: #2d3748; margin: 0; }
-.dashboard-subtitle { font-size: 0.85rem; color: #718096; margin: 0.5rem 0 0; }
 
-/* Табы */
-.dashboard-tabs {
-    display: flex; background: rgba(255,255,255,0.9);
-    border-radius: 12px; padding: .5rem; gap: .25rem; overflow-x: auto;
-    scrollbar-width: none; -ms-overflow-style: none;
+.dashboard-header-content {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    /* Ключевое: запрещаем перенос, всегда в строку */
+    flex-wrap: nowrap;
+    gap: 1rem;
 }
-.dashboard-tabs::-webkit-scrollbar { display: none; }
-.tab-button {
-    flex: 1; min-width: max-content; padding: .75rem 1rem; border: 0; background: transparent;
-    border-radius: 8px; font-size: .85rem; font-weight: 600; color: #718096; cursor: pointer; transition: .2s;
+
+.dashboard-info {
+    /* Чтобы текст обрезался, если не влезает, а не ломал верстку */
+    min-width: 0;
+    flex: 1;
+}
+
+.dashboard-title {
+    font-size: 1.25rem;
+    font-weight: 700;
+    color: #2d3748;
+    line-height: 1.2;
     white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis; /* Троеточие, если имя очень длинное */
 }
-.tab-button.active { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: #fff; }
-.tab-button:hover:not(.active) { background: rgba(102,126,234,.1); color: #667eea; }
 
-/* Заголовок секции + общий контейнер секции */
+/* На ПК показываем подзаголовок, на мобиле скроем для компактности */
+.dashboard-subtitle {
+    font-size: 0.85rem;
+    color: #718096;
+    margin-top: 0.2rem;
+}
+
+.dashboard-actions {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    flex-shrink: 0;
+}
+
+.profile-button {
+    background: none;
+    border: 0;
+    padding: 0;
+    cursor: pointer;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: transform 0.2s;
+}
+
+.profile-button:active {
+    transform: scale(0.95);
+}
+
+.profile-avatar {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: #fff;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 700;
+    font-size: 1rem;
+    border: 2px solid rgba(255, 255, 255, 0.5);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+/* =========================================
+   TABS (HORIZONTAL SCROLL)
+   ========================================= */
+.dashboard-tabs {
+    display: flex;
+    flex-direction: row;
+    gap: 0.5rem;
+    background: rgba(255, 255, 255, 0.9);
+    border-radius: 16px;
+    padding: 0.5rem;
+    overflow-x: auto;
+    overflow-y: hidden;
+    white-space: nowrap;
+    scrollbar-width: none;
+    -ms-overflow-style: none;
+    -webkit-overflow-scrolling: touch;
+}
+
+.dashboard-tabs::-webkit-scrollbar {
+    display: none;
+}
+
+.tab-button {
+    flex: 0 0 auto;
+    padding: 0.6rem 1rem;
+    border: 0;
+    background: transparent;
+    border-radius: 10px;
+    font-size: 0.9rem;
+    font-weight: 600;
+    color: #718096;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.tab-button.active {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: #fff;
+    box-shadow: 0 2px 10px rgba(102, 126, 234, 0.4);
+}
+
+/* =========================================
+   MAIN SECTIONS
+   ========================================= */
+.dashboard-grid {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+    flex-grow: 1;
+}
+
 .dashboard-section {
-    background: rgba(255,255,255,.95);
-    border-radius: 16px; padding: 1rem;
-    box-shadow: 0 4px 20px rgba(31,38,135,.2);
-    backdrop-filter: blur(4px); border: 1px solid rgba(255,255,255,.18);
+    background: rgba(255, 255, 255, 0.95);
+    border-radius: 16px;
+    padding: 1.25rem;
+    box-shadow: 0 4px 20px rgba(31, 38, 135, 0.15);
+    backdrop-filter: blur(5px);
+    border: 1px solid rgba(255, 255, 255, 0.4);
+    display: flex;
+    flex-direction: column;
 }
+
 .section-title {
-    font-size: 1.2rem; font-weight: 600; color: #2d3748;
-    margin-bottom: 1rem; padding-bottom: .5rem; border-bottom: 2px solid #e2e8f0;
+    font-size: 1.1rem;
+    font-weight: 700;
+    color: #2d3748;
+    margin-bottom: 1rem;
+    padding-bottom: 0.75rem;
+    border-bottom: 2px solid #edf2f7;
 }
 
-/* Кнопки */
-.btn {
-    padding: .75rem 1.5rem; border: 0; border-radius: 10px; font-size: .9rem; font-weight: 600;
-    font-family: inherit; cursor: pointer; transition: .3s; text-transform: uppercase; letter-spacing: .5px;
-    display: inline-flex; align-items: center; justify-content: center; gap: .5rem;
-}
-.btn-primary { background: linear-gradient(135deg,#667eea 0%,#764ba2 100%); color:#fff; }
-.btn-primary:hover { background: linear-gradient(135deg,#5a67d8 0%,#6b46c1 100%); transform: translateY(-1px); box-shadow: 0 4px 15px rgba(102,126,234,.3); }
-.btn-secondary { background: rgba(113,128,150,.1); color:#4a5568; border: 1px solid rgba(113,128,150,.3); }
-.btn-secondary:hover { background: rgba(113,128,150,.2); color:#2d3748; transform: translateY(-1px); }
-.btn-danger { background: linear-gradient(135deg,#f56565 0%,#e53e3e 100%); color:#fff; border: 0; }
-.btn-danger:hover { background: linear-gradient(135deg,#e53e3e 0%,#c53030 100%); transform: translateY(-1px); box-shadow: 0 4px 15px rgba(245,101,101,.4); }
-.btn:disabled { opacity:.6; cursor:not-allowed; transform:none; }
-.btn:disabled:hover { transform:none; box-shadow:none; }
-
-/* Toast */
-.toast {
-    position: fixed; top: 20px; right:20px; background: rgba(255,255,255,.95); color:#2d3748;
-    padding: 1rem 1.5rem; border-radius:8px; box-shadow:0 4px 12px rgba(0,0,0,.15);
-    backdrop-filter: blur(8px); border: 1px solid rgba(255,255,255,.2);
-    z-index:1000; opacity:0; transform: translateX(100%); transition:.3s; max-width:300px; font-size:.9rem;
-}
-.toast.show { opacity:1; transform: translateX(0); }
-.toast.error { background:#e53e3e; color:#fff; }
-.toast.warning { background:#dd6b20; color:#fff; }
-
-/* Loading */
-.loading { display:flex; align-items:center; justify-content:center; padding:2rem; color:#718096; }
-.spinner { width:40px; height:40px; border:3px solid #e2e8f0; border-top:3px solid #667eea; border-radius:50%; animation: spin 1s linear infinite; margin-right:1rem; }
-@keyframes spin { 0%{transform:rotate(0)} 100%{transform:rotate(360deg)} }
-
-/* Модалки (база) */
+/* =========================================
+   MODALS & PROFILE
+   ========================================= */
 .modal-overlay {
-    position: fixed; inset:0; background: rgba(0,0,0,.5);
-    display:flex; align-items:center; justify-content:center; z-index:1000; padding:1rem;
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.6);
+    backdrop-filter: blur(4px);
+    z-index: 2000;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 1rem;
 }
+
 .modal-content {
-    background:#fff; border-radius:16px; padding:1.5rem; max-width:500px; width:100%;
-    max-height:90vh; overflow-y:auto; box-shadow:0 20px 40px rgba(0,0,0,.3);
+    background: #fff;
+    border-radius: 20px;
+    width: 100%;
+    max-width: 480px;
+    display: flex;
+    flex-direction: column;
+    box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+    animation: modalPop 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+    max-height: 90dvh;
 }
-.modal-header { display:flex; justify-content:space-between; align-items:center; margin-bottom:1.5rem; padding-bottom:1rem; border-bottom:1px solid #e2e8f0; }
-.modal-title { font-size:1.3rem; font-weight:700; color:#2d3748; }
-.modal-close { background:none; border:none; font-size:1.5rem; cursor:pointer; color:#718096; padding:.5rem; line-height:1; }
-.modal-close:hover { color:#2d3748; }
-.modal-footer { display:flex; gap:1rem; margin-top:1.5rem; padding-top:1rem; border-top:1px solid #e2e8f0; }
 
-/* Профиль */
+.modal-header {
+    padding: 1.25rem 1.5rem;
+    border-bottom: 1px solid #f1f5f9;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-shrink: 0;
+}
+
+.modal-body {
+    padding: 1.5rem;
+    overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
+}
+
+.modal-footer {
+    padding: 1.25rem 1.5rem;
+    border-top: 1px solid #f1f5f9;
+    display: flex;
+    justify-content: flex-end;
+    gap: 0.75rem;
+    background: #f8fafc;
+    border-radius: 0 0 20px 20px;
+    flex-shrink: 0;
+}
+
+@keyframes modalPop {
+    from {
+        opacity: 0;
+        transform: scale(0.95) translateY(10px);
+    }
+    to {
+        opacity: 1;
+        transform: scale(1) translateY(0);
+    }
+}
+
+.currency-options {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.75rem;
+}
+
+.currency-option {
+    flex: 1 1 140px;
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    padding: 0.75rem;
+    border-radius: 12px;
+    border: 2px solid #e2e8f0;
+    background: #fff;
+    transition: all 0.2s;
+}
+
+/* Profile Sidebar */
 .profile-panel {
-    position: fixed; top:0; right:-100%; width:100%; max-width:400px; height:100vh; background:#fff;
-    box-shadow:-4px 0 20px rgba(0,0,0,.2); transition:right .3s; z-index:1001; overflow-y:auto;
+    position: fixed;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    width: 100%;
+    max-width: 360px;
+    background: #fff;
+    z-index: 2001;
+    transform: translateX(100%);
+    transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    display: flex;
+    flex-direction: column;
 }
-.profile-panel.open { right:0; }
-.profile-header { padding:1.5rem; background:linear-gradient(135deg,#667eea 0%,#764ba2 100%); color:#fff; }
-.profile-content { padding:1.5rem; }
-.profile-overlay { position:fixed; inset:0; background: rgba(0,0,0,.5); z-index:1000; opacity:0; pointer-events:none; transition:opacity .3s; }
-.profile-overlay.open { opacity:1; pointer-events:all; }
-.profile-avatar { width:40px; height:40px; border-radius:50%; background:linear-gradient(135deg,#667eea 0%,#764ba2 100%); color:#fff; display:flex; align-items:center; justify-content:center; font-weight:600; font-size:.9rem; border:2px solid rgba(255,255,255,.3); }
-.profile-avatar.large { width:60px; height:60px; font-size:1.2rem; }
 
-/* Header layout helpers */
-.dashboard-header-content { display:flex; justify-content:space-between; align-items:center; gap:1rem; }
-.dashboard-info { flex:1; }
-.dashboard-actions { display:flex; align-items:center; gap:.75rem; }
-.profile-button { background:none; border:0; cursor:pointer; padding:0; border-radius:50%; transition:.2s; }
-.profile-button:hover { transform: scale(1.05); }
-.mobile-menu-toggle {
-    display:none; background: rgba(255,255,255,.2); border:0; color:#4a5568; font-size:1.2rem; padding:.5rem; border-radius:8px; cursor:pointer; transition:.2s;
-    min-height:44px; min-width:44px;
+.profile-panel.open {
+    transform: translateX(0);
 }
-.mobile-menu-toggle:hover { background: rgba(255,255,255,.3); }
 
-/* Раскрытое мобильное меню (без media, по классу) */
-.dashboard-tabs.mobile-open {
-    position:fixed; inset:0; background: rgba(0,0,0,.8); z-index:999; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:1rem; padding:2rem;
+.profile-header {
+    padding: 2rem 1.5rem;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: #fff;
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    flex-shrink: 0;
 }
-.dashboard-tabs.mobile-open .tab-button { width:100%; max-width:300px; padding:1rem 2rem; font-size:1.1rem; background: rgba(255,255,255,.9); color:#2d3748; border-radius:12px; }
-.dashboard-tabs.mobile-open .tab-button.active { background: linear-gradient(135deg,#667eea 0%,#764ba2 100%); color:#fff; }
 
-/* Красивая модалка создания аккаунта */
-.add-account-modal { border:1px solid #e2e8f0; box-shadow: 0 24px 48px rgba(31,41,55,.18); }
-.add-account-modal .modal-header { border-bottom: none; padding-bottom: .5rem; }
-.add-account-modal .modal-title {
-    background: linear-gradient(135deg,#4f46e5 0%, #7c3aed 100%);
-    -webkit-background-clip:text; -webkit-text-fill-color:transparent; background-clip:text; font-weight:800; letter-spacing:.3px;
+.profile-content {
+    flex-grow: 1;
+    padding: 1.5rem;
+    overflow-y: auto;
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
 }
-.add-account-modal .form-group {
-    display:grid; grid-template-columns:1fr; gap:.5rem; background:#f9fafb; border:1px solid #e5e7eb; border-radius:12px; padding:.875rem 1rem;
-}
-.add-account-modal .form-label { font-size:.95rem; font-weight:700; color:#374151; }
-.add-account-modal .modal-footer { display:flex; justify-content:flex-end; gap:.75rem; padding-top:1rem; border-top:1px solid #e5e7eb; }
-.add-account-modal .btn-primary { min-width:190px; border-radius:12px; background: linear-gradient(135deg,#6366f1 0%,#7c3aed 100%); box-shadow: 0 8px 18px rgba(99,102,241,.25); }
-.add-account-modal .btn-primary:hover:not(:disabled){ background: linear-gradient(135deg,#4f46e5 0%,#6d28d9 100%); }
-.add-account-modal .currency-options { display:grid; grid-template-columns: repeat(auto-fit,minmax(180px,1fr)); gap:.75rem; margin-top:.25rem; }
-.add-account-modal .currency-option {
-    display:flex; align-items:center; gap:.75rem; padding:.9rem 1rem; border-radius:14px; border:2px solid #e5e7eb; background:#fff; cursor:pointer; text-align:left; color:#1f2937; font-weight:600;
-}
-.add-account-modal .currency-option:hover { border-color:#c7d2fe; background:#f8fafc; }
-.add-account-modal .currency-option.selected {
-    border-color:#6366f1; background: linear-gradient(135deg, rgba(99,102,241,.08) 0%, rgba(124,58,237,.08) 100%); box-shadow: 0 8px 18px rgba(99,102,241,.15);
-}
-.add-account-modal .currency-badge-large {
-    display:inline-flex; align-items:center; justify-content:center; width:36px; height:36px; border-radius:10px;
-    background: linear-gradient(135deg,#667eea 0%,#764ba2 100%); color:#fff; font-size:1.1rem; font-weight:800; flex-shrink:0;
-}
-.add-account-modal .currency-texts { display:flex; flex-direction:column; line-height:1.15; }
-.add-account-modal .currency-name { font-size:.95rem; color:#111827; }
-.add-account-modal .currency-code { font-size:.8rem; color:#6b7280; }
-.add-account-modal .error-banner {
-    display:flex; align-items:center; gap:8px; margin-top:12px; padding:10px 12px; border-radius:10px;
-    background:#fef2f2; border:1px solid #fecaca; color:#dc2626; font-weight:700;
-}
-.add-account-modal .error-icon { font-size:1rem; }
-.add-account-modal .error-text { color:#dc2626; }
 
-/* Прочие мелочи */
-.loading-spinner { width:20px; height:20px; border:3px solid transparent; border-top:3px solid currentColor; border-radius:50%; animation: spin 1s linear infinite; }
-
-/* Сетка для карточек-полей профиля */
 .profile-info {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
-    gap: 12px;
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
 }
 
-/* Ячейка */
 .info-item {
     display: flex;
     flex-direction: column;
-    gap: 6px;
-    padding: 14px 16px;
-    background: rgba(255, 255, 255, 0.95);
-    border: 1px solid #e2e8f0;
+    padding: 1rem;
+    background: #f8fafc;
     border-radius: 12px;
-    box-shadow: 0 4px 14px rgba(31, 38, 135, 0.1);
-    position: relative;
+    border: 1px solid #e2e8f0;
 }
 
-/* Акцентная полоска слева (красиво, но ненавязчиво) */
-.info-item::before {
-    content: '';
-    position: absolute;
-    left: 0; top: 0; bottom: 0;
-    width: 3px;
-    border-radius: 12px 0 0 12px;
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+.profile-actions {
+    margin-top: auto;
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
 }
 
-/* Заголовок поля (лейбл) */
-.info-item > label {
-    font-size: 12px;
-    line-height: 1;
-    font-weight: 700;
-    text-transform: uppercase;
-    letter-spacing: .5px;
-    color: #6b7280;
-    margin: 0;
+/* =========================================
+   MOBILE SPECIFIC TWEAKS
+   ========================================= */
+@media (max-width: 480px) {
+    /* Делаем хедер супер компактным */
+    .dashboard-header {
+        padding: 0.5rem 0.75rem;
+        border-radius: 12px;
+    }
+
+    .dashboard-title {
+        font-size: 1.1rem; /* Шрифт меньше */
+    }
+
+    /* Скрываем подзаголовок чтобы сэкономить место по высоте */
+    .dashboard-subtitle {
+        display: none;
+    }
+
+    .profile-avatar {
+        width: 36px;
+        height: 36px;
+        font-size: 0.9rem;
+    }
+
+    /* Модалка на весь низ экрана */
+    .modal-content {
+        max-width: 100%;
+        border-radius: 20px 20px 0 0;
+        margin-top: auto;
+        margin-bottom: 0;
+    }
+
+    .modal-overlay {
+        padding: 0;
+        align-items: flex-end;
+    }
+
+    .currency-option {
+        flex: 1 1 100%;
+    }
 }
-
-/* Значение */
-.info-item > span {
-    font-size: 16px;
-    line-height: 1.35;
-    color: #1f2937;
-    font-weight: 600;
-    word-break: break-word;
-}
-/* ================================
-   📱 Телефоны (портрет) И узкий ландшафт
-   ================================ */
-@media (max-width: 480px), (orientation: landscape) and (max-height: 480px) {
-    /* слот/ширина карточки */
-    .accounts-section .account-wrapper { flex: 0 0 136px !important; }
-    .accounts-section .account-wrapper.selected { flex-basis: 128px !important; }
-
-    /* сама карточка */
-    .accounts-section .account-card { min-height: 150px !important; padding: .42rem !important; border-radius: 10px !important; }
-    .accounts-section .account-wrapper.selected .account-card,
-    .accounts-section .account-card.selected { min-height: 144px !important; padding: .38rem !important; }
-
-    /* «пластик» */
-    .accounts-section .card-display { min-height: 56px !important; padding: .3rem !important; }
-    .accounts-section .account-wrapper.selected .card-display,
-    .accounts-section .account-card.selected .card-display { min-height: 52px !important; padding: .26rem !important; }
-
-    /* шрифты — меньше */
-    .accounts-section .bank-name { font-size: .66rem !important; }
-    .accounts-section .card-number-display { font-size: .74rem !important; letter-spacing: .5px !important; }
-    .accounts-section .card-balance { font-size: .76rem !important; }
-    .accounts-section .account-number { font-size: .5rem !important; }
-}
-
-/* ещё более «низкий» ландшафт (например, 320–360px по высоте) */
-@media (orientation: landscape) and (max-height: 360px) {
-    .accounts-section .account-wrapper { flex-basis: 120px !important; }
-    .accounts-section .account-card { min-height: 138px !important; }
-    .accounts-section .card-display { min-height: 50px !important; }
-
-    .accounts-section .bank-name { font-size: .62rem !important; }
-    .accounts-section .card-number-display { font-size: .7rem !important; }
-    .accounts-section .card-balance { font-size: .72rem !important; }
-    .accounts-section .account-number { font-size: .48rem !important; }
-}
-
-

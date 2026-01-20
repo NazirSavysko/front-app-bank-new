@@ -1,626 +1,640 @@
 #root {
-  width: 100%;
-  height: 100%;
-  margin: 0;
-  padding: 0;
-  text-align: left;
+    width: 100%;
+    min-height: 100vh;
+    margin: 0;
+    padding: 0;
+    text-align: left;
+    display: flex;
+    flex-direction: column;
 }
 
 .logo {
-  height: 6em;
-  padding: 1.5em;
-  will-change: filter;
-  transition: filter 300ms;
+    height: 6em;
+    padding: 1.5em;
+    will-change: filter;
+    transition: filter 300ms;
 }
+
 .logo:hover {
-  filter: drop-shadow(0 0 2em #646cffaa);
+    filter: drop-shadow(0 0 2em #646cffaa);
 }
+
 .logo.react:hover {
-  filter: drop-shadow(0 0 2em #61dafbaa);
+    filter: drop-shadow(0 0 2em #61dafbaa);
 }
 
 @keyframes logo-spin {
-  from {
-    transform: rotate(0deg);
-  }
-  to {
-    transform: rotate(360deg);
-  }
+    from {
+        transform: rotate(0deg);
+    }
+    to {
+        transform: rotate(360deg);
+    }
 }
 
 @media (prefers-reduced-motion: no-preference) {
-  a:nth-of-type(2) .logo {
-    animation: logo-spin infinite 20s linear;
-  }
+    a:nth-of-type(2) .logo {
+        animation: logo-spin infinite 20s linear;
+    }
 }
 
 .card {
-  padding: 2em;
+    padding: 2em;
 }
 
 .read-the-docs {
-  color: #888;
+    color: #888;
 }
 
-/* Основные стили приложения с адаптивностью */
 .app {
-  min-height: 100vh;
-  width: 100%;
-  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
-  overflow-x: hidden;
+    min-height: 100vh;
+    width: 100%;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    overflow-x: hidden;
+    display: flex;
+    flex-direction: column;
 }
 
-/* Контейнер приложения */
 .app-container {
-  display: flex;
-  flex-direction: column;
-  min-height: 100vh;
-  position: relative;
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
+    position: relative;
+    flex: 1;
 }
 
-/* Навигация */
 .app-header {
-  background: rgba(255, 255, 255, 0.95);
-  backdrop-filter: blur(10px);
-  border-bottom: 1px solid rgba(0, 0, 0, 0.1);
-  padding: 1rem 0;
-  position: sticky;
-  top: 0;
-  z-index: 100;
+    background: rgba(255, 255, 255, 0.95);
+    backdrop-filter: blur(10px);
+    border-bottom: 1px solid rgba(0, 0, 0, 0.1);
+    padding: 1rem 0;
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    width: 100%;
 }
 
 .nav-container {
-  max-width: 1200px;
-  margin: 0 auto;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding: 0 1rem;
+    width: 100%;
+    max-width: 1400px;
+    margin: 0 auto;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0 1rem;
+    flex-wrap: wrap;
 }
 
 .logo {
-  font-size: 1.5rem;
-  font-weight: 700;
-  color: #667eea;
-  text-decoration: none;
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: #667eea;
+    text-decoration: none;
 }
 
 .nav-menu {
-  display: flex;
-  list-style: none;
-  margin: 0;
-  padding: 0;
-  gap: 1rem;
+    display: flex;
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    gap: 1rem;
+    flex-wrap: wrap;
 }
 
 .nav-item {
-  padding: 0.5rem 1rem;
-  border-radius: 8px;
-  transition: background-color 0.2s ease;
+    padding: 0.5rem 1rem;
+    border-radius: 8px;
+    transition: background-color 0.2s ease;
 }
 
 .nav-item:hover {
-  background-color: rgba(102, 126, 234, 0.1);
+    background-color: rgba(102, 126, 234, 0.1);
 }
 
 .nav-link {
-  color: #4a5568;
-  text-decoration: none;
-  font-weight: 500;
-  transition: color 0.2s ease;
+    color: #4a5568;
+    text-decoration: none;
+    font-weight: 500;
+    transition: color 0.2s ease;
 }
 
 .nav-link:hover {
-  color: #667eea;
+    color: #667eea;
 }
 
 .nav-toggle {
-  display: none;
-  background: none;
-  border: none;
-  font-size: 1.5rem;
-  cursor: pointer;
-  color: #4a5568;
-  padding: 0.5rem;
+    display: none;
+    background: none;
+    border: none;
+    font-size: 1.5rem;
+    cursor: pointer;
+    color: #4a5568;
+    padding: 0.5rem;
 }
 
-/* Основной контент */
 .main-content {
-  flex: 1;
-  width: 100%;
-  position: relative;
+    flex: 1;
+    width: 100%;
+    position: relative;
+    display: flex;
+    flex-direction: column;
 }
 
-/* Футер */
 .app-footer {
-  background: #2d3748;
-  color: #e2e8f0;
-  padding: 2rem 0;
-  margin-top: auto;
+    background: #2d3748;
+    color: #e2e8f0;
+    padding: 2rem 0;
+    margin-top: auto;
+    width: 100%;
 }
 
 .footer-container {
-  max-width: 1200px;
-  margin: 0 auto;
-  padding: 0 1rem;
-  text-align: center;
+    max-width: 1400px;
+    margin: 0 auto;
+    padding: 0 1rem;
+    text-align: center;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
 }
 
 .footer-text {
-  font-size: 0.9rem;
-  opacity: 0.8;
+    font-size: 0.9rem;
+    opacity: 0.8;
 }
 
-/* Утилиты */
 .sr-only {
-  position: absolute;
-  width: 1px;
-  height: 1px;
-  padding: 0;
-  margin: -1px;
-  overflow: hidden;
-  clip: rect(0, 0, 0, 0);
-  white-space: nowrap;
-  border: 0;
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    padding: 0;
+    margin: -1px;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+    white-space: nowrap;
+    border: 0;
 }
 
 .skip-link {
-  position: absolute;
-  top: -40px;
-  left: 6px;
-  background: #667eea;
-  color: white;
-  padding: 8px;
-  text-decoration: none;
-  border-radius: 4px;
-  z-index: 1000;
+    position: absolute;
+    top: -40px;
+    left: 6px;
+    background: #667eea;
+    color: white;
+    padding: 8px;
+    text-decoration: none;
+    border-radius: 4px;
+    z-index: 1000;
 }
 
 .skip-link:focus {
-  top: 6px;
+    top: 6px;
 }
 
-/* Загрузка */
 .loading-container {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  min-height: 50vh;
-  flex-direction: column;
-  gap: 1rem;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 50vh;
+    flex-direction: column;
+    gap: 1rem;
+    flex: 1;
 }
 
 .loading-spinner {
-  width: 40px;
-  height: 40px;
-  border: 3px solid #e2e8f0;
-  border-top: 3px solid #667eea;
-  border-radius: 50%;
-  animation: spin 1s linear infinite;
+    width: 40px;
+    height: 40px;
+    border: 3px solid #e2e8f0;
+    border-top: 3px solid #667eea;
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
 }
 
 .loading-text {
-  color: #718096;
-  font-size: 1rem;
+    color: #718096;
+    font-size: 1rem;
 }
 
 @keyframes spin {
-  0% { transform: rotate(0deg); }
-  100% { transform: rotate(360deg); }
+    0% {
+        transform: rotate(0deg);
+    }
+    100% {
+        transform: rotate(360deg);
+    }
 }
 
-/* Ошибки */
 .error-container {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  min-height: 50vh;
-  flex-direction: column;
-  gap: 1rem;
-  padding: 2rem;
-  text-align: center;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 50vh;
+    flex-direction: column;
+    gap: 1rem;
+    padding: 2rem;
+    text-align: center;
+    flex: 1;
 }
 
 .error-title {
-  font-size: 1.5rem;
-  color: #e53e3e;
-  margin-bottom: 0.5rem;
+    font-size: 1.5rem;
+    color: #e53e3e;
+    margin-bottom: 0.5rem;
 }
 
 .error-message {
-  color: #718096;
-  max-width: 600px;
-  line-height: 1.6;
+    color: #718096;
+    max-width: 600px;
+    line-height: 1.6;
 }
 
 .error-actions {
-  display: flex;
-  gap: 1rem;
-  margin-top: 1rem;
+    display: flex;
+    gap: 1rem;
+    margin-top: 1rem;
+    flex-wrap: wrap;
+    justify-content: center;
 }
 
-/* Кнопки */
 .btn {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  gap: 0.5rem;
-  padding: 0.75rem 1.5rem;
-  border: none;
-  border-radius: 8px;
-  font-size: 0.9rem;
-  font-weight: 600;
-  cursor: pointer;
-  transition: all 0.2s ease;
-  text-decoration: none;
-  min-height: 44px;
-  min-width: 44px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    padding: 0.75rem 1.5rem;
+    border: none;
+    border-radius: 8px;
+    font-size: 0.9rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    text-decoration: none;
+    min-height: 44px;
+    min-width: 44px;
 }
 
 .btn:disabled {
-  opacity: 0.6;
-  cursor: not-allowed;
+    opacity: 0.6;
+    cursor: not-allowed;
 }
 
 .btn-primary {
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-  color: white;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
 }
 
 .btn-primary:hover:not(:disabled) {
-  transform: translateY(-1px);
-  box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3);
+    transform: translateY(-1px);
+    box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3);
 }
 
 .btn-secondary {
-  background: #e2e8f0;
-  color: #4a5568;
+    background: #e2e8f0;
+    color: #4a5568;
 }
 
 .btn-secondary:hover:not(:disabled) {
-  background: #cbd5e0;
+    background: #cbd5e0;
 }
 
-/* Оверлей «Поверніть телефон» для маленьких экранов */
 .orientation-lock {
-  position: fixed;
-  inset: 0;
-  display: none;
-  align-items: center;
-  justify-content: center;
-  z-index: 9999;
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-  color: #fff;
-  text-align: center;
-  padding: 2rem;
-}
-.orientation-box {
-  background: rgba(0,0,0,.25);
-  border: 1px solid rgba(255,255,255,.3);
-  box-shadow: 0 20px 40px rgba(0,0,0,.25);
-  backdrop-filter: blur(8px);
-  border-radius: 16px;
-  padding: 1.25rem 1.5rem;
-  max-width: 520px;
-}
-.orientation-icon { font-size: 2rem; }
-.orientation-box h2 { margin: .25rem 0 .5rem; }
-.orientation-box p { margin: 0; opacity: .95; }
-
-/* Показывать оверлей только на маленьких сенсорных экранах в портретной ориентации */
-@media (max-width: 820px) and (orientation: portrait) and (pointer: coarse) {
-  .orientation-lock { display: flex; }
-  body.orientation-lock-open { overflow: hidden; }
-}
-
-/* Явно скрывать в ландшафте */
-@media (orientation: landscape) {
-  .orientation-lock { display: none !important; }
-}
-
-/* Медиа-запросы для адаптивности */
-
-/* Мобильные устройства (до 768px) */
-@media (max-width: 767px) {
-  .nav-container {
-    padding: 0 0.5rem;
-  }
-
-  .logo {
-    font-size: 1.3rem;
-  }
-
-  .nav-toggle {
-    display: block;
-  }
-
-  .nav-menu {
     position: fixed;
-    top: 100%;
-    left: 0;
-    right: 0;
-    background: white;
-    flex-direction: column;
-    padding: 1rem;
-    border-top: 1px solid #e2e8f0;
-    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-    transform: translateY(-100%);
-    opacity: 0;
-    visibility: hidden;
-    transition: all 0.3s ease;
-  }
-
-  .nav-menu.open {
-    transform: translateY(0);
-    opacity: 1;
-    visibility: visible;
-  }
-
-  .nav-item {
-    width: 100%;
-    text-align: center;
-    margin-bottom: 0.5rem;
-  }
-
-  .footer-container {
-    padding: 0 0.5rem;
-  }
-
-  .error-container {
-    padding: 1rem;
-  }
-
-  .error-actions {
-    flex-direction: column;
-    width: 100%;
-  }
-
-  .btn {
-    width: 100%;
+    inset: 0;
+    display: none;
+    align-items: center;
     justify-content: center;
-  }
-}
-
-/* Мобильные устройства (до 480px) */
-@media (max-width: 479px) {
-  .app-header {
-    padding: 0.75rem 0;
-  }
-
-  .nav-container {
-    padding: 0 0.25rem;
-  }
-
-  .logo {
-    font-size: 1.2rem;
-  }
-
-  .nav-toggle {
-    font-size: 1.3rem;
-    padding: 0.25rem;
-  }
-
-  .footer-container {
-    padding: 0 0.25rem;
-  }
-
-  .footer-text {
-    font-size: 0.8rem;
-  }
-
-  .loading-spinner {
-    width: 30px;
-    height: 30px;
-    border-width: 2px;
-  }
-
-  .loading-text {
-    font-size: 0.9rem;
-  }
-
-  .error-title {
-    font-size: 1.3rem;
-  }
-
-  .error-message {
-    font-size: 0.9rem;
-  }
-
-  .btn {
-    padding: 0.75rem 1rem;
-    font-size: 0.85rem;
-    min-height: 48px;
-  }
-}
-
-/* Планшеты (768px - 1023px) */
-@media (min-width: 768px) and (max-width: 1023px) {
-  .nav-container {
-    padding: 0 1.5rem;
-  }
-
-  .logo {
-    font-size: 1.4rem;
-  }
-
-  .nav-menu {
-    gap: 0.75rem;
-  }
-
-  .footer-container {
-    padding: 0 1.5rem;
-  }
-}
-
-/* Десктоп (1024px и выше) */
-@media (min-width: 1024px) {
-  .nav-container {
-    padding: 0 2rem;
-  }
-
-  .logo {
-    font-size: 1.6rem;
-  }
-
-  .nav-menu {
-    gap: 1.5rem;
-  }
-
-  .nav-item {
-    padding: 0.75rem 1.25rem;
-  }
-
-  .footer-container {
-    padding: 0 2rem;
-  }
-
-  .btn {
-    padding: 0.875rem 1.75rem;
-    font-size: 1rem;
-  }
-}
-
-/* Ландшафтная ориентация мобильных */
-@media (max-height: 500px) and (orientation: landscape) {
-  .app-header {
-    padding: 0.5rem 0;
-  }
-
-  .nav-container {
-    padding: 0 0.5rem;
-  }
-
-  .loading-container {
-    min-height: 30vh;
-  }
-
-  .error-container {
-    min-height: 30vh;
-    padding: 1rem;
-  }
-}
-
-/* Темная тема */
-@media (prefers-color-scheme: dark) {
-  .app-header {
-    background: rgba(45, 55, 72, 0.95);
-    border-bottom-color: rgba(255, 255, 255, 0.1);
-  }
-
-  .logo {
-    color: #90cdf4;
-  }
-
-  .nav-link {
-    color: #e2e8f0;
-  }
-
-  .nav-link:hover {
-    color: #90cdf4;
-  }
-
-  .nav-item:hover {
-    background-color: rgba(144, 205, 244, 0.1);
-  }
-
-  .nav-toggle {
-    color: #e2e8f0;
-  }
-
-  .nav-menu {
-    background: #2d3748;
-    border-top-color: #4a5568;
-  }
-
-  .app-footer {
-    background: #1a202c;
-  }
-
-  .loading-text {
-    color: #a0aec0;
-  }
-
-  .error-message {
-    color: #a0aec0;
-  }
-
-  .btn-secondary {
-    background: #4a5568;
-    color: #e2e8f0;
-  }
-
-  .btn-secondary:hover:not(:disabled) {
-    background: #718096;
-  }
-}
-
-/* Высококонтрастный режим */
-@media (prefers-contrast: high) {
-  .app-header {
-    border-bottom: 2px solid #000;
-  }
-
-  .nav-link {
-    color: #000;
-  }
-
-  .btn {
-    border: 2px solid #000;
-  }
-
-  .btn-primary {
-    background: #000;
+    z-index: 99999;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
     color: #fff;
-  }
-
-  .btn-secondary {
-    background: #fff;
-    color: #000;
-  }
+    text-align: center;
+    padding: 2rem;
 }
 
-/* Анимации */
+.orientation-box {
+    background: rgba(0, 0, 0, .25);
+    border: 1px solid rgba(255, 255, 255, .3);
+    box-shadow: 0 20px 40px rgba(0, 0, 0, .25);
+    backdrop-filter: blur(8px);
+    border-radius: 16px;
+    padding: 1.25rem 1.5rem;
+    max-width: 520px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 1rem;
+}
+
+.orientation-icon {
+    font-size: 3rem;
+    animation: rotate-phone 2s infinite ease-in-out;
+}
+
+@keyframes rotate-phone {
+    0%, 10% {
+        transform: rotate(-90deg);
+    }
+    40%, 60% {
+        transform: rotate(0deg);
+    }
+    90%, 100% {
+        transform: rotate(-90deg);
+    }
+}
+
+.orientation-box h2 {
+    margin: 0;
+}
+
+.orientation-box p {
+    margin: 0;
+    opacity: .95;
+}
+
+@media screen and (orientation: landscape) and (max-height: 600px) and (hover: none) and (pointer: coarse) {
+    .orientation-lock {
+        display: flex !important;
+    }
+
+    body.orientation-lock-open {
+        overflow: hidden;
+    }
+
+    .user-dashboard {
+        display: none !important;
+    }
+}
+
+@media (max-width: 767px) {
+    .nav-container {
+        padding: 0 0.5rem;
+    }
+
+    .logo {
+        font-size: 1.3rem;
+    }
+
+    .nav-toggle {
+        display: block;
+    }
+
+    .nav-menu {
+        position: fixed;
+        top: 100%;
+        left: 0;
+        right: 0;
+        background: white;
+        flex-direction: column;
+        padding: 1rem;
+        border-top: 1px solid #e2e8f0;
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        transform: translateY(-100%);
+        opacity: 0;
+        visibility: hidden;
+        transition: all 0.3s ease;
+    }
+
+    .nav-menu.open {
+        transform: translateY(0);
+        opacity: 1;
+        visibility: visible;
+    }
+
+    .nav-item {
+        width: 100%;
+        text-align: center;
+        margin-bottom: 0.5rem;
+    }
+
+    .footer-container {
+        padding: 0 0.5rem;
+    }
+
+    .error-container {
+        padding: 1rem;
+    }
+
+    .error-actions {
+        flex-direction: column;
+        width: 100%;
+    }
+
+    .btn {
+        width: 100%;
+    }
+}
+
+@media (max-width: 479px) {
+    .app-header {
+        padding: 0.75rem 0;
+    }
+
+    .nav-container {
+        padding: 0 0.25rem;
+    }
+
+    .logo {
+        font-size: 1.2rem;
+    }
+
+    .nav-toggle {
+        font-size: 1.3rem;
+        padding: 0.25rem;
+    }
+
+    .footer-container {
+        padding: 0 0.25rem;
+    }
+
+    .footer-text {
+        font-size: 0.8rem;
+    }
+
+    .loading-spinner {
+        width: 30px;
+        height: 30px;
+        border-width: 2px;
+    }
+
+    .loading-text {
+        font-size: 0.9rem;
+    }
+
+    .error-title {
+        font-size: 1.3rem;
+    }
+
+    .error-message {
+        font-size: 0.9rem;
+    }
+
+    .btn {
+        padding: 0.75rem 1rem;
+        font-size: 0.85rem;
+        min-height: 48px;
+    }
+}
+
+@media (min-width: 768px) and (max-width: 1023px) {
+    .nav-container {
+        padding: 0 1.5rem;
+    }
+
+    .logo {
+        font-size: 1.4rem;
+    }
+
+    .nav-menu {
+        gap: 0.75rem;
+    }
+
+    .footer-container {
+        padding: 0 1.5rem;
+    }
+}
+
+@media (min-width: 1024px) {
+    .nav-container {
+        padding: 0 2rem;
+    }
+
+    .logo {
+        font-size: 1.6rem;
+    }
+
+    .nav-menu {
+        gap: 1.5rem;
+    }
+
+    .nav-item {
+        padding: 0.75rem 1.25rem;
+    }
+
+    .footer-container {
+        padding: 0 2rem;
+    }
+
+    .btn {
+        padding: 0.875rem 1.75rem;
+        font-size: 1rem;
+    }
+}
+
+@media (prefers-color-scheme: dark) {
+    .app-header {
+        background: rgba(45, 55, 72, 0.95);
+        border-bottom-color: rgba(255, 255, 255, 0.1);
+    }
+
+    .logo {
+        color: #90cdf4;
+    }
+
+    .nav-link {
+        color: #e2e8f0;
+    }
+
+    .nav-link:hover {
+        color: #90cdf4;
+    }
+
+    .nav-item:hover {
+        background-color: rgba(144, 205, 244, 0.1);
+    }
+
+    .nav-toggle {
+        color: #e2e8f0;
+    }
+
+    .nav-menu {
+        background: #2d3748;
+        border-top-color: #4a5568;
+    }
+
+    .app-footer {
+        background: #1a202c;
+    }
+
+    .loading-text {
+        color: #a0aec0;
+    }
+
+    .error-message {
+        color: #a0aec0;
+    }
+
+    .btn-secondary {
+        background: #4a5568;
+        color: #e2e8f0;
+    }
+
+    .btn-secondary:hover:not(:disabled) {
+        background: #718096;
+    }
+}
+
+@media (prefers-contrast: high) {
+    .app-header {
+        border-bottom: 2px solid #000;
+    }
+
+    .nav-link {
+        color: #000;
+    }
+
+    .btn {
+        border: 2px solid #000;
+    }
+
+    .btn-primary {
+        background: #000;
+        color: #fff;
+    }
+
+    .btn-secondary {
+        background: #fff;
+        color: #000;
+    }
+}
+
 @media (prefers-reduced-motion: reduce) {
-  *,
-  *::before,
-  *::after {
-    animation-duration: 0.01ms !important;
-    animation-iteration-count: 1 !important;
-    transition-duration: 0.01ms !important;
-  }
+    *, *::before, *::after {
+        animation-duration: 0.01ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: 0.01ms !important;
+        scroll-behavior: auto !important;
+    }
 
-  .nav-menu {
-    transition: none;
-  }
+    .nav-menu {
+        transition: none;
+    }
 
-  .btn:hover {
-    transform: none;
-  }
+    .btn:hover {
+        transform: none;
+    }
 
-  .loading-spinner {
-    animation: none;
-  }
+    .loading-spinner {
+        animation: none;
+    }
+
+    .orientation-icon {
+        animation: none;
+    }
 }
 
-/* Фокус для доступности */
-.nav-link:focus,
-.nav-toggle:focus,
-.btn:focus {
-  outline: 2px solid #667eea;
-  outline-offset: 2px;
+.nav-link:focus, .nav-toggle:focus, .btn:focus {
+    outline: 2px solid #667eea;
+    outline-offset: 2px;
 }
 
-/* Улучшения для touch устройств */
 @media (pointer: coarse) {
-  .nav-item,
-  .btn {
-    min-height: 44px;
-    min-width: 44px;
-  }
+    .nav-item, .btn {
+        min-height: 44px;
+        min-width: 44px;
+    }
 
-  .nav-toggle {
-    padding: 0.75rem;
-  }
+    .nav-toggle {
+        padding: 0.75rem;
+    }
 }
