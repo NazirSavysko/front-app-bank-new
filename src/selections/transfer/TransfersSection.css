@@ -495,24 +495,27 @@
 .transfer-success-card {
     max-width: 1200px;
     margin: 0 auto;
-    padding: 3rem 2rem;
+    padding: 4rem 3rem;
     text-align: center;
     background: linear-gradient(135deg, rgba(72, 187, 120, .1) 0%, rgba(56, 161, 105, .1) 100%), linear-gradient(135deg, #fff 0%, #f0fff4 100%);
     border: 3px solid rgba(72, 187, 120, .3);
-    border-radius: 24px;
+    border-radius: 30px;
     position: relative;
     overflow: hidden;
+    box-shadow: 0 20px 50px rgba(56, 161, 105, 0.15);
 }
 
 .success-icon {
-    font-size: 5rem;
+    font-size: 6rem;
     display: block;
+    margin-bottom: 1rem;
+    filter: drop-shadow(0 4px 6px rgba(0,0,0,0.1));
 }
 
 .transfer-success-card h3 {
     color: #2d3748;
-    margin-bottom: 2rem;
-    font-size: 1.6rem;
+    margin-bottom: 2.5rem;
+    font-size: 2.2rem;
     font-weight: 800;
     background: linear-gradient(135deg, #38a169 0%, #48bb78 100%);
     -webkit-background-clip: text;
@@ -522,20 +525,21 @@
 
 .transfer-details {
     background: linear-gradient(135deg, rgba(255, 255, 255, .95) 0%, rgba(248, 250, 252, .95) 100%);
-    border-radius: 20px;
-    padding: 2rem;
-    margin-bottom: 2.5rem;
+    border-radius: 24px;
+    padding: 3rem;
+    margin-bottom: 3rem;
     text-align: left;
-    box-shadow: 0 8px 25px rgba(72, 187, 120, .1), inset 0 1px 0 rgba(255, 255, 255, .9);
-    border: 2px solid rgba(72, 187, 120, .1);
+    box-shadow: 0 10px 30px rgba(72, 187, 120, .1), inset 0 1px 0 rgba(255, 255, 255, .9);
+    border: 2px solid rgba(72, 187, 120, .15);
 }
 
 .detail-row {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    padding: 1rem 0;
-    border-bottom: 2px solid rgba(226, 232, 240, .5);
+    padding: 1.25rem 0;
+    border-bottom: 2px solid rgba(226, 232, 240, .6);
+    gap: 1rem;
 }
 
 .detail-row:last-child {
@@ -545,39 +549,44 @@
 .detail-row span:first-child {
     color: #718096;
     font-weight: 600;
-    font-size: .95rem;
+    font-size: 1.1rem;
     display: flex;
     align-items: center;
-    gap: .5rem;
+    gap: .75rem;
+    min-width: 140px; /* Чтобы названия не сжимались слишком сильно */
 }
 
 .detail-row span:first-child::before {
     content: '▸';
     color: #38a169;
     font-weight: bold;
+    font-size: 1.25rem;
 }
 
 .detail-row span:last-child {
     color: #2d3748;
     font-weight: 700;
-    font-size: 1rem;
+    font-size: 1.2rem;
+    text-align: right;
+    word-break: break-word; /* Если длинный текст */
 }
 
 .status-completed {
     color: #38a169 !important;
     background: rgba(56, 161, 105, .1);
-    padding: .25rem .75rem;
+    padding: .5rem 1rem;
     border-radius: 12px;
     border: 1px solid rgba(56, 161, 105, .3);
-    font-size: .85rem !important;
+    font-size: 1rem !important;
     text-transform: uppercase;
-    letter-spacing: .5px;
+    letter-spacing: 1px;
+    font-weight: 800 !important;
 }
 
 .amount-highlight {
     color: #667eea !important;
-    font-weight: 800 !important;
-    font-size: 1.2rem !important;
+    font-weight: 900 !important;
+    font-size: 1.6rem !important;
     background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
@@ -841,6 +850,50 @@
 
     .verification-overlay {
         padding-top: 8vh !important;
+    }
+
+    .transfer-success-card {
+        padding: 2rem 1.5rem;
+        border-radius: 20px;
+    }
+
+    .transfer-success-card h3 {
+        font-size: 1.5rem;
+        margin-bottom: 2rem;
+    }
+
+    .success-icon {
+        font-size: 4rem;
+        margin-bottom: 0.5rem;
+    }
+
+    .transfer-details {
+        padding: 1.5rem;
+        margin-bottom: 2rem;
+        border-radius: 16px;
+    }
+
+    .detail-row {
+        padding: 0.75rem 0;
+        /* На маленьких екранах можемо переносити, якщо дуже довге ім'я */
+        flex-wrap: wrap;
+    }
+
+    .detail-row span:first-child {
+        font-size: 0.9rem;
+    }
+
+    .detail-row span:last-child {
+        font-size: 1rem;
+    }
+
+    .amount-highlight {
+        font-size: 1.25rem !important;
+    }
+
+    .status-completed {
+        font-size: 0.8rem !important;
+        padding: .25rem .5rem;
     }
 }
 
