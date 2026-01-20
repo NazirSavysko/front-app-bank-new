@@ -4,7 +4,7 @@
     margin: 0 auto 2.5rem;
     padding-bottom: 1.5rem;
     position: relative;
-    max-width: 950px;
+    max-width: 1200px;
 }
 
 .transfer-header::after {
@@ -42,7 +42,7 @@
     display: flex;
     flex-direction: column;
     gap: 2.5rem;
-    max-width: 950px;
+    max-width: 1200px;
     margin: 0 auto;
     padding: 0 1.5rem;
 }
@@ -92,8 +92,8 @@
 
 .sender-card {
     /* Фіксована ширина для скролу */
-    flex: 0 0 320px;
-    width: 320px;
+    flex: 0 0 380px;
+    width: 380px;
 
     border: 3px solid transparent;
     border-radius: 20px;
@@ -447,7 +447,7 @@
     margin: 3rem auto 0;
     justify-content: center;
     align-items: center;
-    max-width: 950px;
+    max-width: 1200px;
     padding: 0 1.5rem;
 }
 
@@ -493,7 +493,7 @@
 
 /* Успешный перевод */
 .transfer-success-card {
-    max-width: 950px;
+    max-width: 1200px;
     margin: 0 auto;
     padding: 3rem 2rem;
     text-align: center;
