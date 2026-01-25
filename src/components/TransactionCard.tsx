@@ -13,15 +13,8 @@ const formatAmount = (value: number) =>
     new Intl.NumberFormat('uk-UA', { minimumFractionDigits: 2, maximumFractionDigits: 2 }).format(value);
 
 const TransactionCard: React.FC<TransactionCardProps> = ({ transaction, selectedCardNumber }) => {
-    // Сумісність зі старими даними:
-    const senderCard =
-        transaction.senderCardNumber ??
-        (!transaction.isRecipient ? transaction.numberOfCard : undefined) ??
-        '';
-    const receiverCard =
-        transaction.receiverCardNumber ??
-        (transaction.isRecipient ? transaction.numberOfCard : undefined) ??
-        '';
+    const senderCard = transaction.senderCardNumber || '';
+    const receiverCard = transaction.receiverCardNumber || '';
 
     const isIncoming = receiverCard === selectedCardNumber;
     const arrow = isIncoming ? '↓' : '↑';
@@ -51,13 +44,23 @@ const TransactionCard: React.FC<TransactionCardProps> = ({ transaction, selected
                 <div>
                     <strong>Відправник:</strong>
                     <div>
-                        {transaction.sender.firstName} {transaction.sender.lastName} — **** {senderCard.slice(-4)}
+                        {transaction.sender ? (
+                            <span>{transaction.sender.firstName} {transaction.sender.lastName}</span>
+                        ) : (
+                            <span>Карта</span>
+                        )}
+                        {' '}**** {senderCard.slice(-4)}
                     </div>
                 </div>
                 <div>
                     <strong>Отримувач:</strong>
                     <div>
-                        {transaction.receiver.firstName} {transaction.receiver.lastName} — **** {receiverCard.slice(-4)}
+                        {transaction.receiver ? (
+                            <span>{transaction.receiver.firstName} {transaction.receiver.lastName}</span>
+                        ) : (
+                            <span>Карта</span>
+                        )}
+                        {' '}**** {receiverCard.slice(-4)}
                     </div>
                 </div>
                 {transaction.description && (

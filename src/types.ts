@@ -3,22 +3,29 @@
 
 /** Одна транзакция (между картами/счетами) */
 export interface Transaction {
-    sender: { firstName: string; lastName: string };
-    receiver: { firstName: string; lastName: string; accountNumber?: string };
+    senderCardNumber: string;
+    receiverCardNumber: string;
+    // Add sender/receiver info for display
+    sender?: { firstName: string; lastName: string };
+    receiver?: { firstName: string; lastName: string };
     amount: number;
     description: string;
     transactionDate: string; // ISO
     transactionType: string; // e.g. "TRANSFER"
     currencyCode: string;    // "UAH" | "USD" | "EUR"
     status: string;          // "COMPLETED" | "CANCELED" | ...
+}
 
-    /** НОВОЕ: явные стороны транзакции */
-    senderCardNumber: string;
-    receiverCardNumber: string;
-
-    /** Legacy-поля — оставлены для совместимости со старыми данными */
-    numberOfCard?: string;
-    isRecipient?: boolean;
+export interface Page<T> {
+    content: T[];
+    pageable: {
+        pageNumber: number;
+        pageSize: number;
+    };
+    totalPages: number;
+    totalElements: number;
+    first: boolean;
+    last: boolean;
 }
 
 /** Сохранённый платёж (шаблон) */
@@ -40,8 +47,8 @@ export interface Account {
         expirationDate: string;
         cvv: string;
     };
-    transactions: Transaction[];
-    payments: Payment[];
+    // transactions: Transaction[]; // REMOVED
+    // payments: Payment[]; // REMOVED
 }
 
 /** Клиент */

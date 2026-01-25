@@ -1,14 +1,14 @@
 // src/selections/transation/TransactionsSection.tsx
-import React from 'react';
-import type { Account, Transaction } from '../../types';
-import TransactionCard from '../../components/TransactionCard';
-import { parseSafeDate } from '../../utils/datetime';
+import React, { useEffect, useState } from 'react';
+import type { Account, Transaction, Page } from '../../types';
+import TransactionCard from '../../components/TransactionCard.tsx';
 import './TransactionsSection.css';
 
 export interface TransactionsSectionProps {
     accounts: Account[];
     selectedAccountIndex: number;
     setSelectedAccountIndex: (index: number) => void;
+    // Filters are kept in props for interface compatibility but not used yet in new backend pagination
     filterStartDate: string;
     setFilterStartDate: (value: string) => void;
     filterEndDate: string;
@@ -22,70 +22,68 @@ const TransactionsSection: React.FC<TransactionsSectionProps> = ({
                                                                      accounts,
                                                                      selectedAccountIndex,
                                                                      setSelectedAccountIndex,
-                                                                     filterStartDate,
-                                                                     setFilterStartDate,
-                                                                     filterEndDate,
-                                                                     setFilterEndDate,
-                                                                     filterType,
-                                                                     setFilterType,
                                                                      onAnalytics
                                                                  }) => {
+    const [transactions, setTransactions] = useState<Transaction[]>([]);
+    const [loading, setLoading] = useState(false);
+    const [page, setPage] = useState(0);
+    const [totalPages, setTotalPages] = useState(0);
+
     const selectedAccount = accounts[selectedAccountIndex];
-    const selectedCard = selectedAccount.card.cardNumber;
+    const accountNumber = selectedAccount?.accountNumber;
+    const selectedCard = selectedAccount?.card.cardNumber;
 
-    // Беремо транзакції ТІЛЬКИ обраного рахунку (без flatMap по всіх рахунках)
-    let filtered: Transaction[] = [...(selectedAccount.transactions || [])];
+    // Reset pagination when account changes
+    useEffect(() => {
+        if (accountNumber) setPage(0);
+    }, [accountNumber]);
 
-    // Сумісність зі старими даними:
-    const getSenderCard = (tr: Transaction) =>
-        tr.senderCardNumber ?? (!tr.isRecipient ? tr.numberOfCard : undefined) ?? '';
-    const getReceiverCard = (tr: Transaction) =>
-        tr.receiverCardNumber ?? (tr.isRecipient ? tr.numberOfCard : undefined) ?? '';
+    // Fetch transactions
+    useEffect(() => {
+        if (!accountNumber) return;
 
-    // Фільтри по даті
-    if (filterStartDate) {
-        const from = new Date(filterStartDate);
-        filtered = filtered.filter(tr => parseSafeDate(tr.transactionDate) >= from);
-    }
-    if (filterEndDate) {
-        const to = new Date(filterEndDate);
-        // включно до кінця дня
-        to.setHours(23, 59, 59, 999);
-        filtered = filtered.filter(tr => parseSafeDate(tr.transactionDate) <= to);
-    }
+        const fetchTrx = async () => {
+            setLoading(true);
+            try {
+                const token = localStorage.getItem('accessToken');
+                const res = await fetch(`/api/transactions/transactions?accountNumber=${accountNumber}&page=${page}&size=10`, {
+                    headers: {
+                        'Content-Type': 'application/json',
+                        Authorization: token ? `Bearer ${token}` : ''
+                    }
+                });
+                if (res.ok) {
+                    const data: Page<Transaction> = await res.json();
+                    setTransactions(data.content);
+                    setTotalPages(data.totalPages);
+                } else {
+                    console.error('Failed to fetch transactions');
+                    setTransactions([]);
+                }
+            } catch (err) {
+                console.error(err);
+                setTransactions([]);
+            } finally {
+                setLoading(false);
+            }
+        };
 
-    // Фільтр за напрямком (приход/витрата)
-    if (filterType !== 'all') {
-        filtered = filtered.filter(tr => {
-            const isIncoming = getReceiverCard(tr) === selectedCard;
-            return filterType === 'received' ? isIncoming : !isIncoming;
-        });
-    }
+        fetchTrx();
+    }, [accountNumber, page]);
 
-    // Дедуплікація транзакцій усередині рахунку (на випадок, якщо бек іноді дублює)
-    const uniq = new Map<string, Transaction>();
-    for (const tr of filtered) {
-        const key = [
-            parseSafeDate(tr.transactionDate).getTime(),
-            tr.amount,
-            tr.currencyCode,
-            getSenderCard(tr),
-            getReceiverCard(tr),
-            tr.status,
-            tr.description || ''
-        ].join('|');
-        if (!uniq.has(key)) uniq.set(key, tr);
-    }
-    filtered = Array.from(uniq.values());
+    if (!selectedAccount) return null;
 
-    // Сортуємо за датою (нові зверху)
-    filtered.sort(
-        (a, b) => parseSafeDate(b.transactionDate).getTime() - parseSafeDate(a.transactionDate).getTime()
-    );
+    const handlePrev = () => {
+        if (page > 0) setPage(p => p - 1);
+    };
+
+    const handleNext = () => {
+        if (page < totalPages - 1) setPage(p => p + 1);
+    };
 
     return (
         <div className="transactions-list">
-            {/* Головний заголовок "Транзакції" і кнопка аналітики */}
+            {/* Top Bar */}
             <div className="transactions-top-bar main-header">
                 <h2 className="section-title-internal">Транзакції</h2>
                 <button className="analytics-button" onClick={onAnalytics} title="Перейти до аналітики">
@@ -94,7 +92,7 @@ const TransactionsSection: React.FC<TransactionsSectionProps> = ({
                 </button>
             </div>
 
-            {/* Панель фільтрів */}
+            {/* Account Selector */}
             <div className="transactions-filter">
                 <div className="filter-group">
                     <label className="filter-label">Рахунок:</label>
@@ -109,58 +107,51 @@ const TransactionsSection: React.FC<TransactionsSectionProps> = ({
                         ))}
                     </select>
                 </div>
-
-                <div className="filter-group">
-                    <label className="filter-label">Від дати:</label>
-                    <input
-                        type="date"
-                        value={filterStartDate}
-                        onChange={e => setFilterStartDate(e.target.value)}
-                    />
-                </div>
-
-                <div className="filter-group">
-                    <label className="filter-label">До дати:</label>
-                    <input
-                        type="date"
-                        value={filterEndDate}
-                        onChange={e => setFilterEndDate(e.target.value)}
-                    />
-                </div>
-
-                <div className="filter-group">
-                    <label className="filter-label">Тип:</label>
-                    <select
-                        value={filterType}
-                        onChange={e => setFilterType(e.target.value as 'all' | 'sent' | 'received')}
-                    >
-                        <option value="all">Всі транзакції</option>
-                        <option value="sent">Тільки витрати</option>
-                        <option value="received">Тільки надходження</option>
-                    </select>
-                </div>
+                {/* Date/Type filters are hidden as they are not yet supported by new backend pagination */}
             </div>
 
-            {/* Заголовок історії (схожий стиль, але менший або такий же) */}
             <h3 className="history-headline">Історія транзакцій</h3>
 
-            {/* Список карток (скролиться) */}
             <div className="account-transactions">
-
-                {filtered.length > 0 ? (
+                {loading ? (
+                    <div style={{ textAlign: 'center', padding: '2rem', color: '#718096' }}>Завантаження...</div>
+                ) : transactions.length > 0 ? (
                     <>
-                        {filtered.map((tr, idx) => (
+                        {transactions.map((tr, idx) => (
                             <TransactionCard
-                                key={`${parseSafeDate(tr.transactionDate).getTime()}-${idx}`}
+                                key={`${tr.transactionDate}-${idx}`}
                                 transaction={tr}
-                                selectedCardNumber={selectedCard}
+                                selectedCardNumber={selectedCard!}
                             />
                         ))}
                     </>
                 ) : (
-                    <p>Немає транзакцій за вибраними параметрами</p>
+                    <div style={{ textAlign: 'center', padding: '2rem' }}>Немає транзакцій</div>
                 )}
             </div>
+
+            {/* Pagination Controls */}
+            {totalPages > 1 && (
+                <div className="pagination-controls">
+                    <button
+                        className="pagination-btn"
+                        onClick={handlePrev}
+                        disabled={page === 0 || loading}
+                    >
+                        &larr; Назад
+                    </button>
+                    <span className="pagination-info">
+                        Сторінка {page + 1} з {totalPages}
+                    </span>
+                    <button
+                        className="pagination-btn"
+                        onClick={handleNext}
+                        disabled={page >= totalPages - 1 || loading}
+                    >
+                        Вперед &rarr;
+                    </button>
+                </div>
+            )}
         </div>
     );
 };

@@ -463,3 +463,50 @@
     .transaction-footer { border-top-color: var(--border-soft); }
     .account-transactions p { background: rgba(31,41,55,.85); color: var(--text-muted); border-color: var(--border-soft); }
 }
+
+/* Pagination Controls */
+.pagination-controls {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 1rem;
+    padding: 2rem 0;
+    margin-top: 1rem;
+}
+
+.pagination-btn {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: #fff;
+    border: none;
+    border-radius: 12px;
+    padding: 0.75rem 1.5rem;
+    font-size: 0.9rem;
+    font-weight: 700;
+    cursor: pointer;
+    box-shadow: 0 4px 6px rgba(50, 50, 93, 0.11), 0 1px 3px rgba(0, 0, 0, 0.08);
+    transition: all 0.2s;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.pagination-btn:hover:not(:disabled) {
+    transform: translateY(-2px);
+    box-shadow: 0 7px 14px rgba(50, 50, 93, 0.1), 0 3px 6px rgba(0, 0, 0, 0.08);
+}
+
+.pagination-btn:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+    background: #cbd5e0;
+    box-shadow: none;
+}
+
+.pagination-info {
+    font-weight: 600;
+    color: #4a5568;
+    background: #fff;
+    padding: 0.5rem 1rem;
+    border-radius: 8px;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+}
