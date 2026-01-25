@@ -383,3 +383,30 @@
         flex: 1 1 100%;
     }
 }
+
+/* Error Banner styling for modals */
+.error-banner {
+    background: #fef2f2;
+    border: 1px solid #fecca3; /* Or red-ish border */
+    border-left: 4px solid #ef4444; /* Strong indicator */
+    color: #b91c1c;
+    padding: 1rem;
+    border-radius: 8px;
+    margin-top: 1.5rem;
+    display: flex;
+    align-items: flex-start;
+    gap: 0.75rem;
+    font-size: 0.95rem;
+    line-height: 1.4;
+    animation: fadeIn 0.3s ease;
+}
+
+.error-icon {
+    font-size: 1.25rem;
+    flex-shrink: 0;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(-5px); }
+    to { opacity: 1; transform: translateY(0); }
+}
