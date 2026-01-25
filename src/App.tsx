@@ -8,7 +8,9 @@ import UserDashboard from './UserDashboard';
 
 function App() {
     type Page = 'login' | 'register' | 'verify' | 'forgot' | 'user' | 'admin';
-    const [page, setPage] = useState<Page>('login');
+    const [page, setPage] = useState<Page>(() => {
+        return localStorage.getItem('accessToken') ? 'user' : 'login';
+    });
     const [emailToVerify, setEmailToVerify] = useState('');
 
     const handleLoginSuccess = (role: string) => {

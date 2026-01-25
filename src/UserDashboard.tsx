@@ -12,7 +12,9 @@ const UserDashboard: React.FC = () => {
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState('');
     const [selectedTab, setSelectedTab] =
-        useState<'accounts' | 'transactions' | 'payments' | 'transfers' | 'analytics'>('accounts');
+        useState<'accounts' | 'transactions' | 'payments' | 'transfers' | 'analytics'>(() => {
+            return (localStorage.getItem('lastActiveTab') as 'accounts' | 'transactions' | 'payments' | 'transfers' | 'analytics') || 'accounts';
+        });
     const [selectedAccountIndex, setSelectedAccountIndex] = useState(0);
     const [showAddModal, setShowAddModal] = useState(false);
     const [showProfile, setShowProfile] = useState(false);
@@ -30,13 +32,6 @@ const UserDashboard: React.FC = () => {
     const [selectedAnalyticsAccount, setSelectedAnalyticsAccount] = useState<string>('');
     const [selectedMonth, setSelectedMonth] = useState<number>(new Date().getMonth());
     const [selectedYear, setSelectedYear] = useState<number>(new Date().getFullYear());
-
-    // Initialize analytics account
-    useEffect(() => {
-        if (customer?.accounts.length && !selectedAnalyticsAccount) {
-            setSelectedAnalyticsAccount(customer.accounts[0].accountNumber);
-        }
-    }, [customer, selectedAnalyticsAccount]);
 
     // Refresh interval state
     const refreshIntervalRef = useRef<number | null>(null);
@@ -259,6 +254,24 @@ const UserDashboard: React.FC = () => {
         }
     };
 
+    useEffect(() => {
+        localStorage.setItem('lastActiveTab', selectedTab);
+    }, [selectedTab]);
+
+    // Initialize analytics account
+    useEffect(() => {
+        if (customer?.accounts.length && !selectedAnalyticsAccount) {
+            setSelectedAnalyticsAccount(customer.accounts[0].accountNumber);
+        }
+    }, [customer, selectedAnalyticsAccount]);
+
+    // Initialize analytics account
+    useEffect(() => {
+        if (customer?.accounts.length && !selectedAnalyticsAccount) {
+            setSelectedAnalyticsAccount(customer.accounts[0].accountNumber);
+        }
+    }, [customer, selectedAnalyticsAccount]);
+
     return (
         <div className="user-dashboard">
             {copyMessage && <div className={`toast show`}>{copyMessage}</div>}
@@ -361,6 +374,7 @@ const UserDashboard: React.FC = () => {
                             className="btn btn-danger"
                             onClick={() => {
                                 localStorage.removeItem('accessToken');
+                                localStorage.removeItem('lastActiveTab');
                                 window.location.reload();
                             }}
                         >
@@ -445,3 +459,4 @@ const UserDashboard: React.FC = () => {
 };
 
 export default UserDashboard;
+
