@@ -865,8 +865,35 @@
     .sender-card {
         scroll-snap-align: start;
         width: 100%;
-        max-width: 360px;
+        max-width: 320px; /* Reduced max-width slightly for better fit */
         margin: 0 auto;
+        padding: 1.25rem; /* Reduced padding */
+        min-height: 200px; /* Reduced height */
+    }
+
+    /* Scaling down text for mobile */
+    .card-number {
+        font-size: 1.25rem;
+        letter-spacing: 2px;
+        margin: 1.5rem 0 1rem;
+    }
+
+    .balance-amount {
+        font-size: 1.3rem;
+    }
+
+    .selected-check {
+        width: 26px;
+        height: 26px;
+        font-size: 1rem;
+    }
+
+    .card-type {
+        font-size: 0.75rem;
+    }
+
+    .card-expire {
+        font-size: 0.9rem;
     }
 
     .form-row {
