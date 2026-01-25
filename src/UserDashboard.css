@@ -334,6 +334,18 @@
     border: 1px solid #e2e8f0;
 }
 
+.info-item label {
+    font-size: 0.875rem;
+    color: #64748b;
+    margin-bottom: 0.25rem;
+}
+
+.info-item span {
+    font-size: 1.1rem;
+    font-weight: 500;
+    color: #1a202c;
+}
+
 .profile-actions {
     margin-top: auto;
     display: flex;
