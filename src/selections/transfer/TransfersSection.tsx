@@ -29,6 +29,7 @@ const TransfersSection: React.FC<TransfersSectionProps> = ({
 
     const CODE_LENGTH = 5;
     const otpRefs = useRef<Array<HTMLInputElement | null>>([]);
+    const senderCardsRef = useRef<HTMLDivElement | null>(null);
 
 
     const setCodeAt = (code: string, index: number, value: string) => {
@@ -72,7 +73,7 @@ const TransfersSection: React.FC<TransfersSectionProps> = ({
         }
     };
 
-    const handleOtpPaste = (e: React.ClipboardEvent<any>) => {
+    const handleOtpPaste = (e: React.ClipboardEvent<HTMLInputElement>) => {
         const text = e.clipboardData.getData('text').replace(/\D/g, '');
         if (text) {
             e.preventDefault();
@@ -238,6 +239,18 @@ const TransfersSection: React.FC<TransfersSectionProps> = ({
     const selectedAccount = customer?.accounts.find(a => a.card.cardNumber === transferData.senderCardNumber);
     const validationErrors = validateTransferForm();
 
+    useEffect(() => {
+        const el = senderCardsRef.current;
+        if (!el) return;
+        const handleWheel = (e: WheelEvent) => {
+            if (e.deltaY === 0) return;
+            e.preventDefault();
+            el.scrollLeft += e.deltaY;
+        };
+        el.addEventListener('wheel', handleWheel, { passive: false });
+        return () => el.removeEventListener('wheel', handleWheel);
+    }, []);
+
     if (transferSuccess) {
         return (
             <>
@@ -297,7 +310,7 @@ const TransfersSection: React.FC<TransfersSectionProps> = ({
                 {/* Вибір картки відправника */}
                 <div className="sender-section">
                     <h4>Виберіть картку для списання коштів:</h4>
-                    <div className="sender-cards">
+                    <div className="sender-cards" ref={senderCardsRef}>
                         {customer?.accounts.map(account => (
                             <div
                                 key={account.card.cardNumber}
@@ -315,7 +328,11 @@ const TransfersSection: React.FC<TransfersSectionProps> = ({
                                             <div className="selected-check">✓</div>
                                         )}
                                     </div>
-                                    <div className="card-number">**** ****
+                                    <div className="card-number" onClick={(e) => {
+                                        e.stopPropagation();
+                                        navigator.clipboard.writeText(account.card.cardNumber);
+                                        onCopy?.('Номер картки скопійовано');
+                                    }}>**** ****
                                         **** {account.card.cardNumber.slice(-4)}</div>
                                     <div className="card-info">
                                         <div className="card-balance">
@@ -575,7 +592,7 @@ const TransfersSection: React.FC<TransfersSectionProps> = ({
                                             onChange={e => handleOtpChange(idx, e.target.value)}
                                             onKeyDown={e => handleOtpKeyDown(idx, e)}
                                             onPaste={handleOtpPaste}
-                                            ref={el => (otpRefs.current[idx] = el)}
+                                            ref={el => { otpRefs.current[idx] = el; }}
                                             disabled={codeVerifying}
                                             aria-label={`Цифра ${idx + 1}`}
                                         />
