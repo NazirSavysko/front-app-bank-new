@@ -328,10 +328,21 @@
 }
 
 .transaction-card.expanded {
-    background: #fff; /* Яскравіше при розгортанні */
+    background: #ffffff !important; /* Force white background for visibility */
     box-shadow: 0 15px 30px rgba(0,0,0,0.15);
     transform: scale(1.01);
+    z-index: 5;
+    color: #2d3748 !important; /* Force dark text */
 }
+
+/* Ensure text colors inside expanded card are dark */
+.transaction-card.expanded .transaction-body strong {
+    color: #4a5568 !important;
+}
+.transaction-card.expanded .transaction-body div {
+    color: #2d3748 !important;
+}
+
 
 .transaction-card::after {
     content:'▼';
