@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect, useRef } from 'react';
 import type { Account } from '../../types.ts';
 import AccountCard from '../../components/AccountCard.tsx';
 import './AccountSelection.css';
@@ -22,9 +22,25 @@ const AccountsSection: React.FC<AccountsSectionProps> = ({
                                                              onAddAccount,
                                                              onCopy
                                                          }) => {
+    const listRef = useRef<HTMLDivElement>(null);
+
+    useEffect(() => {
+        const el = listRef.current;
+        if (!el) return;
+        const handleWheel = (e: WheelEvent) => {
+            if (e.deltaY === 0) return;
+            // Scroll horizontally instead of vertically
+            e.preventDefault();
+            el.scrollLeft += e.deltaY;
+        };
+        el.addEventListener('wheel', handleWheel, { passive: false });
+        return () => el.removeEventListener('wheel', handleWheel);
+    }, []);
+
     return (
         <div
             className="accounts-list"
+            ref={listRef}
             role="listbox"
             aria-label="Список рахунків"
             aria-activedescendant={`account-${selectedIndex}`}
