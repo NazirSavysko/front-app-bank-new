@@ -8,8 +8,15 @@ import type {CustomerData, Account} from './types';
 import './UserDashboard.css';
 
 const UserDashboard: React.FC = () => {
-    const [customer, setCustomer] = useState<CustomerData | null>(null);
-    const [loading, setLoading] = useState(false);
+    const [customer, setCustomer] = useState<CustomerData | null>(() => {
+        try {
+            const saved = localStorage.getItem('customerData');
+            return saved ? JSON.parse(saved) : null;
+        } catch {
+            return null;
+        }
+    });
+    const [loading, setLoading] = useState(() => !localStorage.getItem('customerData'));
     const [error, setError] = useState('');
     const [selectedTab, setSelectedTab] =
         useState<'accounts' | 'transactions' | 'payments' | 'transfers' | 'analytics'>(() => {
@@ -52,12 +59,16 @@ const UserDashboard: React.FC = () => {
             });
             if (!res.ok) {
                 const body = await res.json().catch(() => ({} as { message?: string }));
+                if (res.status === 401 || res.status === 403) {
+                    localStorage.removeItem('customerData');
+                }
                 const msg = body.message || 'Не вдалося отримати дані користувача';
                 setError(`❌ ${msg}`);
                 return;
             }
             const data: CustomerData = await res.json();
             setCustomer(data);
+            localStorage.setItem('customerData', JSON.stringify(data));
             setSelectedAccountIndex(prev => (prev >= data.accounts.length ? 0 : prev));
         } catch {
             if (!silent) setError('❌ Помилка з\'єднання з сервером');
@@ -67,7 +78,8 @@ const UserDashboard: React.FC = () => {
     }, []);
 
     useEffect(() => {
-        fetchCustomerData(false);
+        const hasCache = !!localStorage.getItem('customerData');
+        fetchCustomerData(hasCache);
     }, [fetchCustomerData]);
 
     // Auto Refresh
@@ -375,6 +387,7 @@ const UserDashboard: React.FC = () => {
                             onClick={() => {
                                 localStorage.removeItem('accessToken');
                                 localStorage.removeItem('lastActiveTab');
+                                localStorage.removeItem('customerData');
                                 window.location.reload();
                             }}
                         >
