@@ -51,7 +51,8 @@ export const LoginForm: React.FC<LoginFormProps> = ({ onLogin, onRegisterLink, o
             }
 
             // Сохранить токен и роль и передать роль наверх
-            localStorage.setItem("accessToken", data.token);
+            sessionStorage.setItem("accessToken", data.token);
+            localStorage.removeItem("accessToken");
             localStorage.setItem("role", data.role);
             onLogin(data.role);
         } catch {
