@@ -14,6 +14,7 @@ export interface Transaction {
     transactionType: string; // e.g. "TRANSFER"
     currencyCode: string;    // "UAH" | "USD" | "EUR"
     status: string;          // "COMPLETED" | "CANCELED" | ...
+    isRecipient: boolean;    // true: вхідна транзакція (дохід), false: вихідна (витрата)
 }
 
 export interface Page<T> {
