@@ -5,7 +5,7 @@ import { formatUkDateTime } from '../utils/datetime';
 
 export interface TransactionCardProps {
     transaction: Transaction;
-    /** Номер картки вибраного рахунку — щоб визначити, чи це надходження чи витрата */
+    /** Номер картки вибраного рахунку — для відображення інформації про карту */
     selectedCardNumber: string;
 }
 
@@ -16,7 +16,7 @@ const TransactionCard: React.FC<TransactionCardProps> = ({ transaction, selected
     const senderCard = transaction.senderCardNumber || '';
     const receiverCard = transaction.receiverCardNumber || '';
 
-    const isIncoming = receiverCard === selectedCardNumber;
+    const isIncoming = transaction.isRecipient;
     const arrow = isIncoming ? '↓' : '↑';
     const statusLabel = transaction.status === 'COMPLETED' ? 'ЗАВЕРШЕНО' : transaction.status;
     const statusClass = transaction.status === 'COMPLETED' ? 'status complete' : 'status cancelled';

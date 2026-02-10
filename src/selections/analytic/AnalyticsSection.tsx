@@ -69,13 +69,10 @@ const AnalyticsSection: React.FC<AnalyticsSectionProps> = ({
         () => customer?.accounts.find((a) => a.accountNumber === selectedAnalyticsAccount),
         [customer, selectedAnalyticsAccount]
     );
-    const selectedCard = selectedAccount?.card.cardNumber || '';
-
-    const getReceiverCard = useCallback((tr: Transaction) => tr.receiverCardNumber || '', []);
 
     const isIncomingForSelected = useCallback((tr: Transaction) => {
-        return getReceiverCard(tr) === selectedCard;
-    }, [selectedCard, getReceiverCard]);
+        return tr.isRecipient;
+    }, []);
 
     const accountToShow = selectedAccount || customer?.accounts[0];
     const currencySymbol = getCurrencySymbol(accountToShow?.currency);
