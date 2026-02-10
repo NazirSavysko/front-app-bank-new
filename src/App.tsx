@@ -9,9 +9,28 @@ import UserDashboard from './UserDashboard';
 function App() {
     type Page = 'login' | 'register' | 'verify' | 'forgot' | 'user' | 'admin';
     const [page, setPage] = useState<Page>(() => {
-        return localStorage.getItem('accessToken') ? 'user' : 'login';
+        const sessionToken = sessionStorage.getItem('accessToken');
+        const localToken = localStorage.getItem('accessToken');
+        return sessionToken || localToken ? 'user' : 'login';
     });
     const [emailToVerify, setEmailToVerify] = useState('');
+
+    useEffect(() => {
+        const sessionToken = sessionStorage.getItem('accessToken');
+        const localToken = localStorage.getItem('accessToken');
+        if (!sessionToken && localToken) {
+            sessionStorage.setItem('accessToken', localToken);
+            localStorage.removeItem('accessToken');
+        }
+        if (!sessionStorage.getItem('accessToken')) {
+            localStorage.removeItem('customerData');
+            localStorage.removeItem('lastActiveTab');
+            const prefix = 'transactionsCache:';
+            Object.keys(localStorage).forEach(key => {
+                if (key.startsWith(prefix)) localStorage.removeItem(key);
+            });
+        }
+    }, []);
 
     const handleLoginSuccess = (role: string) => {
         if (role && role.toUpperCase().includes('ADMIN')) {

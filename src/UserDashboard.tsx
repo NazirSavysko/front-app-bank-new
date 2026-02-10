@@ -30,6 +30,13 @@ const UserDashboard: React.FC = () => {
     const [accountError, setAccountError] = useState('');
     const [copyMessage, setCopyMessage] = useState('');
 
+    const clearTransactionsCache = () => {
+        const prefix = 'transactionsCache:';
+        Object.keys(localStorage).forEach(key => {
+            if (key.startsWith(prefix)) localStorage.removeItem(key);
+        });
+    };
+
     // Transaction filters
     const [filterStartDate, setFilterStartDate] = useState('');
     const [filterEndDate, setFilterEndDate] = useState('');
@@ -49,7 +56,7 @@ const UserDashboard: React.FC = () => {
         if (!silent) setLoading(true);
         setError('');
         try {
-            const token = localStorage.getItem('accessToken');
+            const token = sessionStorage.getItem('accessToken') || localStorage.getItem('accessToken');
             const res = await fetch('/api/customers/customer', {
                 method: 'GET',
                 headers: {
@@ -60,6 +67,8 @@ const UserDashboard: React.FC = () => {
             if (!res.ok) {
                 const body = await res.json().catch(() => ({} as { message?: string }));
                 if (res.status === 401 || res.status === 403) {
+                    sessionStorage.removeItem('accessToken');
+                    localStorage.removeItem('accessToken');
                     localStorage.removeItem('customerData');
                 }
                 const msg = body.message || 'Не вдалося отримати дані користувача';
@@ -151,7 +160,7 @@ const UserDashboard: React.FC = () => {
         setAccountCreating(true);
         setAccountError('');
         try {
-            const token = localStorage.getItem('accessToken');
+            const token = sessionStorage.getItem('accessToken') || localStorage.getItem('accessToken');
             const res = await fetch('/api/accounts/create', {
                 method: 'POST',
                 headers: {
@@ -308,16 +317,16 @@ const UserDashboard: React.FC = () => {
                 </div>
                 <div className="dashboard-tabs">
                     <button className={`tab-button ${selectedTab === 'accounts' ? 'active' : ''}`}
-                            onClick={() => handleTabSelect('accounts')}>💳 Рахунки
+                            onClick={() => handleTabSelect('accounts')}>Рахунки
                     </button>
                     <button className={`tab-button ${selectedTab === 'transactions' ? 'active' : ''}`}
-                            onClick={() => handleTabSelect('transactions')}>📊 Транзакції
+                            onClick={() => handleTabSelect('transactions')}>Транзакції
                     </button>
                     <button className={`tab-button ${selectedTab === 'payments' ? 'active' : ''}`}
-                            onClick={() => handleTabSelect('payments')}>💰 Платежі
+                            onClick={() => handleTabSelect('payments')}>Платежі
                     </button>
                     <button className={`tab-button ${selectedTab === 'transfers' ? 'active' : ''}`}
-                            onClick={() => handleTabSelect('transfers')}>🔄 Перекази
+                            onClick={() => handleTabSelect('transfers')}>Перекази
                     </button>
                 </div>
                 {loading && (
@@ -385,9 +394,11 @@ const UserDashboard: React.FC = () => {
                         <button
                             className="btn btn-danger"
                             onClick={() => {
+                                sessionStorage.removeItem('accessToken');
                                 localStorage.removeItem('accessToken');
                                 localStorage.removeItem('lastActiveTab');
                                 localStorage.removeItem('customerData');
+                                clearTransactionsCache();
                                 window.location.reload();
                             }}
                         >
