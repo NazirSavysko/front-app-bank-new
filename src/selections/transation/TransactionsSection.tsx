@@ -31,7 +31,6 @@ const TransactionsSection: React.FC<TransactionsSectionProps> = ({
 
     const selectedAccount = accounts[selectedAccountIndex];
     const accountNumber = selectedAccount?.accountNumber;
-    const selectedCard = selectedAccount?.card.cardNumber;
 
     // Reset pagination when account changes
     useEffect(() => {
@@ -121,7 +120,6 @@ const TransactionsSection: React.FC<TransactionsSectionProps> = ({
                             <TransactionCard
                                 key={`${tr.transactionDate}-${idx}`}
                                 transaction={tr}
-                                selectedCardNumber={selectedCard!}
                             />
                         ))}
                     </>
