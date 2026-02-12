@@ -5,14 +5,12 @@ import { formatUkDateTime } from '../utils/datetime';
 
 export interface TransactionCardProps {
     transaction: Transaction;
-    /** Номер картки вибраного рахунку — для відображення інформації про карту */
-    selectedCardNumber: string;
 }
 
 const formatAmount = (value: number) =>
     new Intl.NumberFormat('uk-UA', { minimumFractionDigits: 2, maximumFractionDigits: 2 }).format(value);
 
-const TransactionCard: React.FC<TransactionCardProps> = ({ transaction, selectedCardNumber }) => {
+const TransactionCard: React.FC<TransactionCardProps> = ({ transaction }) => {
     const senderCard = transaction.senderCardNumber || '';
     const receiverCard = transaction.receiverCardNumber || '';
 
