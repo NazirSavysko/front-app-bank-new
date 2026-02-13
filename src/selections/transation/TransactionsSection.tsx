@@ -44,7 +44,7 @@ const TransactionsSection: React.FC<TransactionsSectionProps> = ({
         const fetchTrx = async () => {
             setLoading(true);
             try {
-                const token = localStorage.getItem('accessToken');
+                const token = sessionStorage.getItem('accessToken');
                 const res = await fetch(`/api/transactions/transactions?accountNumber=${accountNumber}&page=${page}&size=10`, {
                     headers: {
                         'Content-Type': 'application/json',
