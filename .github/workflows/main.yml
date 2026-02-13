@@ -46,12 +46,11 @@ jobs:
       - name: SSH Command to Server
         uses: appleboy/ssh-action@master
         with:
-          with:
           host: ${{ secrets.SSH_HOST }}
           username: ${{ secrets.SSH_USER }} 
           key: ${{ secrets.SSH_KEY }}
           passphrase: ${{ secrets.SSH_PASSPHRASE }}
-          script: |
-          cd ~/bank-app
-          docker-compose pull frontend
-          docker-compose up -d frontend
+          script: | 
+            cd ~/bank-app
+            docker-compose pull frontend
+            docker-compose up -d frontend
