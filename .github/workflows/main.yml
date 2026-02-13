@@ -51,7 +51,7 @@ jobs:
           username: ${{ secrets.SSH_USER }} 
           key: ${{ secrets.SSH_KEY }}
           passphrase: ${{ secrets.SSH_PASSPHRASE }}
-        script: |
+          script: |
           cd ~/bank-app
           docker-compose pull frontend
           docker-compose up -d frontend
