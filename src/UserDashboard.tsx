@@ -1,23 +1,25 @@
-import React, {useCallback, useEffect, useRef, useState} from 'react';
-import AccountsSection from './selections/account/AccountsSection.tsx';
-import TransactionsSection from './selections/transation/TransactionsSection.tsx';
-import PaymentsSection from './selections/payment/PaymentsSection.tsx';
-import TransfersSection from './selections/transfer/TransfersSection.tsx';
-import AnalyticsSection from './selections/analytic/AnalyticsSection.tsx';
-import type {CustomerData, Account} from './types';
+import React, {useCallback, useEffect, useState, Suspense, lazy} from 'react';
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { fetchCustomerData, createAccount } from './api';
+import type {CustomerData} from './types';
 import './UserDashboard.css';
 
+const AccountsSection = lazy(() => import('./selections/account/AccountsSection.tsx'));
+const TransactionsSection = lazy(() => import('./selections/transation/TransactionsSection.tsx'));
+const PaymentsSection = lazy(() => import('./selections/payment/PaymentsSection.tsx'));
+const TransfersSection = lazy(() => import('./selections/transfer/TransfersSection.tsx'));
+const AnalyticsSection = lazy(() => import('./selections/analytic/AnalyticsSection.tsx'));
+
 const UserDashboard: React.FC = () => {
-    const [customer, setCustomer] = useState<CustomerData | null>(() => {
-        try {
-            const saved = localStorage.getItem('customerData');
-            return saved ? JSON.parse(saved) : null;
-        } catch {
-            return null;
-        }
+    const queryClient = useQueryClient();
+    const { data: customer, isLoading: loading, error, isError } = useQuery({
+        queryKey: ['customer'],
+        queryFn: fetchCustomerData,
+        staleTime: 1000 * 60 * 5, // 5 minutes
+        refetchInterval: 30000,   // Auto refresh every 30s
+        refetchOnWindowFocus: true,
     });
-    const [loading, setLoading] = useState(() => !localStorage.getItem('customerData'));
-    const [error, setError] = useState('');
+
     const [selectedTab, setSelectedTab] =
         useState<'accounts' | 'transactions' | 'payments' | 'transfers' | 'analytics'>(() => {
             return (localStorage.getItem('lastActiveTab') as 'accounts' | 'transactions' | 'payments' | 'transfers' | 'analytics') || 'accounts';
@@ -26,7 +28,6 @@ const UserDashboard: React.FC = () => {
     const [showAddModal, setShowAddModal] = useState(false);
     const [showProfile, setShowProfile] = useState(false);
     const [newAccountType, setNewAccountType] = useState('UAH');
-    const [accountCreating, setAccountCreating] = useState(false);
     const [accountError, setAccountError] = useState('');
     const [copyMessage, setCopyMessage] = useState('');
 
@@ -47,101 +48,39 @@ const UserDashboard: React.FC = () => {
     const [selectedMonth, setSelectedMonth] = useState<number>(new Date().getMonth());
     const [selectedYear, setSelectedYear] = useState<number>(new Date().getFullYear());
 
-    // Refresh interval state
-    const refreshIntervalRef = useRef<number | null>(null);
-    const lastActivityRef = useRef<Date>(new Date());
+    // Refresh interval state -> Handled by React Query refetchInterval
 
-    // Fetch customer data
-    const fetchCustomerData = useCallback(async (silent = false) => {
-        if (!silent) setLoading(true);
-        setError('');
-        try {
-            const token = sessionStorage.getItem('accessToken') || localStorage.getItem('accessToken');
-            const res = await fetch('/api/customers/customer', {
-                method: 'GET',
-                headers: {
-                    'Content-Type': 'application/json',
-                    Authorization: token ? `Bearer ${token}` : ''
-                }
+    // Fetch customer data -> Handled by React Query useQuery
+
+    // Auto Refresh -> Handled by React Query refetchInterval
+
+    // Visibility change refresh -> Handled by React Query refetchOnWindowFocus
+
+    // Activity tracker -> Removed manual tracker as React Query handles focus refresh nicely.
+    // However, if we want to refresh on user interaction (mousemove/cilck), React Query doesn't do that by default.
+    // But usually window focus is enough. The original code refreshed on mousemove effectively keeping data fresh if user is active.
+    // refetchInterval is better for this.
+
+   const { mutate: createAccountMutation, isPending: accountCreating } = useMutation({
+        mutationFn: createAccount,
+        onSuccess: (newAccount) => {
+            queryClient.setQueryData(['customer'], (old: CustomerData | undefined) => {
+                if (!old) return old;
+                return {
+                    ...old,
+                    accounts: [...old.accounts, newAccount]
+                };
             });
-            if (!res.ok) {
-                const body = await res.json().catch(() => ({} as { message?: string }));
-                if (res.status === 401 || res.status === 403) {
-                    sessionStorage.removeItem('accessToken');
-                    localStorage.removeItem('accessToken');
-                    localStorage.removeItem('customerData');
-                }
-                const msg = body.message || 'Не вдалося отримати дані користувача';
-                setError(`❌ ${msg}`);
-                return;
-            }
-            const data: CustomerData = await res.json();
-            setCustomer(data);
-            localStorage.setItem('customerData', JSON.stringify(data));
-            setSelectedAccountIndex(prev => (prev >= data.accounts.length ? 0 : prev));
-        } catch {
-            if (!silent) setError('❌ Помилка з\'єднання з сервером');
-        } finally {
-            if (!silent) setLoading(false);
+            setSelectedAccountIndex(() => (customer?.accounts.length || 0)); // Select new account
+            setShowAddModal(false);
+            setCopyMessage('Рахунок створено');
+            setNewAccountType('UAH');
+            setAccountError('');
+        },
+        onError: (err: Error) => {
+             setAccountError(`❌ ${err.message}`);
         }
-    }, []);
-
-    useEffect(() => {
-        const hasCache = !!localStorage.getItem('customerData');
-        fetchCustomerData(hasCache);
-    }, [fetchCustomerData]);
-
-    // Auto Refresh
-    useEffect(() => {
-        if (!customer) return;
-        const startAutoRefresh = () => {
-            if (refreshIntervalRef.current) clearInterval(refreshIntervalRef.current);
-            refreshIntervalRef.current = setInterval(() => {
-                const now = new Date();
-                const timeSinceLast = now.getTime() - lastActivityRef.current.getTime();
-                const fiveMinutes = 5 * 60 * 1000;
-                if (timeSinceLast < fiveMinutes) {
-                    fetchCustomerData(true);
-                }
-            }, 30000);
-        };
-        startAutoRefresh();
-        return () => {
-            if (refreshIntervalRef.current) clearInterval(refreshIntervalRef.current);
-        };
-    }, [customer, fetchCustomerData]);
-
-    // Visibility change refresh
-    useEffect(() => {
-        const handleVisibilityChange = () => {
-            if (!document.hidden && customer) {
-                lastActivityRef.current = new Date();
-                fetchCustomerData(true);
-            }
-        };
-        const handleFocus = () => {
-            if (customer) {
-                lastActivityRef.current = new Date();
-                fetchCustomerData(true);
-            }
-        };
-        document.addEventListener('visibilitychange', handleVisibilityChange);
-        window.addEventListener('focus', handleFocus);
-        return () => {
-            document.removeEventListener('visibilitychange', handleVisibilityChange);
-            window.removeEventListener('focus', handleFocus);
-        };
-    }, [customer, fetchCustomerData]);
-
-    // Activity tracker
-    useEffect(() => {
-        const updateActivity = () => (lastActivityRef.current = new Date());
-        const events = ['mousedown', 'mousemove', 'keypress', 'scroll', 'touchstart', 'click'];
-        events.forEach(evt => document.addEventListener(evt, updateActivity, {passive: true}));
-        return () => {
-            events.forEach(evt => document.removeEventListener(evt, updateActivity));
-        };
-    }, []);
+    });
 
     useEffect(() => {
         if (!copyMessage) return;
@@ -156,67 +95,31 @@ const UserDashboard: React.FC = () => {
         }
     }, [showAddModal]);
 
-    const handleAddAccount = async () => {
-        setAccountCreating(true);
-        setAccountError('');
-        try {
-            const token = sessionStorage.getItem('accessToken') || localStorage.getItem('accessToken');
-            const res = await fetch('/api/accounts/create', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    Authorization: token ? `Bearer ${token}` : ''
-                },
-                body: JSON.stringify({accountType: newAccountType})
-            });
-            if (!res.ok) {
-                const body = await res.json().catch(() => ({} as { message?: string }));
-                const msg = body.message || 'Не вдалося створити рахунок';
-                setAccountError(`❌ ${msg}`);
-                setAccountCreating(false);
-                return;
-            }
-            const createdAccount: Account = await res.json();
-            setCustomer(prev => {
-                if (!prev) return prev;
-                const updated = {...prev, accounts: [...prev.accounts, createdAccount]};
-                setSelectedAccountIndex(updated.accounts.length - 1);
-                return updated;
-            });
-            setShowAddModal(false);
-            setCopyMessage('Рахунок створено');
-            setNewAccountType('UAH');
-            setAccountError('');
-        } catch {
-            setAccountError('❌ Помилка з\'єднання з сервером');
-        } finally {
-            setAccountCreating(false);
-        }
+    const handleAddAccount = () => {
+        createAccountMutation(newAccountType);
     };
 
     const handleCloseAddModal = () => {
         setShowAddModal(false);
         setNewAccountType('UAH');
         setAccountError('');
-        setAccountCreating(false);
     };
 
     const handleTabSelect = useCallback(
         (tab: 'accounts' | 'transactions' | 'payments' | 'transfers' | 'analytics') => {
             setSelectedTab(tab);
-            lastActivityRef.current = new Date();
-            if (tab === 'transactions' && customer) {
-                fetchCustomerData(true);
+            if (tab === 'transactions') {
+                queryClient.invalidateQueries({ queryKey: ['customer'] });
             }
         },
-        [customer, fetchCustomerData]
+        [queryClient]
     );
 
     const renderCurrentTab = () => {
         if (!customer) return null;
-        switch (selectedTab) {
-            case 'accounts':
-                return (
+        return (
+            <Suspense fallback={<div className="tab-loading">Завантаження вкладки...</div>}>
+                {selectedTab === 'accounts' && (
                     <AccountsSection
                         accounts={customer.accounts}
                         selectedIndex={selectedAccountIndex}
@@ -224,10 +127,9 @@ const UserDashboard: React.FC = () => {
                         onAddAccount={() => setShowAddModal(true)}
                         onCopy={(msg) => setCopyMessage(msg)}
                     />
-                );
-            case 'transactions':
-                return (
-                    <TransactionsSection
+                )}
+                {selectedTab === 'transactions' && (
+                  <TransactionsSection
                         accounts={customer.accounts}
                         selectedAccountIndex={selectedAccountIndex}
                         setSelectedAccountIndex={setSelectedAccountIndex}
@@ -239,26 +141,23 @@ const UserDashboard: React.FC = () => {
                         setFilterType={setFilterType}
                         onAnalytics={() => setSelectedTab('analytics')}
                     />
-                );
-            case 'payments':
-                return (
-                    <PaymentsSection
+                )}
+                {selectedTab === 'payments' && (
+                     <PaymentsSection
                         accounts={customer.accounts}
                         selectedAccountIndex={selectedAccountIndex}
                     />
-                );
-            case 'transfers':
-                return (
+                )}
+                {selectedTab === 'transfers' && (
                     <TransfersSection
                         customer={customer}
                         onTransferComplete={async () => {
-                            await fetchCustomerData(true);
+                            await queryClient.invalidateQueries({ queryKey: ['customer'] });
                         }}
                         onCopy={(msg) => setCopyMessage(msg)}
                     />
-                );
-            case 'analytics':
-                return (
+                )}
+                {selectedTab === 'analytics' && (
                     <AnalyticsSection
                         customer={customer}
                         selectedAnalyticsAccount={selectedAnalyticsAccount}
@@ -269,22 +168,14 @@ const UserDashboard: React.FC = () => {
                         setSelectedYear={setSelectedYear}
                         onBack={() => setSelectedTab('transactions')}
                     />
-                );
-            default:
-                return null;
-        }
+                )}
+            </Suspense>
+        );
     };
 
     useEffect(() => {
         localStorage.setItem('lastActiveTab', selectedTab);
     }, [selectedTab]);
-
-    // Initialize analytics account
-    useEffect(() => {
-        if (customer?.accounts.length && !selectedAnalyticsAccount) {
-            setSelectedAnalyticsAccount(customer.accounts[0].accountNumber);
-        }
-    }, [customer, selectedAnalyticsAccount]);
 
     // Initialize analytics account
     useEffect(() => {
@@ -335,14 +226,14 @@ const UserDashboard: React.FC = () => {
                         <span>Завантаження даних...</span>
                     </div>
                 )}
-                {error && (
+                {isError && (
                     <div className="dashboard-section">
-                        <div className="error-message">{error}</div>
-                        <button className="btn btn-primary" onClick={() => fetchCustomerData(false)}>Спробувати знову
+                        <div className="error-message">❌ {(error as Error).message}</div>
+                        <button className="btn btn-primary" onClick={() => queryClient.resetQueries({ queryKey: ['customer'] })}>Спробувати знову
                         </button>
                     </div>
                 )}
-                {!loading && !error && (
+                {!loading && !isError && (
                     <div className="dashboard-grid">
                         <div className="dashboard-section">
                             {selectedTab !== 'transactions' && (
@@ -399,6 +290,7 @@ const UserDashboard: React.FC = () => {
                                 localStorage.removeItem('lastActiveTab');
                                 localStorage.removeItem('customerData');
                                 clearTransactionsCache();
+                                queryClient.clear();
                                 window.location.reload();
                             }}
                         >
