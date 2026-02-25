@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, type ReactNode } from 'react';
 import { Routes, Route, Navigate, useNavigate, useLocation } from 'react-router-dom';
 import './App.css';
 import { LoginForm } from './log-in/LoginForm';
@@ -61,7 +61,7 @@ function App() {
     }, [location.pathname]);
 
     // Protected Route wrapper
-    const ProtectedRoute = ({ children }: { children: JSX.Element }) => {
+    const ProtectedRoute = ({ children }: { children: ReactNode }) => {
         const token = sessionStorage.getItem('accessToken') || localStorage.getItem('accessToken');
         if (!token) {
             return <Navigate to="/login" replace />;
@@ -86,7 +86,7 @@ function App() {
             } />
             <Route path="/verify" element={
                 <VerifyEmailForm
-                    email={emailToVerify || (location.state as any)?.email || ''}
+                    email={emailToVerify || (location.state as { email?: string })?.email || ''}
                     onVerified={handleVerificationSuccess}
                     onBack={() => navigate('/login')}
                 />
