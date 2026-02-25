@@ -1,4 +1,5 @@
-import { useState, useEffect, Suspense, lazy } from 'react';
+import { useState, useEffect, type ReactNode } from 'react';
+import { Routes, Route, Navigate, useNavigate, useLocation } from 'react-router-dom';
 import './App.css';
 
 const LoginForm = lazy(() => import('./log-in/LoginForm').then(module => ({ default: module.LoginForm })));
@@ -8,12 +9,8 @@ const ForgotPasswordForm = lazy(() => import('./ForgotPasswordForm').then(module
 const UserDashboard = lazy(() => import('./UserDashboard'));
 
 function App() {
-    type Page = 'login' | 'register' | 'verify' | 'forgot' | 'user' | 'admin';
-    const [page, setPage] = useState<Page>(() => {
-        const sessionToken = sessionStorage.getItem('accessToken');
-        const localToken = localStorage.getItem('accessToken');
-        return sessionToken || localToken ? 'user' : 'login';
-    });
+    const navigate = useNavigate();
+    const location = useLocation();
     const [emailToVerify, setEmailToVerify] = useState('');
 
     useEffect(() => {
@@ -35,82 +32,100 @@ function App() {
 
     const handleLoginSuccess = (role: string) => {
         if (role && role.toUpperCase().includes('ADMIN')) {
-            setPage('admin');
+            navigate('/admin');
         } else {
-            setPage('user');
+            navigate('/dashboard/accounts'); // Default to accounts tab
         }
     };
 
     const handleRegisterComplete = (email: string) => {
         setEmailToVerify(email);
-        setPage('verify');
+        navigate('/verify');
     };
 
     const handleVerificationSuccess = () => {
-        setPage('login');
+        navigate('/login');
     };
 
     const handleResetSuccess = () => {
-        setPage('login');
+        navigate('/login');
     };
 
     useEffect(() => {
         const cls = 'orientation-lock-open';
-        if (page === 'user') {
+        if (location.pathname.startsWith('/dashboard')) {
             document.body.classList.add(cls);
         } else {
             document.body.classList.remove(cls);
         }
         return () => document.body.classList.remove(cls);
-    }, [page]);
+    }, [location.pathname]);
+
+    // Protected Route wrapper
+    const ProtectedRoute = ({ children }: { children: ReactNode }) => {
+        const token = sessionStorage.getItem('accessToken') || localStorage.getItem('accessToken');
+        if (!token) {
+            return <Navigate to="/login" replace />;
+        }
+        return children;
+    };
 
     return (
-        <Suspense fallback={<div className="loading-screen">Завантаження...</div>}>
-            {page === 'login' && (
+        <Routes>
+            <Route path="/login" element={
                 <LoginForm
                     onLogin={handleLoginSuccess}
-                    onRegisterLink={() => setPage('register')}
-                    onForgotLink={() => setPage('forgot')}
+                    onRegisterLink={() => navigate('/register')}
+                    onForgotLink={() => navigate('/forgot-password')}
                 />
-            )}
-            {page === 'register' && (
+            } />
+            <Route path="/register" element={
                 <RegisterForm
                     onRegisterComplete={handleRegisterComplete}
-                    onBack={() => setPage('login')}
+                    onBack={() => navigate('/login')}
                 />
-            )}
-            {page === 'verify' && (
+            } />
+            <Route path="/verify" element={
                 <VerifyEmailForm
-                    email={emailToVerify}
+                    email={emailToVerify || (location.state as { email?: string })?.email || ''}
                     onVerified={handleVerificationSuccess}
-                    onBack={() => setPage('login')}
+                    onBack={() => navigate('/login')}
                 />
-            )}
-            {page === 'forgot' && (
+            } />
+            <Route path="/forgot-password" element={
                 <ForgotPasswordForm
-                    onBack={() => setPage('login')}
+                    onBack={() => navigate('/login')}
                     onReset={handleResetSuccess}
                 />
-            )}
-            {page === 'user' && (
-                <>
-                    <div className="orientation-lock">
-                        <div className="orientation-box">
-                            <div className="orientation-icon">📱</div>
-                            <h2>Поверніть телефон</h2>
-                            <p>Будь ласка, переверніть пристрій у вертикальне положення.</p>
+            } />
+
+            <Route path="/dashboard/*" element={
+                <ProtectedRoute>
+                    <>
+                        <div className="orientation-lock">
+                            <div className="orientation-box">
+                                <div className="orientation-icon">📱</div>
+                                <h2>Поверніть телефон</h2>
+                                <p>Будь ласка, переверніть пристрій у вертикальне положення.</p>
+                            </div>
                         </div>
+                        <UserDashboard />
+                    </>
+                </ProtectedRoute>
+            } />
+
+            <Route path="/admin" element={
+                <ProtectedRoute>
+                    <div className="welcome-message">
+                        <h1>🔐 Вітаємо! Ви увійшли як адміністратор</h1>
+                        <p>Тут може бути адміністративна панель.</p>
                     </div>
-                    <UserDashboard />
-                </>
-            )}
-            {page === 'admin' && (
-                <div className="welcome-message">
-                    <h1>🔐 Вітаємо! Ви увійшли як адміністратор</h1>
-                    <p>Тут може бути адміністративна панель.</p>
-                </div>
-            )}
-        </Suspense>
+                </ProtectedRoute>
+            } />
+
+            <Route path="/" element={<Navigate to="/dashboard/accounts" replace />} />
+            <Route path="*" element={<Navigate to="/login" replace />} />
+        </Routes>
     );
 }
 
