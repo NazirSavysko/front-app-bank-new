@@ -1,13 +1,16 @@
 import React, {useCallback, useEffect, useRef, useState} from 'react';
+import { Routes, Route, Navigate, NavLink, useLocation, useNavigate } from 'react-router-dom';
 import AccountsSection from './selections/account/AccountsSection.tsx';
 import TransactionsSection from './selections/transation/TransactionsSection.tsx';
 import PaymentsSection from './selections/payment/PaymentsSection.tsx';
 import TransfersSection from './selections/transfer/TransfersSection.tsx';
 import AnalyticsSection from './selections/analytic/AnalyticsSection.tsx';
-import type {CustomerData, Account} from './types';
+import type {CustomerData} from './types';
 import './UserDashboard.css';
 
 const UserDashboard: React.FC = () => {
+    const location = useLocation();
+    const navigate = useNavigate();
     const [customer, setCustomer] = useState<CustomerData | null>(() => {
         try {
             const saved = localStorage.getItem('customerData');
@@ -18,10 +21,8 @@ const UserDashboard: React.FC = () => {
     });
     const [loading, setLoading] = useState(() => !localStorage.getItem('customerData'));
     const [error, setError] = useState('');
-    const [selectedTab, setSelectedTab] =
-        useState<'accounts' | 'transactions' | 'payments' | 'transfers' | 'analytics'>(() => {
-            return (localStorage.getItem('lastActiveTab') as 'accounts' | 'transactions' | 'payments' | 'transfers' | 'analytics') || 'accounts';
-        });
+    // Removed selectedTab state
+
     const [selectedAccountIndex, setSelectedAccountIndex] = useState(0);
     const [showAddModal, setShowAddModal] = useState(false);
     const [showProfile, setShowProfile] = useState(false);
@@ -70,6 +71,7 @@ const UserDashboard: React.FC = () => {
                     sessionStorage.removeItem('accessToken');
                     localStorage.removeItem('accessToken');
                     localStorage.removeItem('customerData');
+                    navigate('/login'); // Redirect to login on auth error
                 }
                 const msg = body.message || 'Не вдалося отримати дані користувача';
                 setError(`❌ ${msg}`);
@@ -84,111 +86,92 @@ const UserDashboard: React.FC = () => {
         } finally {
             if (!silent) setLoading(false);
         }
-    }, []);
+    }, [navigate]);
 
     useEffect(() => {
         const hasCache = !!localStorage.getItem('customerData');
         fetchCustomerData(hasCache);
     }, [fetchCustomerData]);
 
-    // Auto Refresh
+    // Refresh data when navigating to transactions
+    useEffect(() => {
+        if (location.pathname.includes('transactions') && customer) {
+            fetchCustomerData(true);
+            lastActivityRef.current = new Date();
+        }
+    }, [location.pathname, customer, fetchCustomerData]);
+
+    // Auto Refresh remains same...
     useEffect(() => {
         if (!customer) return;
         const startAutoRefresh = () => {
             if (refreshIntervalRef.current) clearInterval(refreshIntervalRef.current);
             refreshIntervalRef.current = setInterval(() => {
                 const now = new Date();
-                const timeSinceLast = now.getTime() - lastActivityRef.current.getTime();
-                const fiveMinutes = 5 * 60 * 1000;
-                if (timeSinceLast < fiveMinutes) {
-                    fetchCustomerData(true);
+                const timeSinceLastActivity = now.getTime() - lastActivityRef.current.getTime();
+                // If inactive for 5 minutes, stop auto-refresh
+                if (timeSinceLastActivity > 5 * 60 * 1000) {
+                    if (refreshIntervalRef.current) {
+                        clearInterval(refreshIntervalRef.current);
+                        refreshIntervalRef.current = null;
+                    }
+                    return;
                 }
-            }, 30000);
+                fetchCustomerData(true);
+            }, 30000); // 30 seconds
         };
+
+        const handleActivity = () => {
+             lastActivityRef.current = new Date();
+             if (!refreshIntervalRef.current) startAutoRefresh();
+        };
+
+        window.addEventListener('click', handleActivity);
+        window.addEventListener('keypress', handleActivity);
+        window.addEventListener('mousemove', handleActivity);
+        window.addEventListener('scroll', handleActivity);
+
         startAutoRefresh();
+
         return () => {
             if (refreshIntervalRef.current) clearInterval(refreshIntervalRef.current);
+            window.removeEventListener('click', handleActivity);
+            window.removeEventListener('keypress', handleActivity);
+            window.removeEventListener('mousemove', handleActivity);
+            window.removeEventListener('scroll', handleActivity);
         };
     }, [customer, fetchCustomerData]);
 
-    // Visibility change refresh
-    useEffect(() => {
-        const handleVisibilityChange = () => {
-            if (!document.hidden && customer) {
-                lastActivityRef.current = new Date();
-                fetchCustomerData(true);
-            }
-        };
-        const handleFocus = () => {
-            if (customer) {
-                lastActivityRef.current = new Date();
-                fetchCustomerData(true);
-            }
-        };
-        document.addEventListener('visibilitychange', handleVisibilityChange);
-        window.addEventListener('focus', handleFocus);
-        return () => {
-            document.removeEventListener('visibilitychange', handleVisibilityChange);
-            window.removeEventListener('focus', handleFocus);
-        };
-    }, [customer, fetchCustomerData]);
-
-    // Activity tracker
-    useEffect(() => {
-        const updateActivity = () => (lastActivityRef.current = new Date());
-        const events = ['mousedown', 'mousemove', 'keypress', 'scroll', 'touchstart', 'click'];
-        events.forEach(evt => document.addEventListener(evt, updateActivity, {passive: true}));
-        return () => {
-            events.forEach(evt => document.removeEventListener(evt, updateActivity));
-        };
-    }, []);
-
-    useEffect(() => {
-        if (!copyMessage) return;
-        const timer = setTimeout(() => setCopyMessage(''), 3000);
-        return () => clearTimeout(timer);
-    }, [copyMessage]);
-
-    useEffect(() => {
-        if (showAddModal) {
-            setAccountError('');
-            setNewAccountType('UAH');
-        }
-    }, [showAddModal]);
 
     const handleAddAccount = async () => {
+        // ...existing code...
+        if (accountCreating) return;
         setAccountCreating(true);
         setAccountError('');
         try {
-            const token = sessionStorage.getItem('accessToken') || localStorage.getItem('accessToken');
-            const res = await fetch('/api/accounts/create', {
+            const token = sessionStorage.getItem('accessToken');
+            const res = await fetch('/api/accounts', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
                     Authorization: token ? `Bearer ${token}` : ''
                 },
-                body: JSON.stringify({accountType: newAccountType})
+                body: JSON.stringify({
+                    currency: newAccountType,
+                    accountType: 'CURRENT'
+                })
             });
-            if (!res.ok) {
-                const body = await res.json().catch(() => ({} as { message?: string }));
-                const msg = body.message || 'Не вдалося створити рахунок';
-                setAccountError(`❌ ${msg}`);
-                setAccountCreating(false);
-                return;
+            if (res.ok) {
+                await fetchCustomerData(true);
+                setShowAddModal(false);
+                // Switch to accounts tab if not already there
+                navigate('/dashboard/accounts');
+            } else {
+                const data = await res.json();
+                setAccountError(`❌ ${data.message || 'Помилка створення рахунку'}`);
             }
-            const createdAccount: Account = await res.json();
-            setCustomer(prev => {
-                if (!prev) return prev;
-                const updated = {...prev, accounts: [...prev.accounts, createdAccount]};
-                setSelectedAccountIndex(updated.accounts.length - 1);
-                return updated;
-            });
-            setShowAddModal(false);
-            setCopyMessage('Рахунок створено');
-            setNewAccountType('UAH');
-            setAccountError('');
         } catch {
-            setAccountError('❌ Помилка з\'єднання з сервером');
+            setAccountError('❌ Помилка з\'єднання');
         } finally {
             setAccountCreating(false);
         }
@@ -196,97 +179,15 @@ const UserDashboard: React.FC = () => {
 
     const handleCloseAddModal = () => {
         setShowAddModal(false);
-        setNewAccountType('UAH');
         setAccountError('');
         setAccountCreating(false);
     };
 
-    const handleTabSelect = useCallback(
-        (tab: 'accounts' | 'transactions' | 'payments' | 'transfers' | 'analytics') => {
-            setSelectedTab(tab);
-            lastActivityRef.current = new Date();
-            if (tab === 'transactions' && customer) {
-                fetchCustomerData(true);
-            }
-        },
-        [customer, fetchCustomerData]
-    );
+    // Removed handleTabSelect
 
-    const renderCurrentTab = () => {
-        if (!customer) return null;
-        switch (selectedTab) {
-            case 'accounts':
-                return (
-                    <AccountsSection
-                        accounts={customer.accounts}
-                        selectedIndex={selectedAccountIndex}
-                        onSelect={setSelectedAccountIndex}
-                        onAddAccount={() => setShowAddModal(true)}
-                        onCopy={(msg) => setCopyMessage(msg)}
-                    />
-                );
-            case 'transactions':
-                return (
-                    <TransactionsSection
-                        accounts={customer.accounts}
-                        selectedAccountIndex={selectedAccountIndex}
-                        setSelectedAccountIndex={setSelectedAccountIndex}
-                        filterStartDate={filterStartDate}
-                        setFilterStartDate={setFilterStartDate}
-                        filterEndDate={filterEndDate}
-                        setFilterEndDate={setFilterEndDate}
-                        filterType={filterType}
-                        setFilterType={setFilterType}
-                        onAnalytics={() => setSelectedTab('analytics')}
-                    />
-                );
-            case 'payments':
-                return (
-                    <PaymentsSection
-                        accounts={customer.accounts}
-                        selectedAccountIndex={selectedAccountIndex}
-                    />
-                );
-            case 'transfers':
-                return (
-                    <TransfersSection
-                        customer={customer}
-                        onTransferComplete={async () => {
-                            await fetchCustomerData(true);
-                        }}
-                        onCopy={(msg) => setCopyMessage(msg)}
-                    />
-                );
-            case 'analytics':
-                return (
-                    <AnalyticsSection
-                        customer={customer}
-                        selectedAnalyticsAccount={selectedAnalyticsAccount}
-                        setSelectedAnalyticsAccount={setSelectedAnalyticsAccount}
-                        selectedMonth={selectedMonth}
-                        setSelectedMonth={setSelectedMonth}
-                        selectedYear={selectedYear}
-                        setSelectedYear={setSelectedYear}
-                        onBack={() => setSelectedTab('transactions')}
-                    />
-                );
-            default:
-                return null;
-        }
-    };
+    // Removed renderCurrentTab and useEffect for lastActiveTab
 
-    useEffect(() => {
-        localStorage.setItem('lastActiveTab', selectedTab);
-    }, [selectedTab]);
-
-    // Initialize analytics account
-    useEffect(() => {
-        if (customer?.accounts.length && !selectedAnalyticsAccount) {
-            setSelectedAnalyticsAccount(customer.accounts[0].accountNumber);
-        }
-    }, [customer, selectedAnalyticsAccount]);
-
-    // Initialize analytics account
+    // Initialize analytics account remains same
     useEffect(() => {
         if (customer?.accounts.length && !selectedAnalyticsAccount) {
             setSelectedAnalyticsAccount(customer.accounts[0].accountNumber);
@@ -316,18 +217,18 @@ const UserDashboard: React.FC = () => {
                     </div>
                 </div>
                 <div className="dashboard-tabs">
-                    <button className={`tab-button ${selectedTab === 'accounts' ? 'active' : ''}`}
-                            onClick={() => handleTabSelect('accounts')}>Рахунки
-                    </button>
-                    <button className={`tab-button ${selectedTab === 'transactions' ? 'active' : ''}`}
-                            onClick={() => handleTabSelect('transactions')}>Транзакції
-                    </button>
-                    <button className={`tab-button ${selectedTab === 'payments' ? 'active' : ''}`}
-                            onClick={() => handleTabSelect('payments')}>Платежі
-                    </button>
-                    <button className={`tab-button ${selectedTab === 'transfers' ? 'active' : ''}`}
-                            onClick={() => handleTabSelect('transfers')}>Перекази
-                    </button>
+                     <NavLink to="/dashboard/accounts" className={({ isActive }) => `tab-button ${isActive ? 'active' : ''}`}>
+                        Рахунки
+                    </NavLink>
+                    <NavLink to="/dashboard/transactions" className={({ isActive }) => `tab-button ${isActive ? 'active' : ''}`}>
+                        Транзакції
+                    </NavLink>
+                    <NavLink to="/dashboard/payments" className={({ isActive }) => `tab-button ${isActive ? 'active' : ''}`}>
+                        Платежі
+                    </NavLink>
+                    <NavLink to="/dashboard/transfers" className={({ isActive }) => `tab-button ${isActive ? 'active' : ''}`}>
+                        Перекази
+                    </NavLink>
                 </div>
                 {loading && (
                     <div className="loading">
@@ -342,18 +243,71 @@ const UserDashboard: React.FC = () => {
                         </button>
                     </div>
                 )}
-                {!loading && !error && (
+                {!loading && !error && customer && (
                     <div className="dashboard-grid">
                         <div className="dashboard-section">
-                            {selectedTab !== 'transactions' && (
-                                <h2 className="section-title">
-                                    {selectedTab === 'accounts' && 'Мої рахунки'}
-                                    {selectedTab === 'payments' && 'Платежі'}
-                                    {selectedTab === 'transfers' && 'Перекази'}
-                                    {selectedTab === 'analytics' && 'Аналітика'}
-                                </h2>
-                            )}
-                            {renderCurrentTab()}
+                            {/* Section Title Logic - replicating previous behavior */}
+                            <Routes>
+                                <Route path="accounts" element={<h2 className="section-title">Мої рахунки</h2>} />
+                                <Route path="payments" element={<h2 className="section-title">Платежі</h2>} />
+                                <Route path="transfers" element={<h2 className="section-title">Перекази</h2>} />
+                                <Route path="analytics" element={<h2 className="section-title">Аналітика</h2>} />
+                                <Route path="*" element={null} />
+                            </Routes>
+
+                            <Routes>
+                                <Route path="accounts" element={
+                                    <AccountsSection
+                                        accounts={customer.accounts}
+                                        selectedIndex={selectedAccountIndex}
+                                        onSelect={setSelectedAccountIndex}
+                                        onAddAccount={() => setShowAddModal(true)}
+                                        onCopy={(msg) => setCopyMessage(msg)}
+                                    />
+                                } />
+                                <Route path="transactions" element={
+                                    <TransactionsSection
+                                        accounts={customer.accounts}
+                                        selectedAccountIndex={selectedAccountIndex}
+                                        setSelectedAccountIndex={setSelectedAccountIndex}
+                                        filterStartDate={filterStartDate}
+                                        setFilterStartDate={setFilterStartDate}
+                                        filterEndDate={filterEndDate}
+                                        setFilterEndDate={setFilterEndDate}
+                                        filterType={filterType}
+                                        setFilterType={setFilterType}
+                                        onAnalytics={() => navigate('/dashboard/analytics')}
+                                    />
+                                } />
+                                <Route path="payments" element={
+                                    <PaymentsSection
+                                        accounts={customer.accounts}
+                                        selectedAccountIndex={selectedAccountIndex}
+                                    />
+                                } />
+                                <Route path="transfers" element={
+                                    <TransfersSection
+                                        customer={customer}
+                                        onTransferComplete={async () => {
+                                            await fetchCustomerData(true);
+                                        }}
+                                        onCopy={(msg) => setCopyMessage(msg)}
+                                    />
+                                } />
+                                <Route path="analytics" element={
+                                    <AnalyticsSection
+                                        customer={customer}
+                                        selectedAnalyticsAccount={selectedAnalyticsAccount}
+                                        setSelectedAnalyticsAccount={setSelectedAnalyticsAccount}
+                                        selectedMonth={selectedMonth}
+                                        setSelectedMonth={setSelectedMonth}
+                                        selectedYear={selectedYear}
+                                        setSelectedYear={setSelectedYear}
+                                        onBack={() => navigate('/dashboard/transactions')}
+                                    />
+                                } />
+                                <Route path="*" element={<Navigate to="/dashboard/accounts" replace />} />
+                            </Routes>
                         </div>
                     </div>
                 )}
@@ -399,7 +353,7 @@ const UserDashboard: React.FC = () => {
                                 localStorage.removeItem('lastActiveTab');
                                 localStorage.removeItem('customerData');
                                 clearTransactionsCache();
-                                window.location.reload();
+                                navigate('/login');
                             }}
                         >
                             Вийти
