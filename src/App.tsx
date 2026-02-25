@@ -1,4 +1,4 @@
-import { useState, useEffect, type ReactNode } from 'react';
+import { useState, useEffect, type ReactNode, lazy, Suspense } from 'react';
 import { Routes, Route, Navigate, useNavigate, useLocation } from 'react-router-dom';
 import './App.css';
 
@@ -71,61 +71,63 @@ function App() {
     };
 
     return (
-        <Routes>
-            <Route path="/login" element={
-                <LoginForm
-                    onLogin={handleLoginSuccess}
-                    onRegisterLink={() => navigate('/register')}
-                    onForgotLink={() => navigate('/forgot-password')}
-                />
-            } />
-            <Route path="/register" element={
-                <RegisterForm
-                    onRegisterComplete={handleRegisterComplete}
-                    onBack={() => navigate('/login')}
-                />
-            } />
-            <Route path="/verify" element={
-                <VerifyEmailForm
-                    email={emailToVerify || (location.state as { email?: string })?.email || ''}
-                    onVerified={handleVerificationSuccess}
-                    onBack={() => navigate('/login')}
-                />
-            } />
-            <Route path="/forgot-password" element={
-                <ForgotPasswordForm
-                    onBack={() => navigate('/login')}
-                    onReset={handleResetSuccess}
-                />
-            } />
+        <Suspense fallback={<div className="loading"><div className="spinner"></div></div>}>
+            <Routes>
+                <Route path="/login" element={
+                    <LoginForm
+                        onLogin={handleLoginSuccess}
+                        onRegisterLink={() => navigate('/register')}
+                        onForgotLink={() => navigate('/forgot-password')}
+                    />
+                } />
+                <Route path="/register" element={
+                    <RegisterForm
+                        onRegisterComplete={handleRegisterComplete}
+                        onBack={() => navigate('/login')}
+                    />
+                } />
+                <Route path="/verify" element={
+                    <VerifyEmailForm
+                        email={emailToVerify || (location.state as { email?: string })?.email || ''}
+                        onVerified={handleVerificationSuccess}
+                        onBack={() => navigate('/login')}
+                    />
+                } />
+                <Route path="/forgot-password" element={
+                    <ForgotPasswordForm
+                        onBack={() => navigate('/login')}
+                        onReset={handleResetSuccess}
+                    />
+                } />
 
-            <Route path="/dashboard/*" element={
-                <ProtectedRoute>
-                    <>
-                        <div className="orientation-lock">
-                            <div className="orientation-box">
-                                <div className="orientation-icon">📱</div>
-                                <h2>Поверніть телефон</h2>
-                                <p>Будь ласка, переверніть пристрій у вертикальне положення.</p>
+                <Route path="/dashboard/*" element={
+                    <ProtectedRoute>
+                        <>
+                            <div className="orientation-lock">
+                                <div className="orientation-box">
+                                    <div className="orientation-icon">📱</div>
+                                    <h2>Поверніть телефон</h2>
+                                    <p>Будь ласка, переверніть пристрій у вертикальне положення.</p>
+                                </div>
                             </div>
+                            <UserDashboard />
+                        </>
+                    </ProtectedRoute>
+                } />
+
+                <Route path="/admin" element={
+                    <ProtectedRoute>
+                        <div className="welcome-message">
+                            <h1>🔐 Вітаємо! Ви увійшли як адміністратор</h1>
+                            <p>Тут може бути адміністративна панель.</p>
                         </div>
-                        <UserDashboard />
-                    </>
-                </ProtectedRoute>
-            } />
+                    </ProtectedRoute>
+                } />
 
-            <Route path="/admin" element={
-                <ProtectedRoute>
-                    <div className="welcome-message">
-                        <h1>🔐 Вітаємо! Ви увійшли як адміністратор</h1>
-                        <p>Тут може бути адміністративна панель.</p>
-                    </div>
-                </ProtectedRoute>
-            } />
-
-            <Route path="/" element={<Navigate to="/dashboard/accounts" replace />} />
-            <Route path="*" element={<Navigate to="/login" replace />} />
-        </Routes>
+                <Route path="/" element={<Navigate to="/dashboard/accounts" replace />} />
+                <Route path="*" element={<Navigate to="/login" replace />} />
+            </Routes>
+        </Suspense>
     );
 }
 
