@@ -53,4 +53,7 @@ jobs:
           script: | 
             cd ~/bank-app
             docker-compose pull frontend
+            docker-compose stop frontend
+            docker-compose rm -f frontend
             docker-compose up -d frontend
+            docker image prune -f
