@@ -1,6 +1,8 @@
 // src/selections/transation/TransactionsSection.tsx
 import React, { useEffect, useState } from 'react';
-import type { Account, Transaction, Page } from '../../types';
+import { useQuery, keepPreviousData } from '@tanstack/react-query';
+import { fetchTransactions } from '../../api';
+import type { Account, Transaction } from '../../types';
 import TransactionCard from '../../components/TransactionCard.tsx';
 import './TransactionsSection.css';
 
@@ -24,10 +26,7 @@ const TransactionsSection: React.FC<TransactionsSectionProps> = ({
                                                                      setSelectedAccountIndex,
                                                                      onAnalytics
                                                                  }) => {
-    const [transactions, setTransactions] = useState<Transaction[]>([]);
-    const [loading, setLoading] = useState(false);
     const [page, setPage] = useState(0);
-    const [totalPages, setTotalPages] = useState(0);
 
     const selectedAccount = accounts[selectedAccountIndex];
     const accountNumber = selectedAccount?.accountNumber;
@@ -37,38 +36,16 @@ const TransactionsSection: React.FC<TransactionsSectionProps> = ({
         if (accountNumber) setPage(0);
     }, [accountNumber]);
 
-    // Fetch transactions
-    useEffect(() => {
-        if (!accountNumber) return;
+    const { data, isLoading, isError } = useQuery({
+        queryKey: ['transactions', accountNumber, page],
+        queryFn: () => fetchTransactions(accountNumber!, page, 10),
+        enabled: !!accountNumber,
+        placeholderData: keepPreviousData,
+        staleTime: 1000 * 60 * 5, // 5 minutes cache
+    });
 
-        const fetchTrx = async () => {
-            setLoading(true);
-            try {
-                const token = sessionStorage.getItem('accessToken');
-                const res = await fetch(`/api/transactions/transactions?accountNumber=${accountNumber}&page=${page}&size=10`, {
-                    headers: {
-                        'Content-Type': 'application/json',
-                        Authorization: token ? `Bearer ${token}` : ''
-                    }
-                });
-                if (res.ok) {
-                    const data: Page<Transaction> = await res.json();
-                    setTransactions(data.content);
-                    setTotalPages(data.totalPages);
-                } else {
-                    console.error('Failed to fetch transactions');
-                    setTransactions([]);
-                }
-            } catch (err) {
-                console.error(err);
-                setTransactions([]);
-            } finally {
-                setLoading(false);
-            }
-        };
-
-        fetchTrx();
-    }, [accountNumber, page]);
+    const transactions = data?.content || [];
+    const totalPages = data?.totalPages || 0;
 
     if (!selectedAccount) return null;
 
@@ -112,11 +89,13 @@ const TransactionsSection: React.FC<TransactionsSectionProps> = ({
             <h3 className="history-headline">Історія транзакцій</h3>
 
             <div className="account-transactions">
-                {loading ? (
+                {isLoading ? (
                     <div style={{ textAlign: 'center', padding: '2rem', color: '#718096' }}>Завантаження...</div>
+                ) : isError ? (
+                     <div style={{ textAlign: 'center', padding: '2rem', color: 'red' }}>Помилка завантаження транзакцій</div>
                 ) : transactions.length > 0 ? (
                     <>
-                        {transactions.map((tr, idx) => (
+                        {transactions.map((tr: Transaction, idx: number) => (
                             <TransactionCard
                                 key={`${tr.transactionDate}-${idx}`}
                                 transaction={tr}
@@ -134,7 +113,7 @@ const TransactionsSection: React.FC<TransactionsSectionProps> = ({
                     <button
                         className="pagination-btn"
                         onClick={handlePrev}
-                        disabled={page === 0 || loading}
+                        disabled={page === 0 || isLoading}
                     >
                         &larr; Назад
                     </button>
@@ -144,7 +123,7 @@ const TransactionsSection: React.FC<TransactionsSectionProps> = ({
                     <button
                         className="pagination-btn"
                         onClick={handleNext}
-                        disabled={page >= totalPages - 1 || loading}
+                        disabled={page >= totalPages - 1 || isLoading}
                     >
                         Вперед &rarr;
                     </button>

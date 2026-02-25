@@ -8,6 +8,12 @@ import AnalyticsSection from './selections/analytic/AnalyticsSection.tsx';
 import type {CustomerData} from './types';
 import './UserDashboard.css';
 
+const AccountsSection = lazy(() => import('./selections/account/AccountsSection.tsx'));
+const TransactionsSection = lazy(() => import('./selections/transation/TransactionsSection.tsx'));
+const PaymentsSection = lazy(() => import('./selections/payment/PaymentsSection.tsx'));
+const TransfersSection = lazy(() => import('./selections/transfer/TransfersSection.tsx'));
+const AnalyticsSection = lazy(() => import('./selections/analytic/AnalyticsSection.tsx'));
+
 const UserDashboard: React.FC = () => {
     const location = useLocation();
     const navigate = useNavigate();
@@ -27,7 +33,6 @@ const UserDashboard: React.FC = () => {
     const [showAddModal, setShowAddModal] = useState(false);
     const [showProfile, setShowProfile] = useState(false);
     const [newAccountType, setNewAccountType] = useState('UAH');
-    const [accountCreating, setAccountCreating] = useState(false);
     const [accountError, setAccountError] = useState('');
     const [copyMessage, setCopyMessage] = useState('');
 
@@ -48,9 +53,7 @@ const UserDashboard: React.FC = () => {
     const [selectedMonth, setSelectedMonth] = useState<number>(new Date().getMonth());
     const [selectedYear, setSelectedYear] = useState<number>(new Date().getFullYear());
 
-    // Refresh interval state
-    const refreshIntervalRef = useRef<number | null>(null);
-    const lastActivityRef = useRef<Date>(new Date());
+    // Refresh interval state -> Handled by React Query refetchInterval
 
     // Fetch customer data
     const fetchCustomerData = useCallback(async (silent = false) => {
@@ -88,10 +91,7 @@ const UserDashboard: React.FC = () => {
         }
     }, [navigate]);
 
-    useEffect(() => {
-        const hasCache = !!localStorage.getItem('customerData');
-        fetchCustomerData(hasCache);
-    }, [fetchCustomerData]);
+    // Auto Refresh -> Handled by React Query refetchInterval
 
     // Refresh data when navigating to transactions
     useEffect(() => {
@@ -180,7 +180,6 @@ const UserDashboard: React.FC = () => {
     const handleCloseAddModal = () => {
         setShowAddModal(false);
         setAccountError('');
-        setAccountCreating(false);
     };
 
     // Removed handleTabSelect
@@ -236,10 +235,10 @@ const UserDashboard: React.FC = () => {
                         <span>Завантаження даних...</span>
                     </div>
                 )}
-                {error && (
+                {isError && (
                     <div className="dashboard-section">
-                        <div className="error-message">{error}</div>
-                        <button className="btn btn-primary" onClick={() => fetchCustomerData(false)}>Спробувати знову
+                        <div className="error-message">❌ {(error as Error).message}</div>
+                        <button className="btn btn-primary" onClick={() => queryClient.resetQueries({ queryKey: ['customer'] })}>Спробувати знову
                         </button>
                     </div>
                 )}

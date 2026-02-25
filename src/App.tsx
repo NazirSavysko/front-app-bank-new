@@ -1,11 +1,12 @@
 import { useState, useEffect, type ReactNode } from 'react';
 import { Routes, Route, Navigate, useNavigate, useLocation } from 'react-router-dom';
 import './App.css';
-import { LoginForm } from './log-in/LoginForm';
-import { RegisterForm } from './RegisterForm';
-import { VerifyEmailForm } from './VerifyEmailForm';
-import { ForgotPasswordForm } from './ForgotPasswordForm';
-import UserDashboard from './UserDashboard';
+
+const LoginForm = lazy(() => import('./log-in/LoginForm').then(module => ({ default: module.LoginForm })));
+const RegisterForm = lazy(() => import('./RegisterForm').then(module => ({ default: module.RegisterForm })));
+const VerifyEmailForm = lazy(() => import('./VerifyEmailForm').then(module => ({ default: module.VerifyEmailForm })));
+const ForgotPasswordForm = lazy(() => import('./ForgotPasswordForm').then(module => ({ default: module.ForgotPasswordForm })));
+const UserDashboard = lazy(() => import('./UserDashboard'));
 
 function App() {
     const navigate = useNavigate();
