@@ -1,6 +1,6 @@
 // src/selections/analytic/AnalyticsSection.tsx
-import React, { useMemo, useCallback } from 'react';
-import type { CustomerData, Transaction } from '../../types';
+import React, { useMemo, useEffect, useState } from 'react';
+import type { CustomerData, AnalyticsSummary } from '../../types';
 import './AnalyticsSection.css';
 import {
     PieChart,
@@ -14,7 +14,7 @@ import {
     Tooltip,
     ResponsiveContainer,
 } from 'recharts';
-import { parseSafeDate } from '../../utils/datetime';
+import { fetchAnalyticsSummary } from '../../api';
 
 export interface AnalyticsSectionProps {
     customer: CustomerData | null;
@@ -50,6 +50,9 @@ const AnalyticsSection: React.FC<AnalyticsSectionProps> = ({
                                                                setSelectedYear,
                                                                onBack,
                                                            }) => {
+    const [summaryData, setSummaryData] = useState<AnalyticsSummary | null>(null);
+    const [isLoading, setIsLoading] = useState(false);
+
     const months = [
         'Січень',
         'Лютий',
@@ -70,60 +73,52 @@ const AnalyticsSection: React.FC<AnalyticsSectionProps> = ({
         [customer, selectedAnalyticsAccount]
     );
 
-    const isIncomingForSelected = useCallback((tr: Transaction) => {
-        return tr.isRecipient;
-    }, []);
-
     const accountToShow = selectedAccount || customer?.accounts[0];
     const currencySymbol = getCurrencySymbol(accountToShow?.currency);
 
-    // Transactions are temporarily disabled for analytics due to backend changes
-    const allTransactions: Transaction[] = useMemo(
-        () => [],
-        []
-    );
+    useEffect(() => {
+        if (!selectedAnalyticsAccount) return;
 
-    const curStart = useMemo(() => new Date(selectedYear, selectedMonth, 1), [selectedYear, selectedMonth]);
-    const curEnd = useMemo(() => new Date(selectedYear, selectedMonth + 1, 1), [selectedYear, selectedMonth]);
+        let isMounted = true;
+        setIsLoading(true);
 
-    const currentPeriodTransactions = useMemo(() => allTransactions.filter((tr) => {
-        const d = parseSafeDate(tr.transactionDate);
-        return d >= curStart && d < curEnd;
-    }), [allTransactions, curStart, curEnd]);
+        fetchAnalyticsSummary(selectedAnalyticsAccount, selectedYear, selectedMonth)
+            .then((data) => {
+                if (isMounted) {
+                    setSummaryData(data);
+                }
+            })
+            .catch((err) => {
+                console.error('Failed to fetch analytics summary', err);
+                if (isMounted) {
+                    setSummaryData(null);
+                }
+            })
+            .finally(() => {
+                if (isMounted) {
+                    setIsLoading(false);
+                }
+            });
 
-    const calcStats = useCallback((txs: Transaction[]) => {
-        let income = 0;
-        let expenses = 0;
-        for (const tr of txs) {
-            if (tr.status !== 'COMPLETED') continue;
-            if (isIncomingForSelected(tr)) income += tr.amount;
-            else expenses += tr.amount;
-        }
-        return { income, expenses };
-    }, [isIncomingForSelected]);
-
-    const currentStats = useMemo(() => calcStats(currentPeriodTransactions), [calcStats, currentPeriodTransactions]);
+        return () => {
+            isMounted = false;
+        };
+    }, [selectedAnalyticsAccount, selectedMonth, selectedYear]);
 
     const pieData = useMemo(() => {
+        const income = summaryData?.totalIncome ?? 0;
+        const expenses = summaryData?.totalExpense ?? 0;
         const parts = [];
-        if (currentStats.income > 0) parts.push({ name: 'Доходи', value: currentStats.income, color: '#10B981' });
-        if (currentStats.expenses > 0) parts.push({ name: 'Витрати', value: currentStats.expenses, color: '#EF4444' });
+        if (income > 0) parts.push({ name: 'Доходи', value: income, color: '#10B981' });
+        if (expenses > 0) parts.push({ name: 'Витрати', value: expenses, color: '#EF4444' });
         return parts;
-    }, [currentStats]);
+    }, [summaryData]);
 
-    const timelineData = useMemo(() => {
-        const daily: Record<number, { income: number; expenses: number }> = {};
-        for (const tr of currentPeriodTransactions) {
-            if (tr.status !== 'COMPLETED') continue;
-            const d = parseSafeDate(tr.transactionDate).getDate();
-            if (!daily[d]) daily[d] = { income: 0, expenses: 0 };
-            if (isIncomingForSelected(tr)) daily[d].income += tr.amount;
-            else daily[d].expenses += tr.amount;
-        }
-        return Object.entries(daily)
-            .map(([day, v]) => ({ day: Number(day), income: v.income, expenses: v.expenses }))
-            .sort((a, b) => a.day - b.day);
-    }, [currentPeriodTransactions, isIncomingForSelected]);
+    const timelineData = useMemo(() => [], []);
+
+    const incomeValue = summaryData?.totalIncome ?? 0;
+    const expenseValue = summaryData?.totalExpense ?? 0;
+    const operationsCount = summaryData?.operationsCount ?? 0;
 
     return (
         <div className="analytics-container">
@@ -192,26 +187,24 @@ const AnalyticsSection: React.FC<AnalyticsSectionProps> = ({
                     <div className="summary-card income">
                         <div className="summary-label">Доходи ({months[selectedMonth]})</div>
                         <div className="amount income">
-                            +{currentStats.income.toLocaleString()} {currencySymbol}
+                            +{incomeValue.toLocaleString()} {currencySymbol}
                         </div>
                     </div>
                     <div className="summary-card expenses">
                         <div className="summary-label">Витрати ({months[selectedMonth]})</div>
                         <div className="amount expenses">
-                            -{currentStats.expenses.toLocaleString()} {currencySymbol}
+                            -{expenseValue.toLocaleString()} {currencySymbol}
                         </div>
                     </div>
                     <div className="summary-card transactions">
                         <div className="summary-label">Кількість операцій</div>
-                        <div className="amount neutral">{currentPeriodTransactions.length}</div>
+                        <div className="amount neutral">{operationsCount}</div>
                     </div>
                 </div>
 
-                {/* Если транзакций нет (или пока отключены), покажем сообщение */}
-                {currentPeriodTransactions.length === 0 ? (
+                {!summaryData ? (
                     <div className="no-data-chart">
-                        <p>На жаль, аналітика тимчасово недоступна, так як історія транзакцій завантажується окремо.</p>
-                        <p style={{fontSize: '0.9rem', color: '#718096'}}>Ми працюємо над відновленням цього функціоналу.</p>
+                        <p>{isLoading ? 'Завантаження аналітики...' : 'Аналітика недоступна для вибраних параметрів.'}</p>
                     </div>
                 ) : (
                     <div className="charts-grid">
