@@ -68,7 +68,7 @@ export const fetchAnalyticsSummary = async (
     month: number
 ): Promise<AnalyticsSummary> => {
     const backendMonth = month + 1;
-    const res = await fetch(`/api/analytics/summary?accountNumber=${accountNumber}&year=${year}&month=${backendMonth}`, {
+    const res = await fetch(`/api/v1/analytics/summary?accountNumber=${accountNumber}&year=${year}&month=${backendMonth}`, {
         method: 'GET',
         headers: getAuthHeaders(),
     });
@@ -77,6 +77,16 @@ export const fetchAnalyticsSummary = async (
         throw new Error('Failed to fetch analytics summary');
     }
 
-    return res.json();
-};
+    const data = await res.json();
 
+    // Backend returns totalIncoming/totalOutgoing/totalTransactions, map it to UI fields.
+    return {
+        accountNumber,
+        year,
+        month: backendMonth,
+        totalIncome: Number(data.totalIncome ?? data.totalIncoming ?? 0),
+        totalExpense: Number(data.totalExpense ?? data.totalOutgoing ?? 0),
+        operationsCount: Number(data.operationsCount ?? data.totalTransactions ?? 0),
+        currency: data.currency ?? '',
+    };
+};
