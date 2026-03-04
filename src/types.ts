@@ -37,6 +37,16 @@ export interface Payment {
     purpose: string;
 }
 
+export interface AnalyticsSummary {
+    accountNumber: string;
+    year: number;
+    month: number;
+    totalIncome: number;
+    totalExpense: number;
+    operationsCount: number;
+    currency: string;
+}
+
 /** Счёт/карта */
 export interface Account {
     accountNumber: string;

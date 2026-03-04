@@ -1,5 +1,5 @@
 // src/api.ts
-import type { CustomerData, Account, Transaction, Page } from './types';
+import type { CustomerData, Account, Transaction, Page, AnalyticsSummary } from './types';
 
 const getAuthHeaders = () => {
     const token = sessionStorage.getItem('accessToken') || localStorage.getItem('accessToken');
@@ -62,4 +62,21 @@ export const fetchTransactions = async (
     return res.json();
 };
 
+export const fetchAnalyticsSummary = async (
+    accountNumber: string,
+    year: number,
+    month: number
+): Promise<AnalyticsSummary> => {
+    const backendMonth = month + 1;
+    const res = await fetch(`/api/analytics/summary?accountNumber=${accountNumber}&year=${year}&month=${backendMonth}`, {
+        method: 'GET',
+        headers: getAuthHeaders(),
+    });
+
+    if (!res.ok) {
+        throw new Error('Failed to fetch analytics summary');
+    }
+
+    return res.json();
+};
 
