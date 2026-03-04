@@ -90,6 +90,7 @@ export const withdraw = async (payload: CreateTransaction) => {
         method: 'POST',
         headers: {
             ...getAuthHeaders(),
+            'Content-Type': 'application/json',
             'X-Idempotency-Key': generateIdempotencyKey(),
         },
         body: JSON.stringify(payload),
