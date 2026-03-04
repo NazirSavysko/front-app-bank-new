@@ -38,13 +38,9 @@ export interface Payment {
 }
 
 export interface AnalyticsSummary {
-    accountNumber: string;
-    year: number;
-    month: number;
-    totalIncome: number;
-    totalExpense: number;
-    operationsCount: number;
-    currency: string;
+    totalIncoming: number;
+    totalOutgoing: number;
+    totalTransactions: number;
 }
 
 /** Счёт/карта */

@@ -106,19 +106,26 @@ const AnalyticsSection: React.FC<AnalyticsSectionProps> = ({
     }, [selectedAnalyticsAccount, selectedMonth, selectedYear]);
 
     const pieData = useMemo(() => {
-        const income = summaryData?.totalIncome ?? 0;
-        const expenses = summaryData?.totalExpense ?? 0;
+        if (!summaryData) return [];
+
         const parts = [];
-        if (income > 0) parts.push({ name: 'Доходи', value: income, color: '#10B981' });
-        if (expenses > 0) parts.push({ name: 'Витрати', value: expenses, color: '#EF4444' });
+
+        if (summaryData.totalIncoming > 0) {
+            parts.push({ name: 'Доходи', value: summaryData.totalIncoming, color: '#10B981' });
+        }
+
+        if (summaryData.totalOutgoing > 0) {
+            parts.push({ name: 'Витрати', value: summaryData.totalOutgoing, color: '#EF4444' });
+        }
+
         return parts;
     }, [summaryData]);
 
     const timelineData = useMemo(() => [], []);
 
-    const incomeValue = summaryData?.totalIncome ?? 0;
-    const expenseValue = summaryData?.totalExpense ?? 0;
-    const operationsCount = summaryData?.operationsCount ?? 0;
+    const incomeValue = summaryData?.totalIncoming ?? 0;
+    const expenseValue = summaryData?.totalOutgoing ?? 0;
+    const operationsCount = summaryData?.totalTransactions ?? 0;
 
     return (
         <div className="analytics-container">
