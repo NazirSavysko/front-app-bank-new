@@ -47,6 +47,7 @@ const TransactionsSection: React.FC<TransactionsSectionProps> = ({
 
     const transactions = data?.content || [];
     const totalPages = data?.totalPages || 0;
+    // Supports both Spring pageable.pageNumber and flat number field returned by some backend versions.
     const currentPage = data?.pageable?.pageNumber ?? data?.number ?? page;
 
     if (!selectedAccount) return null;
