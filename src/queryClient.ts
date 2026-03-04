@@ -11,3 +11,7 @@ export const queryClient = new QueryClient({
     },
 });
 
+queryClient.setQueryDefaults(['transactions'], {
+    staleTime: 0,
+    gcTime: 0,
+});

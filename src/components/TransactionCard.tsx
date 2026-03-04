@@ -16,8 +16,11 @@ const TransactionCard: React.FC<TransactionCardProps> = ({ transaction }) => {
 
     const isIncoming = transaction.isRecipient;
     const arrow = isIncoming ? '↓' : '↑';
-    const statusLabel = transaction.status === 'COMPLETED' ? 'ЗАВЕРШЕНО' : transaction.status;
-    const statusClass = transaction.status === 'COMPLETED' ? 'status complete' : 'status cancelled';
+    const statusConfig = transaction.status === 'COMPLETED'
+        ? { label: '✅ ЗАВЕРШЕНО', className: 'status complete' }
+        : transaction.status === 'FAILED'
+            ? { label: '⚠️ ПОМИЛКА', className: 'status failed' }
+            : { label: '⛔ СКАСОВАНО', className: 'status cancelled' };
     const typeAttr = isIncoming ? 'incoming' : 'outgoing';
     const mainAmount = `${formatAmount(transaction.amount)} ${transaction.currencyCode}`;
 
@@ -70,7 +73,7 @@ const TransactionCard: React.FC<TransactionCardProps> = ({ transaction }) => {
             </div>
 
             <div className="transaction-footer">
-                <span className={statusClass}>{statusLabel}</span>
+                <span className={statusConfig.className}>{statusConfig.label}</span>
                 <span>{formatUkDateTime(transaction.transactionDate)}</span>
             </div>
         </div>

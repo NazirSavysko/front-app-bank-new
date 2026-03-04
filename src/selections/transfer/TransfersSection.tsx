@@ -1,5 +1,7 @@
 import React, {useEffect, useRef, useState} from 'react';
+import { useQueryClient } from '@tanstack/react-query';
 import type {CustomerData, TransferSuccess} from '../../types.ts';
+import { TransactionApiError, withdraw } from '../../api.ts';
 import './TransfersSection.css';
 
 export interface TransfersSectionProps {
@@ -10,9 +12,10 @@ export interface TransfersSectionProps {
 
 const TransfersSection: React.FC<TransfersSectionProps> = ({
                                                                customer,
-                                                               onTransferComplete,
-                                                               onCopy
-                                                           }) => {
+                                                            onTransferComplete,
+                                                            onCopy
+                                                            }) => {
+    const queryClient = useQueryClient();
     const [transferData, setTransferData] = useState({
         senderCardNumber: '',
         recipientCardNumber: '',
@@ -26,6 +29,9 @@ const TransfersSection: React.FC<TransfersSectionProps> = ({
     const [emailSending, setEmailSending] = useState(false);
     const [codeVerifying, setCodeVerifying] = useState(false);
     const [transferSuccess, setTransferSuccess] = useState<TransferSuccess | null>(null);
+    const [backendFieldErrors, setBackendFieldErrors] = useState<string[]>([]);
+    const [showInactiveModal, setShowInactiveModal] = useState(false);
+    const [insufficientFundsBanner, setInsufficientFundsBanner] = useState('');
 
     const CODE_LENGTH = 5;
     const otpRefs = useRef<Array<HTMLInputElement | null>>([]);
@@ -141,6 +147,8 @@ const TransfersSection: React.FC<TransfersSectionProps> = ({
         }
         setEmailSending(true);
         setTransferError('');
+        setBackendFieldErrors([]);
+        setInsufficientFundsBanner('');
         try {
             const token = sessionStorage.getItem('accessToken');
             const res = await fetch('/api/email/send', {
@@ -166,6 +174,8 @@ const TransfersSection: React.FC<TransfersSectionProps> = ({
         if (!customer) return;
         setCodeVerifying(true);
         setTransferError('');
+        setBackendFieldErrors([]);
+        setInsufficientFundsBanner('');
         try {
             const token = sessionStorage.getItem('accessToken');
 
@@ -180,18 +190,12 @@ const TransfersSection: React.FC<TransfersSectionProps> = ({
                 setCodeVerifying(false);
                 return;
             }
-            const transferRes = await fetch('/api/transactions/withdraw', {
-                method: 'POST',
-                headers: {'Content-Type': 'application/json', Authorization: token ? `Bearer ${token}` : ''},
-                body: JSON.stringify(transferData)
+            const transferResult = await withdraw({
+                senderCardNumber: transferData.senderCardNumber,
+                recipientCardNumber: transferData.recipientCardNumber,
+                amount: parseFloat(transferData.amount),
+                description: transferData.description,
             });
-            if (!transferRes.ok) {
-                const body = await transferRes.json().catch(() => ({} as { message?: string }));
-                setTransferError(`❌ ${body.message || 'Не вдалося виконати переказ'}`);
-                setCodeVerifying(false);
-                return;
-            }
-            const transferResult = await transferRes.json();
             setTransferSuccess(transferResult);
             setShowEmailVerification(false);
             setVerificationCode('');
@@ -201,8 +205,25 @@ const TransfersSection: React.FC<TransfersSectionProps> = ({
                 amount: '',
                 description: 'Переказ власних коштів'
             });
+            await queryClient.invalidateQueries({ queryKey: ['customer'] });
+            await queryClient.invalidateQueries({ queryKey: ['transactions'] });
             await onTransferComplete();
-        } catch {
+        } catch (err) {
+            if (err instanceof TransactionApiError) {
+                if (err.status === 403) {
+                    setShowInactiveModal(true);
+                    return;
+                }
+                if (err.status === 402) {
+                    setInsufficientFundsBanner('Insufficient funds in sender\'s account');
+                    return;
+                }
+                if (err.status === 400 && err.fieldErrors.length > 0) {
+                    setBackendFieldErrors(err.fieldErrors);
+                }
+                setTransferError(`❌ ${err.message || 'Не вдалося виконати переказ'}`);
+                return;
+            }
             setTransferError('❌ Помилка з\'єднання з сервером');
         } finally {
             setCodeVerifying(false);
@@ -217,6 +238,8 @@ const TransfersSection: React.FC<TransfersSectionProps> = ({
             description: 'Переказ власних коштів'
         });
         setTransferError('');
+        setBackendFieldErrors([]);
+        setInsufficientFundsBanner('');
         setShowEmailVerification(false);
         setVerificationCode('');
         setTransferSuccess(null);
@@ -238,6 +261,20 @@ const TransfersSection: React.FC<TransfersSectionProps> = ({
     };
 
     const selectedAccount = customer?.accounts.find(a => a.card.cardNumber === transferData.senderCardNumber);
+    const recipientAccount = customer?.accounts.find(a => a.card.cardNumber === transferData.recipientCardNumber);
+    const currencyRates: Record<string, number> = { UAH: 1, USD: 39.5, EUR: 43 };
+    const senderRate = selectedAccount ? currencyRates[selectedAccount.currency] : undefined;
+    const recipientRate = recipientAccount ? currencyRates[recipientAccount.currency] : undefined;
+    const preliminaryConvertedAmount =
+        selectedAccount &&
+        recipientAccount &&
+        senderRate &&
+        recipientRate &&
+        selectedAccount.currency !== recipientAccount.currency &&
+        transferData.amount &&
+        parseFloat(transferData.amount) > 0
+            ? (parseFloat(transferData.amount) * senderRate) / recipientRate
+            : null;
     const validationErrors = validateTransferForm();
 
     useEffect(() => {
@@ -517,6 +554,30 @@ const TransfersSection: React.FC<TransfersSectionProps> = ({
                             </ul>
                         </div>
                     )}
+                    {backendFieldErrors.length > 0 && (
+                        <div className="validation-errors">
+                            <div className="error-header">
+                                <span>Помилки перевірки від сервера:</span>
+                            </div>
+                            <ul className="error-list">
+                                {backendFieldErrors.map((err, idx) => (
+                                    <li key={idx}>{err}</li>
+                                ))}
+                            </ul>
+                        </div>
+                    )}
+                    {insufficientFundsBanner && (
+                        <div className="verification-error">{insufficientFundsBanner}</div>
+                    )}
+                    {preliminaryConvertedAmount !== null && selectedAccount && recipientAccount && (
+                        <div className="selected-card-info">
+                            <span className="info-icon">💱</span>
+                            <span>
+                                Попередня конвертація: ≈ {preliminaryConvertedAmount.toFixed(2)} {recipientAccount.currency}
+                                (з {transferData.amount} {selectedAccount.currency})
+                            </span>
+                        </div>
+                    )}
                 </div>
             </div>
 
@@ -529,6 +590,7 @@ const TransfersSection: React.FC<TransfersSectionProps> = ({
                     onClick={sendEmailVerification}
                     disabled={
                         emailSending ||
+                        codeVerifying ||
                         validationErrors.length > 0 ||
                         !transferData.senderCardNumber ||
                         !transferData.recipientCardNumber ||
@@ -537,7 +599,7 @@ const TransfersSection: React.FC<TransfersSectionProps> = ({
                     }
                     type="button"
                 >
-                    <span className="btn-icon">{emailSending ? '⏳' : '🚀'}</span>
+                    <span className="btn-icon">{emailSending ? <span className="mini-spinner" /> : '🚀'}</span>
                     <span>{emailSending ? 'Відправлення коду...' : 'Відправити переказ'}</span>
                 </button>
             </div>
@@ -576,6 +638,12 @@ const TransfersSection: React.FC<TransfersSectionProps> = ({
                                     <span>На картку:</span>
                                     <span>**** **** **** {transferData.recipientCardNumber.slice(-4)}</span>
                                 </div>
+                                {preliminaryConvertedAmount !== null && recipientAccount && (
+                                    <div className="summary-row">
+                                        <span>Попередня конвертація:</span>
+                                        <span className="amount">≈ {preliminaryConvertedAmount.toFixed(2)} {recipientAccount.currency}</span>
+                                    </div>
+                                )}
                             </div>
 
                             <div className="code-input-section">
@@ -628,9 +696,25 @@ const TransfersSection: React.FC<TransfersSectionProps> = ({
                                 disabled={codeVerifying || verificationCode.length !== CODE_LENGTH}
                                 type="button"
                             >
-                                <span className="btn-icon">{codeVerifying ? '⏳' : '✅'}</span>
+                                <span className="btn-icon">{codeVerifying ? <span className="mini-spinner" /> : '✅'}</span>
                                 <span>{codeVerifying ? 'Перевіряємо...' : 'Підтвердити переказ'}</span>
                             </button>
+                        </div>
+                    </div>
+                </div>
+            )}
+            {showInactiveModal && (
+                <div className="modal-overlay verification-overlay" role="dialog" aria-modal="true">
+                    <div className="verification-modal">
+                        <div className="verification-header">
+                            <div className="verification-icon">🚫</div>
+                            <h3>Рахунок неактивний</h3>
+                            <button className="modal-close" onClick={() => setShowInactiveModal(false)} aria-label="Закрити модальне вікно">
+                                ✕
+                            </button>
+                        </div>
+                        <div className="verification-body">
+                            Для переказу рахунок відправника має бути у статусі ACTIVE.
                         </div>
                     </div>
                 </div>

@@ -2,6 +2,8 @@
 // Общие интерфейсы для банковской панели
 
 /** Одна транзакция (между картами/счетами) */
+export type TransactionStatus = 'COMPLETED' | 'FAILED' | 'CANCELLED';
+
 export interface Transaction {
     senderCardNumber: string;
     receiverCardNumber: string;
@@ -13,13 +15,21 @@ export interface Transaction {
     transactionDate: string; // ISO
     transactionType: string; // e.g. "TRANSFER"
     currencyCode: string;    // "UAH" | "USD" | "EUR"
-    status: string;          // "COMPLETED" | "CANCELED" | ...
+    status: TransactionStatus;
     isRecipient: boolean;    // true: вхідна транзакція (дохід), false: вихідна (витрата)
+}
+
+export interface CreateTransaction {
+    senderCardNumber: string;
+    recipientCardNumber: string;
+    amount: number;
+    description: string;
 }
 
 export interface Page<T> {
     content: T[];
-    pageable: {
+    number?: number;
+    pageable?: {
         pageNumber: number;
         pageSize: number;
     };
@@ -80,5 +90,5 @@ export interface TransferSuccess {
     description: string;
     transactionDate: string;
     numberOfCard: string;
-    status: string;
+    status: TransactionStatus;
 }

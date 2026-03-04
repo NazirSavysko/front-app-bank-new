@@ -41,11 +41,13 @@ const TransactionsSection: React.FC<TransactionsSectionProps> = ({
         queryFn: () => fetchTransactions(accountNumber!, page, 10),
         enabled: !!accountNumber,
         placeholderData: keepPreviousData,
-        staleTime: 1000 * 60 * 5, // 5 minutes cache
+        staleTime: 0,
+        gcTime: 0,
     });
 
     const transactions = data?.content || [];
     const totalPages = data?.totalPages || 0;
+    const currentPage = data?.pageable?.pageNumber ?? data?.number ?? page;
 
     if (!selectedAccount) return null;
 
@@ -118,7 +120,7 @@ const TransactionsSection: React.FC<TransactionsSectionProps> = ({
                         &larr; Назад
                     </button>
                     <span className="pagination-info">
-                        Сторінка {page + 1} з {totalPages}
+                        Сторінка {currentPage + 1} з {totalPages}
                     </span>
                     <button
                         className="pagination-btn"

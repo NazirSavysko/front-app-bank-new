@@ -531,6 +531,20 @@
     font-size: 1.2rem;
 }
 
+.mini-spinner {
+    display: inline-block;
+    width: 14px;
+    height: 14px;
+    border: 2px solid rgba(255, 255, 255, 0.5);
+    border-top-color: #fff;
+    border-radius: 50%;
+    animation: transfer-spin 0.8s linear infinite;
+}
+
+@keyframes transfer-spin {
+    to { transform: rotate(360deg); }
+}
+
 /* Успешный перевод */
 .transfer-success-card {
     max-width: 1200px;
