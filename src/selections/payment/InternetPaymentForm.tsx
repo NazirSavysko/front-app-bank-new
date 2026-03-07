@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useMemo } from 'react';
+import { createInternetPayment } from '../../api';
 import type { Account } from '../../types';
 import './PaymentForms.css';
 
@@ -43,6 +44,8 @@ const InternetPaymentForm: React.FC<InternetPaymentFormProps> = ({
     const [contractNumber, setContractNumber] = useState('');
     const [amount, setAmount] = useState('');
     const [showSuggestions, setShowSuggestions] = useState(false);
+    const [isLoading, setIsLoading] = useState(false);
+    const [error, setError] = useState<string | null>(null);
 
     const filteredProviders = PROVIDERS.filter(p =>
         p.name.toLowerCase().includes(providerName.toLowerCase())
@@ -64,15 +67,35 @@ const InternetPaymentForm: React.FC<InternetPaymentFormProps> = ({
         }
     }, [accounts, selectedAccountIndex, setSelectedAccountIndex, uahAccounts]);
 
-    const handleSubmit = (e: React.FormEvent) => {
+    const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
-        console.log('Sending Internet payment:', {
-            accountId: accounts[selectedAccountIndex].accountNumber,
-            amount,
-            providerName,
-            contractNumber,
-        });
-        alert('Оплата Інтернету успішна! (Демо)');
+        setError(null);
+        setIsLoading(true);
+
+        const currentAccount = accounts[selectedAccountIndex];
+        console.log('Selected account:', currentAccount); // Debugging
+
+        if (!currentAccount) {
+            setError('Рахунок не знайдено');
+            setIsLoading(false);
+            return;
+        }
+
+        try {
+            await createInternetPayment({
+                accountId: currentAccount.id,
+                amount: Number(amount),
+                providerName,
+                contractNumber,
+            });
+            alert('Оплата Інтернету успішна!');
+            onBack();
+        } catch (err) {
+            const errorMessage = err instanceof Error ? err.message : 'Помилка при оплаті Інтернету';
+            setError(errorMessage);
+        } finally {
+            setIsLoading(false);
+        }
     };
 
     return (
@@ -85,6 +108,7 @@ const InternetPaymentForm: React.FC<InternetPaymentFormProps> = ({
             </div>
 
             <form onSubmit={handleSubmit} className="payment-form">
+                {error && <div className="error-message" style={{ color: 'red', marginBottom: '1rem' }}>{error}</div>}
                 <div className="form-group-card">
                     <label className="input-label">Оберіть провайдера</label>
                     <div className="input-wrapper search-wrapper" style={{ position: 'relative' }}>
@@ -160,10 +184,13 @@ const InternetPaymentForm: React.FC<InternetPaymentFormProps> = ({
                         step="0.01"
                         required
                         className="form-input"
+                        disabled={isLoading}
                     />
                 </div>
 
-                <button type="submit" className="submit-button-primary">Сплатити</button>
+                <button type="submit" className="submit-button-primary" disabled={isLoading}>
+                    {isLoading ? 'Обробка...' : 'Сплатити'}
+                </button>
             </form>
         </div>
     );

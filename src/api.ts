@@ -1,5 +1,5 @@
 // src/api.ts
-import type { CustomerData, Account, Transaction, Page, AnalyticsSummary } from './types';
+import type { CustomerData, Account, Transaction, Page, AnalyticsSummary, IbanPaymentRequest, InternetPaymentRequest } from './types';
 
 const getAuthHeaders = () => {
     const token = sessionStorage.getItem('accessToken') || localStorage.getItem('accessToken');
@@ -89,4 +89,30 @@ export const fetchAnalyticsSummary = async (
         operationsCount: Number(data.operationsCount ?? data.totalTransactions ?? 0),
         currency: data.currency ?? '',
     };
+};
+
+export const createIbanPayment = async (payload: IbanPaymentRequest) => {
+    const res = await fetch('/api/v1/payments/iban', {
+        method: 'POST',
+        headers: getAuthHeaders(),
+        body: JSON.stringify(payload),
+    });
+    if (!res.ok) {
+        const error = await res.json().catch(() => ({}));
+        throw new Error(error.message || 'Помилка при створенні платежу IBAN');
+    }
+    return res.json();
+};
+
+export const createInternetPayment = async (payload: InternetPaymentRequest) => {
+    const res = await fetch('/api/v1/payments/internet', {
+        method: 'POST',
+        headers: getAuthHeaders(),
+        body: JSON.stringify(payload),
+    });
+    if (!res.ok) {
+        const error = await res.json().catch(() => ({}));
+        throw new Error(error.message || 'Помилка при оплаті Інтернету');
+    }
+    return res.json();
 };
