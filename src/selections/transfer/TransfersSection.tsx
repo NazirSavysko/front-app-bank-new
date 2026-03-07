@@ -272,10 +272,12 @@ const TransfersSection: React.FC<TransfersSectionProps> = ({
         if (!customer || selectedAccountIndex === undefined) return;
         const account = customer.accounts[selectedAccountIndex];
         if (!account) return;
-        if (!transferData.senderCardNumber) {
-            setTransferData(prev => ({ ...prev, senderCardNumber: account.card.cardNumber }));
-        }
-    }, [customer, selectedAccountIndex, transferData.senderCardNumber]);
+        setTransferData(prev => (
+            prev.senderCardNumber
+                ? prev
+                : { ...prev, senderCardNumber: account.card.cardNumber }
+        ));
+    }, [customer, selectedAccountIndex]);
 
     if (transferSuccess) {
         return (

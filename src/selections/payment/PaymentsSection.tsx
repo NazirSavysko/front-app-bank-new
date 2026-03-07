@@ -31,7 +31,9 @@ const PaymentsSection: React.FC<PaymentsSectionProps> = (props) => {
                 <button
                     type="button"
                     role="tab"
+                    id="payments-tab-transfer"
                     aria-selected={activeTab === 'transfer'}
+                    aria-controls="payments-panel-transfer"
                     className={`payments-tab ${activeTab === 'transfer' ? 'active' : ''}`}
                     onClick={() => setActiveTab('transfer')}
                 >
@@ -40,7 +42,9 @@ const PaymentsSection: React.FC<PaymentsSectionProps> = (props) => {
                 <button
                     type="button"
                     role="tab"
+                    id="payments-tab-iban"
                     aria-selected={activeTab === 'iban'}
+                    aria-controls="payments-panel-iban"
                     className={`payments-tab ${activeTab === 'iban' ? 'active' : ''}`}
                     onClick={() => setActiveTab('iban')}
                 >
@@ -49,7 +53,9 @@ const PaymentsSection: React.FC<PaymentsSectionProps> = (props) => {
                 <button
                     type="button"
                     role="tab"
+                    id="payments-tab-internet"
                     aria-selected={activeTab === 'internet'}
+                    aria-controls="payments-panel-internet"
                     className={`payments-tab ${activeTab === 'internet' ? 'active' : ''}`}
                     onClick={() => setActiveTab('internet')}
                 >
@@ -58,29 +64,35 @@ const PaymentsSection: React.FC<PaymentsSectionProps> = (props) => {
             </div>
 
             {activeTab === 'transfer' && (
-                <TransfersSection
-                    customer={props.customer}
-                    onTransferComplete={props.onTransferComplete}
-                    onCopy={props.onCopy}
-                    selectedAccountIndex={props.selectedAccountIndex}
-                    setSelectedAccountIndex={props.setSelectedAccountIndex}
-                />
+                <div role="tabpanel" id="payments-panel-transfer" aria-labelledby="payments-tab-transfer">
+                    <TransfersSection
+                        customer={props.customer}
+                        onTransferComplete={props.onTransferComplete}
+                        onCopy={props.onCopy}
+                        selectedAccountIndex={props.selectedAccountIndex}
+                        setSelectedAccountIndex={props.setSelectedAccountIndex}
+                    />
+                </div>
             )}
             {activeTab === 'iban' && (
-                <IBANPaymentForm
-                    accounts={props.accounts}
-                    selectedAccountIndex={props.selectedAccountIndex}
-                    setSelectedAccountIndex={props.setSelectedAccountIndex}
-                    onBack={() => setActiveTab('transfer')}
-                />
+                <div role="tabpanel" id="payments-panel-iban" aria-labelledby="payments-tab-iban">
+                    <IBANPaymentForm
+                        accounts={props.accounts}
+                        selectedAccountIndex={props.selectedAccountIndex}
+                        setSelectedAccountIndex={props.setSelectedAccountIndex}
+                        onBack={() => setActiveTab('transfer')}
+                    />
+                </div>
             )}
             {activeTab === 'internet' && (
-                <InternetPaymentForm
-                    accounts={props.accounts}
-                    selectedAccountIndex={props.selectedAccountIndex}
-                    setSelectedAccountIndex={props.setSelectedAccountIndex}
-                    onBack={() => setActiveTab('transfer')}
-                />
+                <div role="tabpanel" id="payments-panel-internet" aria-labelledby="payments-tab-internet">
+                    <InternetPaymentForm
+                        accounts={props.accounts}
+                        selectedAccountIndex={props.selectedAccountIndex}
+                        setSelectedAccountIndex={props.setSelectedAccountIndex}
+                        onBack={() => setActiveTab('transfer')}
+                    />
+                </div>
             )}
         </div>
     );
