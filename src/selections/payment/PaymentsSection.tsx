@@ -1,16 +1,20 @@
 import React from 'react';
+import { Routes, Route, useNavigate } from 'react-router-dom';
 import type { Account } from '../../types.ts';
 import './PaymentsSection.css';
-import { useNavigate } from 'react-router-dom';
+import InternetPaymentForm from './InternetPaymentForm';
+import IBANPaymentForm from './IBANPaymentForm';
 
 export interface PaymentsSectionProps {
     /** List of user accounts */
     accounts: Account[];
     /** Index of the currently selected account */
     selectedAccountIndex: number;
+    /** Callback to update selected account index */
+    setSelectedAccountIndex: (index: number) => void;
 }
 
-const PaymentsSection: React.FC<PaymentsSectionProps> = () => {
+const PaymentsHome: React.FC = () => {
     const navigate = useNavigate();
 
     const categories = [
@@ -34,6 +38,17 @@ const PaymentsSection: React.FC<PaymentsSectionProps> = () => {
         }
     }
 
+    const handleCategoryClick = (id: string) => {
+        if (id === 'internet') {
+            navigate('internet');
+        } else if (id === 'travel') {
+            // Do nothing as requested
+        } else {
+             // Redirect to IBAN form as a generic recipient for now
+             navigate('iban');
+        }
+    };
+
     return (
         <div className="payments-container">
             <h1 className="page-title">Платежі</h1>
@@ -49,6 +64,8 @@ const PaymentsSection: React.FC<PaymentsSectionProps> = () => {
                         type="text"
                         placeholder="Введіть IBAN або назву підприємства"
                         className="search-input"
+                        onClick={() => navigate('iban')}
+                        onFocus={() => navigate('iban')}
                     />
                 </div>
             </section>
@@ -57,7 +74,7 @@ const PaymentsSection: React.FC<PaymentsSectionProps> = () => {
                 <h2>Категорії платежів</h2>
                 <div className="categories-grid">
                     {categories.map(cat => (
-                        <div key={cat.id} className={`category-card ${cat.color} ${cat.size}`} onClick={() => navigate(`/dashboard/payments/${cat.id}`)}>
+                        <div key={cat.id} className={`category-card ${cat.color} ${cat.size}`} onClick={() => handleCategoryClick(cat.id)}>
                             <div className="category-icon">{getIcon(cat.id)}</div>
                             <div className="category-content">
                                 <h3>{cat.title}</h3>
@@ -68,6 +85,33 @@ const PaymentsSection: React.FC<PaymentsSectionProps> = () => {
                 </div>
             </section>
         </div>
+    );
+};
+
+const PaymentsSection: React.FC<PaymentsSectionProps> = (props) => {
+    const navigate = useNavigate();
+
+    return (
+        <Routes>
+            <Route index element={<PaymentsHome />} />
+            <Route path="internet" element={
+                <InternetPaymentForm
+                    accounts={props.accounts}
+                    selectedAccountIndex={props.selectedAccountIndex}
+                    setSelectedAccountIndex={props.setSelectedAccountIndex}
+                    onBack={() => navigate('/dashboard/payments')}
+                />
+            } />
+            <Route path="iban" element={
+                <IBANPaymentForm
+                    accounts={props.accounts}
+                    selectedAccountIndex={props.selectedAccountIndex}
+                    setSelectedAccountIndex={props.setSelectedAccountIndex}
+                    onBack={() => navigate('/dashboard/payments')}
+                />
+            } />
+            <Route path="*" element={<PaymentsHome />} />
+        </Routes>
     );
 };
 
