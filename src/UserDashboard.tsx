@@ -166,7 +166,7 @@ const UserDashboard: React.FC = () => {
                             <Suspense fallback={<div className="loading-section">Loading section...</div>}>
                             <Routes>
                                 <Route path="accounts" element={<h2 className="section-title">Мої рахунки</h2>} />
-                                <Route path="payments" element={<h2 className="section-title">Платежі</h2>} />
+                                <Route path="payments/*" element={<h2 className="section-title">Платежі</h2>} />
                                 <Route path="transfers" element={<h2 className="section-title">Перекази</h2>} />
                                 <Route path="analytics" element={<h2 className="section-title">Аналітика</h2>} />
                                 <Route path="*" element={null} />
@@ -196,10 +196,11 @@ const UserDashboard: React.FC = () => {
                                         onAnalytics={() => navigate('/dashboard/analytics')}
                                     />
                                 } />
-                                <Route path="payments" element={
+                                <Route path="payments/*" element={
                                     <PaymentsSection
                                         accounts={customer.accounts}
                                         selectedAccountIndex={selectedAccountIndex}
+                                        setSelectedAccountIndex={setSelectedAccountIndex}
                                     />
                                 } />
                                 <Route path="transfers" element={
