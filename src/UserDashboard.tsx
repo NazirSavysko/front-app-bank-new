@@ -201,11 +201,6 @@ const UserDashboard: React.FC = () => {
                                         accounts={customer.accounts}
                                         selectedAccountIndex={selectedAccountIndex}
                                         setSelectedAccountIndex={setSelectedAccountIndex}
-                                        customer={customer}
-                                        onTransferComplete={async () => {
-                                            await refetchCustomer();
-                                        }}
-                                        onCopy={(msg: string) => setCopyMessage(msg)}
                                     />
                                 } />
                                 <Route path="transfers" element={
