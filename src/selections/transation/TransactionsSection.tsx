@@ -46,7 +46,10 @@ const TransactionsSection: React.FC<TransactionsSectionProps> = ({
         refetchOnMount: true,
     });
 
-    const transactions = data?.content || [];
+    const transactions = [...(data?.content || [])].sort(
+        (a: Transaction, b: Transaction) =>
+            new Date(b.transactionDate).getTime() - new Date(a.transactionDate).getTime()
+    );
     const totalPages = data?.totalPages || 0;
 
     if (!selectedAccount) return null;
@@ -65,7 +68,6 @@ const TransactionsSection: React.FC<TransactionsSectionProps> = ({
             <div className="transactions-top-bar main-header">
                 <h2 className="section-title-internal">Транзакції</h2>
                 <button className="analytics-button" onClick={onAnalytics} title="Перейти до аналітики">
-                    <span className="analytics-icon">📊</span>
                     Аналітика
                 </button>
             </div>
