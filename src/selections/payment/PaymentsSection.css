@@ -1,9 +1,216 @@
-.payments-list { width:100%; max-width:800px; margin:0 auto; }
-.account-payments h3 {
-    font-size:1.1rem; font-weight:700; color:#2d3748; margin-bottom:1rem; text-align:center;
+.payments-container {
+    padding: 2rem;
+    max-width: 1400px; /* Wider to accommodate the 4-column layout comfortably */
+    margin: 0 auto;
+    font-family: 'Inter', system-ui, -apple-system, sans-serif;
 }
-.payment-item {
-    display:grid; grid-template-columns: 1fr 1fr 2fr; gap:.75rem;
-    background: rgba(255,255,255,.9); border:1px solid rgba(255,255,255,.18);
-    padding:.75rem 1rem; border-radius:10px; margin-bottom:.5rem;
+
+.page-title {
+    font-size: 24px;
+    font-weight: 500;
+    color: #000;
+    margin-bottom: 1.5rem;
 }
+
+/* Common Section Style */
+.search-section, .categories-section {
+    background: #F5F5FA; /* Light lavender background from design */
+    padding: 1.5rem 2rem;
+    border-radius: 4px; /* Slightly rounded or square */
+    margin-bottom: 2rem;
+}
+
+/* Headers inside sections */
+.search-section h2, .categories-section h2 {
+    font-size: 20px;
+    font-weight: 400;
+    color: #000;
+    margin-bottom: 0.5rem;
+    margin-top: 0;
+}
+
+.subtitle {
+    color: #666; /* Grey text */
+    font-size: 14px;
+    margin-bottom: 1.5rem;
+    font-weight: 300;
+}
+
+/* Search Bar */
+.search-bar-wrapper {
+    position: relative;
+    max-width: 400px;
+    display: flex;
+    align-items: center;
+    border-bottom: 1px solid #ccc;
+    padding-bottom: 8px;
+}
+
+.search-icon {
+    color: #999;
+    margin-right: 12px;
+    display: flex;
+    align-items: center;
+}
+
+.search-input {
+    width: 100%;
+    border: none;
+    background: transparent;
+    font-size: 14px;
+    color: #333;
+    padding: 0;
+}
+
+.search-input:focus {
+    outline: none;
+}
+
+.search-input::placeholder {
+    color: #999;
+}
+
+/* Categories Grid */
+.categories-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    grid-auto-rows: 160px; /* Fixed height unit */
+    gap: 1.5rem;
+    grid-auto-flow: dense; /* Crucial for packing tall/short items */
+}
+
+.category-card {
+    border-radius: 12px;
+    padding: 1.5rem;
+    color: white;
+    cursor: pointer;
+    transition: transform 0.2s, box-shadow 0.2s;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    position: relative;
+    overflow: hidden;
+}
+
+.category-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 16px rgba(0,0,0,0.1);
+}
+
+/* Sizing Classes */
+.category-card.tall {
+    grid-row: span 2;
+    padding: 2rem;
+    gap: 1rem;
+    /* Reset from previous */
+    align-items: stretch;
+    justify-content: flex-start;
+}
+.category-card.tall .category-icon {
+    /* Make icon take available space and center itself */
+    flex: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0;
+    transform: scale(2.0); /* Larger */
+}
+.category-card.tall .category-content {
+    /* Text at bottom left */
+    text-align: left;
+    width: 100%;
+    margin-top: 0;
+}
+
+.category-card.short {
+    grid-row: span 1;
+    /* Icon top-left, Text bottom-left */
+    justify-content: space-between;
+    align-items: flex-start;
+    padding: 1.5rem;
+}
+.category-card.short .category-content {
+    width: 100%;
+    text-align: left;
+}
+.category-card.short .category-icon {
+    margin-bottom: 0.5rem;
+    transform: scale(1.0);
+}
+
+.category-icon {
+    margin-bottom: 0.5rem;
+}
+
+.category-content h3 {
+    font-size: 16px;
+    font-weight: 500;
+    margin: 0 0 4px 0;
+    line-height: 1.2;
+}
+
+.category-content p {
+    font-size: 12px;
+    opacity: 0.85;
+    margin: 0;
+    line-height: 1.3;
+    font-weight: 300;
+}
+
+/* Colors matching design */
+/* User requested all cards to be in the same VIBRANT PURPLE color */
+.bg-purple, .bg-blue, .bg-indigo {
+    /* Uniform color based on the "Travel" card style/purple square provided */
+    background: linear-gradient(135deg, #7F73FF 0%, #7663F6 100%);
+}
+
+/* Specific flat-ish look from screenshot - Uniform for all cards */
+.category-card.bg-purple,
+.category-card.bg-blue,
+.category-card.bg-indigo {
+    /* Brighter Violet/Purple Gradient */
+    background: linear-gradient(150deg, #8476FF, #715EF0);
+}
+
+/* Make page text darker/black */
+.page-title, .search-section h2, .categories-section h2, .category-content h3 {
+    color: #000; /* Pure black for titles */
+}
+.subtitle {
+    color: #222; /* Very dark grey for subtitles */
+    font-weight: 400; /* Slightly bolder */
+}
+/* Except card text which must remain white on dark backgrounds */
+.category-card, .category-card .category-content h3, .category-card .category-content p {
+    color: #FFFFFF;
+}
+
+/* Icons */
+.category-icon svg {
+    stroke: white;
+}
+
+/* Responsive */
+@media (max-width: 1024px) {
+    .categories-grid {
+        grid-template-columns: repeat(3, 1fr);
+    }
+}
+
+@media (max-width: 768px) {
+    .categories-grid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+}
+
+@media (max-width: 480px) {
+    .categories-grid {
+        grid-template-columns: 1fr;
+    }
+    .category-card.tall {
+        grid-row: span 1; /* Reset tall on mobile */
+        min-height: 200px;
+    }
+}
+
+

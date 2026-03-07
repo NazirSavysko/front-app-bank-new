@@ -40,8 +40,10 @@ const TransactionsSection: React.FC<TransactionsSectionProps> = ({
         queryKey: ['transactions', accountNumber, page],
         queryFn: () => fetchTransactions(accountNumber!, page, 10),
         enabled: !!accountNumber,
-        placeholderData: keepPreviousData,
-        staleTime: 1000 * 60 * 5, // 5 minutes cache
+        // placeholderData: keepPreviousData, // Removed to force loading state on every fetch
+        staleTime: 0,
+        gcTime: 0,
+        refetchOnMount: true,
     });
 
     const transactions = data?.content || [];
