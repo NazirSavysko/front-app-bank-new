@@ -464,6 +464,55 @@
     .account-transactions p { background: rgba(31,41,55,.85); color: var(--text-muted); border-color: var(--border-soft); }
 }
 
+/* Filter tabs */
+.history-filter-tabs {
+    display: flex;
+    gap: .5rem;
+    margin-bottom: 1.25rem;
+    flex-wrap: wrap;
+}
+
+.history-tab-btn {
+    padding: .5rem 1.25rem;
+    border: 2px solid rgba(102,126,234,.25);
+    border-radius: 999px;
+    background: rgba(255,255,255,.85);
+    color: var(--text-subtle);
+    font-size: .9rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background .18s, border-color .18s, color .18s;
+}
+
+.history-tab-btn:hover {
+    border-color: var(--primary-600);
+    color: var(--primary-600);
+}
+
+.history-tab-btn.active {
+    background: linear-gradient(135deg, var(--primary-600) 0%, var(--primary-700) 100%);
+    border-color: transparent;
+    color: #fff;
+    box-shadow: 0 2px 8px rgba(79,70,229,.28);
+}
+
+@media (prefers-color-scheme: dark) {
+    .history-tab-btn {
+        background: rgba(31,41,55,.85);
+        color: var(--text-subtle);
+        border-color: rgba(99,102,241,.25);
+    }
+    .history-tab-btn:hover {
+        border-color: #818cf8;
+        color: #818cf8;
+    }
+    .history-tab-btn.active {
+        background: linear-gradient(135deg, var(--primary-600) 0%, var(--primary-700) 100%);
+        border-color: transparent;
+        color: #fff;
+    }
+}
+
 /* Pagination Controls */
 .pagination-controls {
     display: flex;

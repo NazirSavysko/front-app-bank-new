@@ -1,20 +1,27 @@
 // src/types.ts
 // Общие интерфейсы для банковской панели
 
-/** Одна транзакция (между картами/счетами) */
+/** Filter values for history endpoint */
+export type HistoryFilter = 'ALL' | 'TRANSFERS' | 'PAYMENTS';
+
+/** Unified transaction history DTO from backend */
 export interface Transaction {
-    senderCardNumber: string;
-    receiverCardNumber: string;
-    // Add sender/receiver info for display
-    sender?: { firstName: string; lastName: string };
-    receiver?: { firstName: string; lastName: string };
+    id?: string | number;
+    direction: 'INCOME' | 'EXPENSE';
+    type: 'TRANSFER' | 'IBAN_PAYMENT' | 'INTERNET_PAYMENT';
     amount: number;
-    description: string;
-    transactionDate: string; // ISO
-    transactionType: string; // e.g. "TRANSFER"
-    currencyCode: string;    // "UAH" | "USD" | "EUR"
+    currency: string;        // "UAH" | "USD" | "EUR"
+    date: string;            // ISO
     status: string;          // "COMPLETED" | "CANCELED" | ...
-    isRecipient: boolean;    // true: вхідна транзакція (дохід), false: вихідна (витрата)
+    description?: string;
+    // TRANSFER type fields
+    counterpartyName?: string;
+    counterpartyCard?: string;
+    // IBAN_PAYMENT type fields
+    beneficiaryName?: string;
+    iban?: string;
+    // INTERNET_PAYMENT type fields
+    provider?: string;
 }
 
 export interface Page<T> {

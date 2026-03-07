@@ -1,5 +1,5 @@
 // src/api.ts
-import type { CustomerData, Account, Transaction, Page, AnalyticsSummary, IbanPaymentRequest, InternetPaymentRequest } from './types';
+import type { CustomerData, Account, Transaction, Page, AnalyticsSummary, IbanPaymentRequest, InternetPaymentRequest, HistoryFilter } from './types';
 
 const getAuthHeaders = () => {
     const token = sessionStorage.getItem('accessToken') || localStorage.getItem('accessToken');
@@ -45,11 +45,17 @@ export const createAccount = async (accountType: string): Promise<Account> => {
 };
 
 export const fetchTransactions = async (
-    accountNumber: string,
+    accountId: number,
+    filter: HistoryFilter,
     page: number,
-    pageSize: number
+    size: number
 ): Promise<Page<Transaction>> => {
-    const res = await fetch(`/api/transactions/transactions?accountNumber=${accountNumber}&page=${page}&size=${pageSize}`, {
+    const params = new URLSearchParams({
+        filter,
+        page: String(page),
+        size: String(size),
+    });
+    const res = await fetch(`/api/v1/accounts/${accountId}/history?${params}`, {
         method: 'GET',
         headers: getAuthHeaders(),
     });

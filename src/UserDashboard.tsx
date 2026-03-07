@@ -50,11 +50,6 @@ const UserDashboard: React.FC = () => {
     const [accountError, setAccountError] = useState('');
     const [copyMessage, setCopyMessage] = useState('');
 
-    // Transaction filters
-    const [filterStartDate, setFilterStartDate] = useState('');
-    const [filterEndDate, setFilterEndDate] = useState('');
-    const [filterType, setFilterType] = useState<'all' | 'sent' | 'received'>('all');
-
     // Analytics filters
     const [selectedAnalyticsAccount, setSelectedAnalyticsAccount] = useState<string>('');
     const [selectedMonth, setSelectedMonth] = useState<number>(new Date().getMonth());
@@ -187,12 +182,6 @@ const UserDashboard: React.FC = () => {
                                         accounts={customer.accounts}
                                         selectedAccountIndex={selectedAccountIndex}
                                         setSelectedAccountIndex={setSelectedAccountIndex}
-                                        filterStartDate={filterStartDate}
-                                        setFilterStartDate={setFilterStartDate}
-                                        filterEndDate={filterEndDate}
-                                        setFilterEndDate={setFilterEndDate}
-                                        filterType={filterType}
-                                        setFilterType={setFilterType}
                                         onAnalytics={() => navigate('/dashboard/analytics')}
                                     />
                                 } />

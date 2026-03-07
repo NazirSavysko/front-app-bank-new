@@ -1,8 +1,8 @@
 // src/selections/transation/TransactionsSection.tsx
 import React, { useEffect, useState } from 'react';
-import { useQuery, keepPreviousData } from '@tanstack/react-query';
+import { useQuery } from '@tanstack/react-query';
 import { fetchTransactions } from '../../api';
-import type { Account, Transaction } from '../../types';
+import type { Account, Transaction, HistoryFilter } from '../../types';
 import TransactionCard from '../../components/TransactionCard.tsx';
 import './TransactionsSection.css';
 
@@ -10,15 +10,14 @@ export interface TransactionsSectionProps {
     accounts: Account[];
     selectedAccountIndex: number;
     setSelectedAccountIndex: (index: number) => void;
-    // Filters are kept in props for interface compatibility but not used yet in new backend pagination
-    filterStartDate: string;
-    setFilterStartDate: (value: string) => void;
-    filterEndDate: string;
-    setFilterEndDate: (value: string) => void;
-    filterType: 'all' | 'sent' | 'received';
-    setFilterType: (value: 'all' | 'sent' | 'received') => void;
     onAnalytics: () => void;
 }
+
+const FILTER_TABS: { label: string; value: HistoryFilter }[] = [
+    { label: 'Усі', value: 'ALL' },
+    { label: 'Перекази', value: 'TRANSFERS' },
+    { label: 'Платежі', value: 'PAYMENTS' },
+];
 
 const TransactionsSection: React.FC<TransactionsSectionProps> = ({
                                                                      accounts,
@@ -27,20 +26,20 @@ const TransactionsSection: React.FC<TransactionsSectionProps> = ({
                                                                      onAnalytics
                                                                  }) => {
     const [page, setPage] = useState(0);
+    const [filter, setFilter] = useState<HistoryFilter>('ALL');
 
     const selectedAccount = accounts[selectedAccountIndex];
-    const accountNumber = selectedAccount?.accountNumber;
+    const accountId = selectedAccount?.id;
 
-    // Reset pagination when account changes
+    // Reset pagination when account or filter changes
     useEffect(() => {
-        if (accountNumber) setPage(0);
-    }, [accountNumber]);
+        setPage(0);
+    }, [accountId, filter]);
 
     const { data, isLoading, isError } = useQuery({
-        queryKey: ['transactions', accountNumber, page],
-        queryFn: () => fetchTransactions(accountNumber!, page, 10),
-        enabled: !!accountNumber,
-        // placeholderData: keepPreviousData, // Removed to force loading state on every fetch
+        queryKey: ['transactions', accountId, filter, page],
+        queryFn: () => fetchTransactions(accountId!, filter, page, 10),
+        enabled: !!accountId,
         staleTime: 0,
         gcTime: 0,
         refetchOnMount: true,
@@ -48,7 +47,7 @@ const TransactionsSection: React.FC<TransactionsSectionProps> = ({
 
     const transactions = [...(data?.content || [])].sort(
         (a: Transaction, b: Transaction) =>
-            new Date(b.transactionDate).getTime() - new Date(a.transactionDate).getTime()
+            new Date(b.date).getTime() - new Date(a.date).getTime()
     );
     const totalPages = data?.totalPages || 0;
 
@@ -60,6 +59,10 @@ const TransactionsSection: React.FC<TransactionsSectionProps> = ({
 
     const handleNext = () => {
         if (page < totalPages - 1) setPage(p => p + 1);
+    };
+
+    const handleFilterChange = (value: HistoryFilter) => {
+        setFilter(value);
     };
 
     return (
@@ -87,7 +90,19 @@ const TransactionsSection: React.FC<TransactionsSectionProps> = ({
                         ))}
                     </select>
                 </div>
-                {/* Date/Type filters are hidden as they are not yet supported by new backend pagination */}
+            </div>
+
+            {/* Filter Tabs */}
+            <div className="history-filter-tabs">
+                {FILTER_TABS.map(tab => (
+                    <button
+                        key={tab.value}
+                        className={`history-tab-btn${filter === tab.value ? ' active' : ''}`}
+                        onClick={() => handleFilterChange(tab.value)}
+                    >
+                        {tab.label}
+                    </button>
+                ))}
             </div>
 
             <h3 className="history-headline">Історія транзакцій</h3>
@@ -101,7 +116,7 @@ const TransactionsSection: React.FC<TransactionsSectionProps> = ({
                     <>
                         {transactions.map((tr: Transaction, idx: number) => (
                             <TransactionCard
-                                key={`${tr.transactionDate}-${idx}`}
+                                key={tr.id != null ? String(tr.id) : `${tr.date}-${idx}`}
                                 transaction={tr}
                             />
                         ))}
