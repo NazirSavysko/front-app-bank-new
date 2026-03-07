@@ -35,36 +35,25 @@ const TransactionCard: React.FC<TransactionCardProps> = ({ transaction }) => {
     // Direction: IBAN_RECEIPT and isRecipient=true are both "incoming"
     const isIncoming = isIbanReceipt || (!isIbanPayment && !isInternetPayment && transaction.isRecipient);
 
-    const arrow = isIncoming ? '↓' : '↑';
     const typeAttr = isIncoming ? 'incoming' : 'outgoing';
     const mainAmount = `${formatAmount(transaction.amount)} ${transaction.currencyCode}`;
 
     // Direction label (Надходження / Витрати)
     const directionLabel = isIncoming ? 'Надходження' : 'Витрати';
 
-    // Type label shown as subtitle in the header
+    // Type label shown as subtitle in the header (Ukrainian only)
     let typeLabel: string;
     if (isInternetPayment) {
-        typeLabel = 'Internet Payment';
+        typeLabel = 'Оплата послуг';
     } else if (isIbanReceipt) {
-        typeLabel = 'IBAN Receipt';
+        typeLabel = 'Зарахування по IBAN';
     } else if (isIbanPayment) {
-        typeLabel = 'IBAN Transfer';
+        typeLabel = 'Переказ по IBAN';
     } else {
-        typeLabel = 'Card Transfer';
+        typeLabel = 'Переказ по картці';
     }
 
-    // Icon
-    let typeIcon: string;
-    if (isInternetPayment) {
-        typeIcon = '🌐';
-    } else if (isIban) {
-        typeIcon = '🏦';
-    } else {
-        typeIcon = '💳';
-    }
-
-    const statusLabel = transaction.status === 'COMPLETED' ? 'ЗАВЕРШЕНО' : transaction.status;
+    const statusLabel = transaction.status === 'COMPLETED' ? 'ВИКОНАНО' : transaction.status;
     const statusClass = transaction.status === 'COMPLETED' ? 'status complete' : 'status cancelled';
 
     const senderCard   = transaction.senderCardNumber || '';
@@ -79,13 +68,12 @@ const TransactionCard: React.FC<TransactionCardProps> = ({ transaction }) => {
             onClick={() => setExpanded(v => !v)}
         >
             <div className="transaction-header">
-                <div className="arrow">{arrow}</div>
                 <div>
                     <div style={{ fontWeight: 700 }}>
                         {directionLabel} — {mainAmount}
                     </div>
                     <div style={{ fontSize: '0.85em', color: '#718096' }}>
-                        {typeIcon} {typeLabel}
+                        {typeLabel}
                         {isInternetPayment && (
                             <span> · {extractProviderName(transaction)}</span>
                         )}

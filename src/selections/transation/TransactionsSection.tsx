@@ -46,7 +46,9 @@ const TransactionsSection: React.FC<TransactionsSectionProps> = ({
         refetchOnMount: true,
     });
 
-    const transactions = data?.content || [];
+    const transactions = [...(data?.content || [])].sort(
+        (a, b) => b.transactionDate.localeCompare(a.transactionDate)
+    );
     const totalPages = data?.totalPages || 0;
 
     if (!selectedAccount) return null;
