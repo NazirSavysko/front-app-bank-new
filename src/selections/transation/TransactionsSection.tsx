@@ -1,6 +1,6 @@
 // src/selections/transation/TransactionsSection.tsx
-import React, { useEffect, useState } from 'react';
-import { useQuery, keepPreviousData } from '@tanstack/react-query';
+import React, { useEffect, useRef, useState } from 'react';
+import { useQuery } from '@tanstack/react-query';
 import { fetchTransactions } from '../../api';
 import type { Account, Transaction } from '../../types';
 import TransactionCard from '../../components/TransactionCard.tsx';
@@ -26,38 +26,57 @@ const TransactionsSection: React.FC<TransactionsSectionProps> = ({
                                                                      setSelectedAccountIndex,
                                                                      onAnalytics
                                                                  }) => {
-    const [page, setPage] = useState(0);
+    const [currentPage, setCurrentPage] = useState(0);
+    const [allTransactions, setAllTransactions] = useState<Transaction[]>([]);
+    const [isLastPage, setIsLastPage] = useState(false);
+    const loadedPagesRef = useRef(new Set<number>());
+    const sentinelRef = useRef<HTMLDivElement>(null);
 
     const selectedAccount = accounts[selectedAccountIndex];
     const accountNumber = selectedAccount?.accountNumber;
 
-    // Reset pagination when account changes
+    // Reset infinite scroll state when account changes
     useEffect(() => {
-        if (accountNumber) setPage(0);
+        setAllTransactions([]);
+        setCurrentPage(0);
+        setIsLastPage(false);
+        loadedPagesRef.current = new Set<number>();
     }, [accountNumber]);
 
     const { data, isLoading, isError } = useQuery({
-        queryKey: ['transactions', accountNumber, page],
-        queryFn: () => fetchTransactions(accountNumber!, page, 10),
+        queryKey: ['transactions', accountNumber, currentPage],
+        queryFn: () => fetchTransactions(accountNumber!, currentPage, 10),
         enabled: !!accountNumber,
-        // placeholderData: keepPreviousData, // Removed to force loading state on every fetch
         staleTime: 0,
         gcTime: 0,
-        refetchOnMount: true,
     });
 
-    const transactions = data?.content || [];
-    const totalPages = data?.totalPages || 0;
+    // Append new page data to accumulated list, preventing duplicates
+    useEffect(() => {
+        if (data?.content && !loadedPagesRef.current.has(currentPage)) {
+            loadedPagesRef.current.add(currentPage);
+            setAllTransactions(prev => [...prev, ...data.content]);
+            setIsLastPage(data.last);
+        }
+    }, [data, currentPage]);
+
+    // IntersectionObserver for infinite scroll
+    useEffect(() => {
+        const sentinel = sentinelRef.current;
+        if (!sentinel) return;
+        const observer = new IntersectionObserver(
+            (entries) => {
+                if (entries[0].isIntersecting && !isLoading && !isLastPage) {
+                    setCurrentPage(p => p + 1);
+                }
+            },
+            { threshold: 0.1 }
+        );
+        observer.observe(sentinel);
+        return () => observer.disconnect();
+    }, [isLoading, isLastPage]);
 
     if (!selectedAccount) return null;
-
-    const handlePrev = () => {
-        if (page > 0) setPage(p => p - 1);
-    };
-
-    const handleNext = () => {
-        if (page < totalPages - 1) setPage(p => p + 1);
-    };
 
     return (
         <div className="transactions-list">
@@ -91,15 +110,15 @@ const TransactionsSection: React.FC<TransactionsSectionProps> = ({
             <h3 className="history-headline">Історія транзакцій</h3>
 
             <div className="account-transactions">
-                {isLoading ? (
+                {allTransactions.length === 0 && isLoading ? (
                     <div style={{ textAlign: 'center', padding: '2rem', color: '#718096' }}>Завантаження...</div>
-                ) : isError ? (
-                     <div style={{ textAlign: 'center', padding: '2rem', color: 'red' }}>Помилка завантаження транзакцій</div>
-                ) : transactions.length > 0 ? (
+                ) : isError && allTransactions.length === 0 ? (
+                    <div style={{ textAlign: 'center', padding: '2rem', color: 'red' }}>Помилка завантаження транзакцій</div>
+                ) : allTransactions.length > 0 ? (
                     <>
-                        {transactions.map((tr: Transaction, idx: number) => (
+                        {allTransactions.map((tr: Transaction, idx: number) => (
                             <TransactionCard
-                                key={`${tr.transactionDate}-${idx}`}
+                                key={`${tr.transactionDate}-${tr.senderCardNumber}-${idx}`}
                                 transaction={tr}
                             />
                         ))}
@@ -109,27 +128,17 @@ const TransactionsSection: React.FC<TransactionsSectionProps> = ({
                 )}
             </div>
 
-            {/* Pagination Controls */}
-            {totalPages > 1 && (
-                <div className="pagination-controls">
-                    <button
-                        className="pagination-btn"
-                        onClick={handlePrev}
-                        disabled={page === 0 || isLoading}
-                    >
-                        &larr; Назад
-                    </button>
-                    <span className="pagination-info">
-                        Сторінка {page + 1} з {totalPages}
-                    </span>
-                    <button
-                        className="pagination-btn"
-                        onClick={handleNext}
-                        disabled={page >= totalPages - 1 || isLoading}
-                    >
-                        Вперед &rarr;
-                    </button>
-                </div>
+            {/* Infinite scroll sentinel */}
+            <div ref={sentinelRef} style={{ height: '1px' }} />
+
+            {/* Loading indicator for next page */}
+            {isLoading && allTransactions.length > 0 && (
+                <div style={{ textAlign: 'center', padding: '1rem', color: '#718096' }}>Завантаження...</div>
+            )}
+
+            {/* End of list indicator */}
+            {isLastPage && allTransactions.length > 0 && (
+                <div style={{ textAlign: 'center', padding: '1rem', color: '#718096' }}>Кінець списку</div>
             )}
         </div>
     );

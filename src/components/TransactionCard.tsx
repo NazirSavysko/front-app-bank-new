@@ -10,16 +10,22 @@ export interface TransactionCardProps {
 const formatAmount = (value: number) =>
     new Intl.NumberFormat('uk-UA', { minimumFractionDigits: 2, maximumFractionDigits: 2 }).format(value);
 
+const transactionTypeLabels: Record<string, string> = {
+    'CARD_TRANSFER': 'Переказ по картці',
+    'Card Transfer': 'Переказ по картці',
+    'TRANSFER': 'Переказ',
+};
+
 const TransactionCard: React.FC<TransactionCardProps> = ({ transaction }) => {
     const senderCard = transaction.senderCardNumber || '';
     const receiverCard = transaction.receiverCardNumber || '';
 
     const isIncoming = transaction.isRecipient;
-    const arrow = isIncoming ? '↓' : '↑';
-    const statusLabel = transaction.status === 'COMPLETED' ? 'ЗАВЕРШЕНО' : transaction.status;
+    const statusLabel = transaction.status === 'COMPLETED' ? 'ВИКОНАНО' : transaction.status;
     const statusClass = transaction.status === 'COMPLETED' ? 'status complete' : 'status cancelled';
     const typeAttr = isIncoming ? 'incoming' : 'outgoing';
     const mainAmount = `${formatAmount(transaction.amount)} ${transaction.currencyCode}`;
+    const typeLabel = transactionTypeLabels[transaction.transactionType] || transaction.transactionType;
 
     const [expanded, setExpanded] = useState(false);
 
@@ -30,11 +36,13 @@ const TransactionCard: React.FC<TransactionCardProps> = ({ transaction }) => {
             onClick={() => setExpanded(v => !v)}
         >
             <div className="transaction-header">
-                <div className="arrow">{arrow}</div>
                 <div>
                     <div style={{ fontWeight: 700 }}>
                         {isIncoming ? 'Надходження' : 'Витрати'} — {mainAmount}
                     </div>
+                    {typeLabel && (
+                        <div style={{ fontSize: '0.875rem', color: '#718096' }}>{typeLabel}</div>
+                    )}
                 </div>
             </div>
 
