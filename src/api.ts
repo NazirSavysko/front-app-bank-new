@@ -1,5 +1,5 @@
 // src/api.ts
-import type { CustomerData, Account, Transaction, Page, AnalyticsSummary, IbanPaymentRequest, InternetPaymentRequest } from './types';
+import type { CustomerData, Account, Transaction, TransactionSubtype, Page, AnalyticsSummary, IbanPaymentRequest, InternetPaymentRequest } from './types';
 
 const getAuthHeaders = () => {
     const token = sessionStorage.getItem('accessToken') || localStorage.getItem('accessToken');
@@ -44,6 +44,39 @@ export const createAccount = async (accountType: string): Promise<Account> => {
     return res.json();
 };
 
+/**
+ * Derive the `transactionSubtype` discriminator from raw backend data.
+ * The backend may already include the field; if it does, trust it.
+ * Otherwise, infer from `transactionType` and `isRecipient` so that old
+ * card-transfer records continue to work without modification.
+ */
+const normaliseTransaction = (raw: Record<string, unknown>): Transaction => {
+    const knownSubtypes: TransactionSubtype[] = [
+        'CARD_TRANSFER',
+        'IBAN_PAYMENT',
+        'IBAN_RECEIPT',
+        'INTERNET_PAYMENT',
+    ];
+
+    let subtype = raw.transactionSubtype as TransactionSubtype | undefined;
+
+    if (!subtype || !knownSubtypes.includes(subtype)) {
+        const type = (raw.transactionType as string | undefined)?.toUpperCase() ?? '';
+        if (type === 'INTERNET_PAYMENT' || type === 'INTERNET') {
+            subtype = 'INTERNET_PAYMENT';
+        } else if (type === 'IBAN_PAYMENT' || type === 'IBAN') {
+            subtype = raw.isRecipient ? 'IBAN_RECEIPT' : 'IBAN_PAYMENT';
+        } else if (type === 'IBAN_RECEIPT') {
+            subtype = 'IBAN_RECEIPT';
+        } else {
+            // Legacy TRANSFER or unknown — treat as card transfer
+            subtype = 'CARD_TRANSFER';
+        }
+    }
+
+    return { ...(raw as unknown as Transaction), transactionSubtype: subtype };
+};
+
 export const fetchTransactions = async (
     accountNumber: string,
     page: number,
@@ -59,7 +92,11 @@ export const fetchTransactions = async (
         throw new Error(body.message || 'Failed to fetch transactions');
     }
 
-    return res.json();
+    const data: Page<Record<string, unknown>> = await res.json();
+    return {
+        ...data,
+        content: data.content.map(normaliseTransaction),
+    };
 };
 
 export const fetchAnalyticsSummary = async (

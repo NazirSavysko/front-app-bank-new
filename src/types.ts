@@ -1,6 +1,19 @@
 // src/types.ts
 // Общие интерфейсы для банковской панели
 
+/**
+ * Discriminates the subtype of a transaction for display purposes.
+ * - CARD_TRANSFER:    Classic card-to-card transfer (legacy / default).
+ * - IBAN_PAYMENT:     Outgoing IBAN payment initiated by the account holder.
+ * - IBAN_RECEIPT:     Incoming credit received via IBAN from a third party.
+ * - INTERNET_PAYMENT: Internet-provider payment (always outgoing).
+ */
+export type TransactionSubtype =
+    | 'CARD_TRANSFER'
+    | 'IBAN_PAYMENT'
+    | 'IBAN_RECEIPT'
+    | 'INTERNET_PAYMENT';
+
 /** Одна транзакция (между картами/счетами) */
 export interface Transaction {
     senderCardNumber: string;
@@ -11,10 +24,18 @@ export interface Transaction {
     amount: number;
     description: string;
     transactionDate: string; // ISO
-    transactionType: string; // e.g. "TRANSFER"
+    transactionType: string; // e.g. "TRANSFER" | "PAYMENT"
+    /** Subtype discriminator — absent for legacy card-transfer records. */
+    transactionSubtype?: TransactionSubtype;
     currencyCode: string;    // "UAH" | "USD" | "EUR"
     status: string;          // "COMPLETED" | "CANCELED" | ...
     isRecipient: boolean;    // true: вхідна транзакція (дохід), false: вихідна (витрата)
+    // IBAN-specific fields
+    senderIban?: string;
+    receiverIban?: string;
+    recipientName?: string;
+    // Internet-payment-specific fields
+    providerName?: string;
 }
 
 export interface Page<T> {
