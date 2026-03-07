@@ -5,6 +5,8 @@ import type { Account, Transaction } from '../../types';
 import TransactionCard from '../../components/TransactionCard.tsx';
 import './TransactionsSection.css';
 
+const PAGE_SIZE = 10;
+
 export interface TransactionsSectionProps {
     accounts: Account[];
     selectedAccountIndex: number;
@@ -31,27 +33,34 @@ const TransactionsSection: React.FC<TransactionsSectionProps> = ({
     const [loading, setLoading] = useState(false);
     const [isError, setIsError] = useState(false);
     const sentinelRef = useRef<HTMLDivElement>(null);
+    // Ref-based guard: avoids stale-closure issues when account switches mid-request
+    const loadingRef = useRef(false);
 
     const selectedAccount = accounts[selectedAccountIndex];
     const accountNumber = selectedAccount?.accountNumber;
 
-    // Reset state when account changes
+    // Reset state when account changes; also reset the loading ref so that a
+    // switch while a request is in-flight doesn't block the new account's load.
     useEffect(() => {
+        loadingRef.current = false;
         setTransactions([]);
         setPage(0);
         setHasMore(true);
         setIsError(false);
+        setLoading(false);
     }, [accountNumber]);
 
     // Fetch a single page and append results
     const loadPage = useCallback(async (pageToLoad: number) => {
-        if (!accountNumber || loading) return;
+        if (!accountNumber || loadingRef.current) return;
+        loadingRef.current = true;
         setLoading(true);
         setIsError(false);
         try {
-            const data = await fetchTransactions(accountNumber, pageToLoad, 10);
+            const data = await fetchTransactions(accountNumber, pageToLoad, PAGE_SIZE);
             const newItems = data.content ?? [];
-            if (newItems.length === 0 || data.last) {
+            // Mark end-of-data when: empty list, partial page, or backend signals last page
+            if (newItems.length === 0 || newItems.length < PAGE_SIZE || data.last) {
                 setHasMore(false);
             }
             if (newItems.length > 0) {
@@ -60,9 +69,10 @@ const TransactionsSection: React.FC<TransactionsSectionProps> = ({
         } catch {
             setIsError(true);
         } finally {
+            loadingRef.current = false;
             setLoading(false);
         }
-    }, [accountNumber, loading]);
+    }, [accountNumber]);
 
     // Load the current page whenever `page` or `accountNumber` changes
     useEffect(() => {
