@@ -201,6 +201,11 @@ const UserDashboard: React.FC = () => {
                                         accounts={customer.accounts}
                                         selectedAccountIndex={selectedAccountIndex}
                                         setSelectedAccountIndex={setSelectedAccountIndex}
+                                        customer={customer}
+                                        onTransferComplete={async () => {
+                                            await refetchCustomer();
+                                        }}
+                                        onCopy={(msg: string) => setCopyMessage(msg)}
                                     />
                                 } />
                                 <Route path="transfers" element={
@@ -210,6 +215,8 @@ const UserDashboard: React.FC = () => {
                                              await refetchCustomer();
                                         }}
                                         onCopy={(msg: string) => setCopyMessage(msg)}
+                                        selectedAccountIndex={selectedAccountIndex}
+                                        setSelectedAccountIndex={setSelectedAccountIndex}
                                     />
                                 } />
                                 <Route path="analytics" element={
@@ -355,4 +362,3 @@ const UserDashboard: React.FC = () => {
 };
 
 export default UserDashboard;
-

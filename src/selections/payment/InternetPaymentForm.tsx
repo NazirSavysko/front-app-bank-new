@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useMemo } from 'react';
+import { useQueryClient } from '@tanstack/react-query';
 import { createInternetPayment } from '../../api';
 import type { Account } from '../../types';
 import './PaymentForms.css';
@@ -37,9 +38,10 @@ const PROVIDERS = [
 const InternetPaymentForm: React.FC<InternetPaymentFormProps> = ({
                                                                      accounts,
                                                                      selectedAccountIndex,
-                                                                     setSelectedAccountIndex,
-                                                                     onBack,
-                                                                 }) => {
+                                                                      setSelectedAccountIndex,
+                                                                      onBack,
+                                                                  }) => {
+    const queryClient = useQueryClient();
     const [providerName, setProviderName] = useState('');
     const [contractNumber, setContractNumber] = useState('');
     const [amount, setAmount] = useState('');
@@ -73,7 +75,6 @@ const InternetPaymentForm: React.FC<InternetPaymentFormProps> = ({
         setIsLoading(true);
 
         const currentAccount = accounts[selectedAccountIndex];
-        console.log('Selected account:', currentAccount); // Debugging
 
         if (!currentAccount) {
             setError('Рахунок не знайдено');
@@ -88,6 +89,7 @@ const InternetPaymentForm: React.FC<InternetPaymentFormProps> = ({
                 providerName,
                 contractNumber,
             });
+            await queryClient.invalidateQueries({ queryKey: ['transactions', currentAccount.accountNumber] });
             alert('Оплата Інтернету успішна!');
             onBack();
         } catch (err) {

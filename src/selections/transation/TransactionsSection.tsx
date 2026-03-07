@@ -1,6 +1,6 @@
 // src/selections/transation/TransactionsSection.tsx
 import React, { useEffect, useState } from 'react';
-import { useQuery, keepPreviousData } from '@tanstack/react-query';
+import { useQuery } from '@tanstack/react-query';
 import { fetchTransactions } from '../../api';
 import type { Account, Transaction } from '../../types';
 import TransactionCard from '../../components/TransactionCard.tsx';

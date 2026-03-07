@@ -1,4 +1,5 @@
 import React, {useEffect, useRef, useState} from 'react';
+import { useQueryClient } from '@tanstack/react-query';
 import type {CustomerData, TransferSuccess} from '../../types.ts';
 import './TransfersSection.css';
 
@@ -6,13 +7,18 @@ export interface TransfersSectionProps {
     customer: CustomerData | null;
     onTransferComplete: () => Promise<void>;
     onCopy?: (msg: string) => void;
+    selectedAccountIndex?: number;
+    setSelectedAccountIndex?: (index: number) => void;
 }
 
 const TransfersSection: React.FC<TransfersSectionProps> = ({
                                                                customer,
                                                                onTransferComplete,
-                                                               onCopy
+                                                               onCopy,
+                                                               selectedAccountIndex,
+                                                               setSelectedAccountIndex
                                                            }) => {
+    const queryClient = useQueryClient();
     const [transferData, setTransferData] = useState({
         senderCardNumber: '',
         recipientCardNumber: '',
@@ -201,6 +207,10 @@ const TransfersSection: React.FC<TransfersSectionProps> = ({
                 amount: '',
                 description: 'Переказ власних коштів'
             });
+            const senderAccount = customer.accounts.find(a => a.card.cardNumber === transferData.senderCardNumber);
+            if (senderAccount?.accountNumber) {
+                await queryClient.invalidateQueries({ queryKey: ['transactions', senderAccount.accountNumber] });
+            }
             await onTransferComplete();
         } catch {
             setTransferError('❌ Помилка з\'єднання з сервером');
@@ -227,6 +237,12 @@ const TransfersSection: React.FC<TransfersSectionProps> = ({
         const acct = customer?.accounts.find(a => a.card.cardNumber === cardNumber);
         if (acct && acct.balance < 0.01) return;
         setTransferData(p => ({...p, senderCardNumber: cardNumber}));
+        if (customer && setSelectedAccountIndex) {
+            const index = customer.accounts.findIndex(a => a.card.cardNumber === cardNumber);
+            if (index !== -1) {
+                setSelectedAccountIndex(index);
+            }
+        }
     };
 
     const formatCardNumberInput = (v: string) => v.replace(/\D/g, '').replace(/(\d{4})(?=\d)/g, '$1 ');
@@ -251,6 +267,15 @@ const TransfersSection: React.FC<TransfersSectionProps> = ({
         el.addEventListener('wheel', handleWheel, { passive: false });
         return () => el.removeEventListener('wheel', handleWheel);
     }, []);
+
+    useEffect(() => {
+        if (!customer || selectedAccountIndex === undefined) return;
+        const account = customer.accounts[selectedAccountIndex];
+        if (!account) return;
+        if (!transferData.senderCardNumber) {
+            setTransferData(prev => ({ ...prev, senderCardNumber: account.card.cardNumber }));
+        }
+    }, [customer, selectedAccountIndex, transferData.senderCardNumber]);
 
     if (transferSuccess) {
         return (

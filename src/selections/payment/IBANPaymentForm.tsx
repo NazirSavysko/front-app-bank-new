@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { useQueryClient } from '@tanstack/react-query';
 import { createIbanPayment } from '../../api';
 import type { Account } from '../../types';
 import './PaymentForms.css';
@@ -14,8 +15,9 @@ const IBANPaymentForm: React.FC<IBANPaymentFormProps> = ({
                                                              accounts,
                                                              selectedAccountIndex,
                                                              setSelectedAccountIndex,
-                                                             onBack,
-                                                         }) => {
+                                                          onBack,
+                                                          }) => {
+    const queryClient = useQueryClient();
     const [recipientName, setRecipientName] = useState('');
     const [recipientIban, setRecipientIban] = useState('');
     const [taxNumber, setTaxNumber] = useState('');
@@ -30,7 +32,6 @@ const IBANPaymentForm: React.FC<IBANPaymentFormProps> = ({
         setIsLoading(true);
 
         const currentAccount = accounts[selectedAccountIndex];
-        console.log('Selected account:', currentAccount); // Debugging
 
         // We check for id, but if it is missing (old backend data or DTO mismatch)
         // we might allow it to proceed if we want to test validation OR block it.
@@ -57,6 +58,7 @@ const IBANPaymentForm: React.FC<IBANPaymentFormProps> = ({
                 taxNumber,
                 purpose,
             });
+            await queryClient.invalidateQueries({ queryKey: ['transactions', currentAccount.accountNumber] });
             alert('Платіж надіслано успішно!');
             onBack();
         } catch (err) {
