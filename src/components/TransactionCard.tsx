@@ -14,6 +14,8 @@ const transactionTypeLabels: Record<string, string> = {
     'CARD_TRANSFER': 'Переказ по картці',
     'Card Transfer': 'Переказ по картці',
     'TRANSFER': 'Переказ',
+    'IBAN_PAYMENT': 'Платіж по IBAN',
+    'IBAN Payment': 'Платіж по IBAN',
 };
 
 const TransactionCard: React.FC<TransactionCardProps> = ({ transaction }) => {

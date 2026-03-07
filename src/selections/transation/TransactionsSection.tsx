@@ -1,6 +1,5 @@
 // src/selections/transation/TransactionsSection.tsx
-import React, { useEffect, useRef, useState } from 'react';
-import { useQuery } from '@tanstack/react-query';
+import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { fetchTransactions } from '../../api';
 import type { Account, Transaction } from '../../types';
 import TransactionCard from '../../components/TransactionCard.tsx';
@@ -26,55 +25,66 @@ const TransactionsSection: React.FC<TransactionsSectionProps> = ({
                                                                      setSelectedAccountIndex,
                                                                      onAnalytics
                                                                  }) => {
-    const [currentPage, setCurrentPage] = useState(0);
-    const [allTransactions, setAllTransactions] = useState<Transaction[]>([]);
-    const [isLastPage, setIsLastPage] = useState(false);
-    const loadedPagesRef = useRef(new Set<number>());
+    const [transactions, setTransactions] = useState<Transaction[]>([]);
+    const [page, setPage] = useState(0);
+    const [hasMore, setHasMore] = useState(true);
+    const [loading, setLoading] = useState(false);
+    const [isError, setIsError] = useState(false);
     const sentinelRef = useRef<HTMLDivElement>(null);
 
     const selectedAccount = accounts[selectedAccountIndex];
     const accountNumber = selectedAccount?.accountNumber;
 
-    // Reset infinite scroll state when account changes
+    // Reset state when account changes
     useEffect(() => {
-        setAllTransactions([]);
-        setCurrentPage(0);
-        setIsLastPage(false);
-        loadedPagesRef.current = new Set<number>();
+        setTransactions([]);
+        setPage(0);
+        setHasMore(true);
+        setIsError(false);
     }, [accountNumber]);
 
-    const { data, isLoading, isError } = useQuery({
-        queryKey: ['transactions', accountNumber, currentPage],
-        queryFn: () => fetchTransactions(accountNumber!, currentPage, 10),
-        enabled: !!accountNumber,
-        staleTime: 0,
-        gcTime: 0,
-    });
-
-    // Append new page data to accumulated list, preventing duplicates
-    useEffect(() => {
-        if (data?.content && !loadedPagesRef.current.has(currentPage)) {
-            loadedPagesRef.current.add(currentPage);
-            setAllTransactions(prev => [...prev, ...data.content]);
-            setIsLastPage(data.last);
+    // Fetch a single page and append results
+    const loadPage = useCallback(async (pageToLoad: number) => {
+        if (!accountNumber || loading) return;
+        setLoading(true);
+        setIsError(false);
+        try {
+            const data = await fetchTransactions(accountNumber, pageToLoad, 10);
+            const newItems = data.content ?? [];
+            if (newItems.length === 0 || data.last) {
+                setHasMore(false);
+            }
+            if (newItems.length > 0) {
+                setTransactions(prev => [...prev, ...newItems]);
+            }
+        } catch {
+            setIsError(true);
+        } finally {
+            setLoading(false);
         }
-    }, [data, currentPage]);
+    }, [accountNumber, loading]);
 
-    // IntersectionObserver for infinite scroll
+    // Load the current page whenever `page` or `accountNumber` changes
+    useEffect(() => {
+        loadPage(page);
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [page, accountNumber]);
+
+    // IntersectionObserver triggers next page only when hasMore && !loading
     useEffect(() => {
         const sentinel = sentinelRef.current;
         if (!sentinel) return;
         const observer = new IntersectionObserver(
             (entries) => {
-                if (entries[0].isIntersecting && !isLoading && !isLastPage) {
-                    setCurrentPage(p => p + 1);
+                if (entries[0].isIntersecting && hasMore && !loading) {
+                    setPage(p => p + 1);
                 }
             },
             { threshold: 0.1 }
         );
         observer.observe(sentinel);
         return () => observer.disconnect();
-    }, [isLoading, isLastPage]);
+    }, [hasMore, loading]);
 
     if (!selectedAccount) return null;
 
@@ -110,13 +120,13 @@ const TransactionsSection: React.FC<TransactionsSectionProps> = ({
             <h3 className="history-headline">Історія транзакцій</h3>
 
             <div className="account-transactions">
-                {allTransactions.length === 0 && isLoading ? (
+                {transactions.length === 0 && loading ? (
                     <div style={{ textAlign: 'center', padding: '2rem', color: '#718096' }}>Завантаження...</div>
-                ) : isError && allTransactions.length === 0 ? (
+                ) : isError && transactions.length === 0 ? (
                     <div style={{ textAlign: 'center', padding: '2rem', color: 'red' }}>Помилка завантаження транзакцій</div>
-                ) : allTransactions.length > 0 ? (
+                ) : transactions.length > 0 ? (
                     <>
-                        {allTransactions.map((tr: Transaction, idx: number) => (
+                        {transactions.map((tr: Transaction, idx: number) => (
                             <TransactionCard
                                 key={`${tr.transactionDate}-${tr.senderCardNumber}-${idx}`}
                                 transaction={tr}
@@ -124,7 +134,7 @@ const TransactionsSection: React.FC<TransactionsSectionProps> = ({
                         ))}
                     </>
                 ) : (
-                    <div style={{ textAlign: 'center', padding: '2rem' }}>Немає транзакцій</div>
+                    <div style={{ textAlign: 'center', padding: '2rem' }}>Транзакцій поки немає</div>
                 )}
             </div>
 
@@ -132,12 +142,12 @@ const TransactionsSection: React.FC<TransactionsSectionProps> = ({
             <div ref={sentinelRef} style={{ height: '1px' }} />
 
             {/* Loading indicator for next page */}
-            {isLoading && allTransactions.length > 0 && (
+            {loading && transactions.length > 0 && (
                 <div style={{ textAlign: 'center', padding: '1rem', color: '#718096' }}>Завантаження...</div>
             )}
 
             {/* End of list indicator */}
-            {isLastPage && allTransactions.length > 0 && (
+            {!hasMore && transactions.length > 0 && (
                 <div style={{ textAlign: 'center', padding: '1rem', color: '#718096' }}>Кінець списку</div>
             )}
         </div>

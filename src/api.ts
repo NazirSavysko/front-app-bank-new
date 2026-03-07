@@ -49,7 +49,7 @@ export const fetchTransactions = async (
     page: number,
     pageSize: number
 ): Promise<Page<Transaction>> => {
-    const res = await fetch(`/api/transactions/history?accountNumber=${accountNumber}&page=${page}&size=${pageSize}`, {
+    const res = await fetch(`/api/v1/transactions/history?accountNumber=${accountNumber}&page=${page}&size=${pageSize}`, {
         method: 'GET',
         headers: getAuthHeaders(),
     });
