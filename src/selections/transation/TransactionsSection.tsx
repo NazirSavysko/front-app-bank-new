@@ -33,15 +33,19 @@ const TransactionsSection: React.FC<TransactionsSectionProps> = ({
     const [loading, setLoading] = useState(false);
     const [isError, setIsError] = useState(false);
     const sentinelRef = useRef<HTMLDivElement>(null);
-    // Ref-based guard: avoids stale-closure issues when account switches mid-request
+    // Ref-based loading guard: avoids stale-closure issues when account switches mid-request
     const loadingRef = useRef(false);
+    // AbortController for cancelling in-flight requests on account change
+    const abortRef = useRef<AbortController | null>(null);
 
     const selectedAccount = accounts[selectedAccountIndex];
     const accountNumber = selectedAccount?.accountNumber;
 
-    // Reset state when account changes; also reset the loading ref so that a
-    // switch while a request is in-flight doesn't block the new account's load.
+    // Reset state when account changes; abort any in-flight request so it cannot
+    // append stale data to the freshly-cleared transaction list.
     useEffect(() => {
+        abortRef.current?.abort();
+        abortRef.current = null;
         loadingRef.current = false;
         setTransactions([]);
         setPage(0);
@@ -53,11 +57,16 @@ const TransactionsSection: React.FC<TransactionsSectionProps> = ({
     // Fetch a single page and append results
     const loadPage = useCallback(async (pageToLoad: number) => {
         if (!accountNumber || loadingRef.current) return;
+        // Create and store the controller BEFORE setting the loading guard so
+        // an account-change abort triggered in the narrow window between guard
+        // set and fetch start still has a live controller to call abort() on.
+        const controller = new AbortController();
+        abortRef.current = controller;
         loadingRef.current = true;
         setLoading(true);
         setIsError(false);
         try {
-            const data = await fetchTransactions(accountNumber, pageToLoad, PAGE_SIZE);
+            const data = await fetchTransactions(accountNumber, pageToLoad, PAGE_SIZE, controller.signal);
             const newItems = data.content ?? [];
             // Mark end-of-data when: empty list, partial page, or backend signals last page
             if (newItems.length === 0 || newItems.length < PAGE_SIZE || data.last) {
@@ -66,8 +75,15 @@ const TransactionsSection: React.FC<TransactionsSectionProps> = ({
             if (newItems.length > 0) {
                 setTransactions(prev => [...prev, ...newItems]);
             }
-        } catch {
-            setIsError(true);
+        } catch (err) {
+            // Ignore AbortError (both DOMException and Error variants) — it means
+            // the user switched accounts; not a user-visible error.
+            const isAbort =
+                (err instanceof DOMException && err.name === 'AbortError') ||
+                (err instanceof Error && err.name === 'AbortError');
+            if (!isAbort) {
+                setIsError(true);
+            }
         } finally {
             loadingRef.current = false;
             setLoading(false);

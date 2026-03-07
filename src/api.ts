@@ -47,11 +47,13 @@ export const createAccount = async (accountType: string): Promise<Account> => {
 export const fetchTransactions = async (
     accountNumber: string,
     page: number,
-    pageSize: number
+    pageSize: number,
+    signal?: AbortSignal
 ): Promise<Page<Transaction>> => {
     const res = await fetch(`/api/v1/transactions/history?accountNumber=${accountNumber}&page=${page}&size=${pageSize}`, {
         method: 'GET',
         headers: getAuthHeaders(),
+        signal,
     });
 
     if (!res.ok) {
