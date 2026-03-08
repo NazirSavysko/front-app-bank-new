@@ -32,6 +32,7 @@ const TransactionsSection: React.FC<TransactionsSectionProps> = ({
     const accountNumber = selectedAccount?.accountNumber;
     const scrollContainerRef = useRef<HTMLDivElement>(null);
     const loadMoreTriggerRef = useRef<HTMLDivElement>(null);
+    const isFetchingNextPageRef = useRef(false);
 
     const {
         data,
@@ -61,6 +62,10 @@ const TransactionsSection: React.FC<TransactionsSectionProps> = ({
     );
 
     useEffect(() => {
+        isFetchingNextPageRef.current = isFetchingNextPage;
+    }, [isFetchingNextPage]);
+
+    useEffect(() => {
         const root = scrollContainerRef.current;
         const trigger = loadMoreTriggerRef.current;
 
@@ -72,7 +77,8 @@ const TransactionsSection: React.FC<TransactionsSectionProps> = ({
             entries => {
                 const entry = entries[0];
 
-                if (entry.isIntersecting && hasNextPage && !isFetchingNextPage) {
+                if (entry.isIntersecting && hasNextPage && !isFetchingNextPageRef.current) {
+                    isFetchingNextPageRef.current = true;
                     void fetchNextPage();
                 }
             },
