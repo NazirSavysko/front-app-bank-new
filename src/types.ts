@@ -6,8 +6,8 @@ export interface Transaction {
     senderCardNumber: string;
     receiverCardNumber: string;
     // Add sender/receiver info for display
-    sender?: { firstName: string; lastName: string };
-    receiver?: { firstName: string; lastName: string };
+    sender?: { firstName: string; lastName: string } | null;
+    receiver?: { firstName: string; lastName: string } | null;
     amount: number;
     description: string;
     transactionDate: string; // ISO
