@@ -68,10 +68,10 @@ const UserDashboard: React.FC = () => {
         mutationFn: (payload: { accountType: AccountType; currency: AccountCurrency }) => createAccount(payload),
         onSuccess: () => {
              queryClient.invalidateQueries({ queryKey: ['customer'] });
-              setShowAddModal(false);
-              setNewAccountType('CURRENT');
-              setNewAccountCurrency('UAH');
-              navigate('/dashboard/accounts');
+             setShowAddModal(false);
+             setNewAccountType('CURRENT');
+             setNewAccountCurrency('UAH');
+             navigate('/dashboard/accounts');
         },
         onError: (err: Error) => {
              setAccountError(`❌ ${err.message}`);
