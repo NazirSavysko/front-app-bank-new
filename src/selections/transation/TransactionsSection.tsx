@@ -70,7 +70,7 @@ const TransactionsSection: React.FC<TransactionsSectionProps> = ({
             entries => {
                 const entry = entries[0];
 
-                if (entry?.isIntersecting) {
+                if (entry.isIntersecting) {
                     void fetchNextPage();
                 }
             },
