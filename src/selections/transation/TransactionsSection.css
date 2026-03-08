@@ -173,9 +173,9 @@
     cursor: pointer;
 }
 .transaction-card:hover {
-    background: rgba(255,255,255,.99);
-    box-shadow: 0 14px 32px rgba(15,23,42,.12);
-    border-color: rgba(99,102,241,.28);
+    background: rgba(255,255,255,0.99);
+    box-shadow: 0 14px 32px rgba(15,23,42,0.12);
+    border-color: rgba(99,102,241,0.28);
 }
 .transaction-card:focus-visible {
     outline: none;

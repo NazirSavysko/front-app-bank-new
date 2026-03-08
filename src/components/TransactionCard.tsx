@@ -52,6 +52,13 @@ const getTransactionTitle = (transaction: Transaction) => {
     }
 };
 
+const renderDescription = (description: string) => (
+    <div className="transaction-detail-item transaction-detail-item-full">
+        <strong>Опис:</strong>
+        <div className="transaction-description">{description}</div>
+    </div>
+);
+
 const TransactionCard: React.FC<TransactionCardProps> = ({ transaction }) => {
     const senderCard = transaction.senderCardNumber || '';
     const receiverCard = transaction.receiverCardNumber || '';
@@ -137,28 +144,13 @@ const TransactionCard: React.FC<TransactionCardProps> = ({ transaction }) => {
                                         <div>{ibanParticipantName}</div>
                                     </div>
                                 )}
-                                {transaction.description && (
-                                    <div className="transaction-detail-item transaction-detail-item-full">
-                                        <strong>Опис:</strong>
-                                        <div className="transaction-description">{transaction.description}</div>
-                                    </div>
-                                )}
+                                {transaction.description && renderDescription(transaction.description)}
                             </>
                         )}
 
-                        {transaction.transactionType === 'INTERNET_PAYMENT' && transaction.description && (
-                            <div className="transaction-detail-item transaction-detail-item-full">
-                                <strong>Опис:</strong>
-                                <div className="transaction-description">{transaction.description}</div>
-                            </div>
-                        )}
+                        {transaction.transactionType === 'INTERNET_PAYMENT' && transaction.description && renderDescription(transaction.description)}
 
-                        {!['TRANSFER', 'IBAN_PAYMENT', 'INTERNET_PAYMENT'].includes(transaction.transactionType) && transaction.description && (
-                            <div className="transaction-detail-item transaction-detail-item-full">
-                                <strong>Опис:</strong>
-                                <div className="transaction-description">{transaction.description}</div>
-                            </div>
-                        )}
+                        {!['TRANSFER', 'IBAN_PAYMENT', 'INTERNET_PAYMENT'].includes(transaction.transactionType) && transaction.description && renderDescription(transaction.description)}
                     </div>
 
                     <div className="transaction-footer">
