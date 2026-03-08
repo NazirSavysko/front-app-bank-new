@@ -36,7 +36,6 @@ const TransactionsSection: React.FC<TransactionsSectionProps> = ({
     const {
         data,
         isLoading,
-        isFetching,
         isError,
         fetchNextPage,
         hasNextPage,
@@ -60,7 +59,6 @@ const TransactionsSection: React.FC<TransactionsSectionProps> = ({
         () => data?.pages.flatMap(page => page.content) ?? [],
         [data],
     );
-    const isInitialLoading = !data && (isLoading || isFetching);
 
     useEffect(() => {
         const root = scrollContainerRef.current;
@@ -126,7 +124,7 @@ const TransactionsSection: React.FC<TransactionsSectionProps> = ({
             <h3 className="history-headline">Історія транзакцій</h3>
 
             <div className="account-transactions" ref={scrollContainerRef}>
-                {isInitialLoading ? (
+                {isLoading ? (
                     <div className="transactions-loading-state" aria-live="polite" aria-label="Завантаження транзакцій">
                         <div className="transactions-spinner" />
                     </div>
