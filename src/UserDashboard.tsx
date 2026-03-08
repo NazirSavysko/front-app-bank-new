@@ -303,7 +303,7 @@ const UserDashboard: React.FC = () => {
                                         <span className="currency-badge-large">ФОП</span>
                                         <div className="currency-texts">
                                             <span className="currency-name">ФОП (Бізнес-рахунок)</span>
-                                            <span className="currency-code">BUSINESS</span>
+                                            <span className="currency-code">FOP</span>
                                         </div>
                                     </button>
                                 </div>

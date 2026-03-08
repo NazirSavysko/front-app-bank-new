@@ -47,7 +47,7 @@ export interface AnalyticsSummary {
     currency: string;
 }
 
-export type AccountType = 'CURRENT' | 'FOP' | (string & {});
+export type AccountType = 'CURRENT' | 'FOP';
 
 /** Счёт/карта */
 export interface Account {
