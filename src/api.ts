@@ -68,19 +68,27 @@ export const fetchAllTransactions = async (
 ): Promise<Transaction[]> => {
     const transactions: Transaction[] = [];
     let page = 0;
+    const maxPages = 50;
 
-    while (true) {
-        const result = await fetchTransactions(accountNumber, page, pageSize);
-        transactions.push(...result.content);
+    try {
+        while (page < maxPages) {
+            const result = await fetchTransactions(accountNumber, page, pageSize);
+            transactions.push(...result.content);
 
-        const nextPage = result.pageable.pageNumber + 1;
-        if (result.last || nextPage >= result.totalPages) {
-            break;
+            const nextPage = result.pageable.pageNumber + 1;
+            if (result.last || nextPage >= result.totalPages) {
+                return transactions;
+            }
+
+            page = nextPage;
         }
 
-        page = nextPage;
+        throw new Error('Transaction analytics page limit exceeded');
+    } catch (error) {
+        throw new Error(
+            error instanceof Error
+                ? `Failed to fetch analytics transactions: ${error.message}`
+                : 'Failed to fetch analytics transactions'
+        );
     }
-
-    return transactions;
 };
-
