@@ -1,6 +1,8 @@
 // src/api.ts
 import type { CustomerData, Account, Transaction, Page } from './types';
 
+const MAX_ANALYTICS_TRANSACTION_PAGES = 50;
+
 const getAuthHeaders = () => {
     const token = sessionStorage.getItem('accessToken') || localStorage.getItem('accessToken');
     return {
@@ -68,10 +70,9 @@ export const fetchAllTransactions = async (
 ): Promise<Transaction[]> => {
     const transactions: Transaction[] = [];
     let page = 0;
-    const maxPages = 50;
 
     try {
-        while (page < maxPages) {
+        while (page < MAX_ANALYTICS_TRANSACTION_PAGES) {
             const result = await fetchTransactions(accountNumber, page, pageSize);
             transactions.push(...result.content);
 
@@ -83,12 +84,13 @@ export const fetchAllTransactions = async (
             page = nextPage;
         }
 
-        throw new Error('Transaction analytics page limit exceeded');
+        return transactions;
     } catch (error) {
-        throw new Error(
-            error instanceof Error
-                ? `Failed to fetch analytics transactions: ${error.message}`
-                : 'Failed to fetch analytics transactions'
-        );
+        const message = error instanceof Error
+            ? `Failed to fetch analytics transactions: ${error.message}`
+            : 'Failed to fetch analytics transactions';
+        throw new Error(message, {
+            cause: error instanceof Error ? error : undefined,
+        });
     }
 };
