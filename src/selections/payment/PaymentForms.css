@@ -126,6 +126,17 @@
     background-size: 1em;
 }
 
+.account-info-note {
+    margin-top: 0.75rem;
+    padding: 0.85rem 1rem;
+    border-radius: 10px;
+    background: linear-gradient(135deg, #eff6ff 0%, #dbeafe 100%);
+    border: 1px solid #93c5fd;
+    color: #1d4ed8;
+    font-size: 0.95rem;
+    font-weight: 500;
+}
+
 .form-input::placeholder {
     color: #888;
     opacity: 1; /* Firefox */
@@ -169,7 +180,6 @@
     color: #999;
     cursor: default;
 }
-
 
 
 

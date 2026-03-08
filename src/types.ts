@@ -47,12 +47,16 @@ export interface AnalyticsSummary {
     currency: string;
 }
 
+export type AccountType = 'CURRENT' | 'FOP' | (string & {});
+
 /** Счёт/карта */
 export interface Account {
     id: number;
     accountNumber: string;
+    accountType?: AccountType;
     balance: number;
     currency: string; // "UAH" | "USD" | "EUR"
+    edrpou?: string;
     status: string;
     card: {
         cardNumber: string;

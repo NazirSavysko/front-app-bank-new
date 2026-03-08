@@ -1,7 +1,7 @@
 import React, {useEffect, useState, lazy, Suspense} from 'react';
 import { Routes, Route, Navigate, NavLink, useNavigate } from 'react-router-dom';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import type {CustomerData} from './types';
+import type {AccountType, CustomerData} from './types';
 import './UserDashboard.css';
 import {createAccount} from "./api.ts";
 
@@ -47,7 +47,7 @@ const UserDashboard: React.FC = () => {
     const [selectedAccountIndex, setSelectedAccountIndex] = useState(0);
     const [showAddModal, setShowAddModal] = useState(false);
     const [showProfile, setShowProfile] = useState(false);
-    const [newAccountType, setNewAccountType] = useState('UAH');
+    const [newAccountType, setNewAccountType] = useState<AccountType>('CURRENT');
     const [accountError, setAccountError] = useState('');
     const [copyMessage, setCopyMessage] = useState('');
 
@@ -64,10 +64,11 @@ const UserDashboard: React.FC = () => {
 
     // Mutation for adding account
     const createAccountMutation = useMutation({
-        mutationFn: (accountType: string) => createAccount(accountType),
+        mutationFn: (accountType: AccountType) => createAccount(accountType),
         onSuccess: () => {
              queryClient.invalidateQueries({ queryKey: ['customer'] });
              setShowAddModal(false);
+             setNewAccountType('CURRENT');
              navigate('/dashboard/accounts');
         },
         onError: (err: Error) => {
@@ -84,6 +85,7 @@ const UserDashboard: React.FC = () => {
     const handleCloseAddModal = () => {
         setShowAddModal(false);
         setAccountError('');
+        setNewAccountType('CURRENT');
     };
 
     // Initialize analytics account remains same
@@ -278,42 +280,30 @@ const UserDashboard: React.FC = () => {
                         </div>
                         <div className="modal-body">
                             <div className="form-group">
-                                <label className="form-label">Тип валюти:</label>
-                                <div className="currency-options" role="group" aria-label="Вибір валюти">
+                                <label className="form-label">Тип рахунку:</label>
+                                <div className="currency-options" role="group" aria-label="Вибір типу рахунку">
                                     <button
                                         type="button"
-                                        className={`currency-option ${newAccountType === 'UAH' ? 'selected' : ''}`}
-                                        onClick={() => setNewAccountType('UAH')}
-                                        aria-pressed={newAccountType === 'UAH'}
+                                        className={`currency-option ${newAccountType === 'CURRENT' ? 'selected' : ''}`}
+                                        onClick={() => setNewAccountType('CURRENT')}
+                                        aria-pressed={newAccountType === 'CURRENT'}
                                     >
                                         <span className="currency-badge-large">₴</span>
                                         <div className="currency-texts">
-                                            <span className="currency-name">Гривня</span>
-                                            <span className="currency-code">UAH</span>
+                                            <span className="currency-name">Особистий рахунок</span>
+                                            <span className="currency-code">CURRENT</span>
                                         </div>
                                     </button>
                                     <button
                                         type="button"
-                                        className={`currency-option ${newAccountType === 'USD' ? 'selected' : ''}`}
-                                        onClick={() => setNewAccountType('USD')}
-                                        aria-pressed={newAccountType === 'USD'}
+                                        className={`currency-option ${newAccountType === 'FOP' ? 'selected' : ''} business`}
+                                        onClick={() => setNewAccountType('FOP')}
+                                        aria-pressed={newAccountType === 'FOP'}
                                     >
-                                        <span className="currency-badge-large">$</span>
+                                        <span className="currency-badge-large">ФОП</span>
                                         <div className="currency-texts">
-                                            <span className="currency-name">Долар США</span>
-                                            <span className="currency-code">USD</span>
-                                        </div>
-                                    </button>
-                                    <button
-                                        type="button"
-                                        className={`currency-option ${newAccountType === 'EUR' ? 'selected' : ''}`}
-                                        onClick={() => setNewAccountType('EUR')}
-                                        aria-pressed={newAccountType === 'EUR'}
-                                    >
-                                        <span className="currency-badge-large">€</span>
-                                        <div className="currency-texts">
-                                            <span className="currency-name">Євро</span>
-                                            <span className="currency-code">EUR</span>
+                                            <span className="currency-name">ФОП (Бізнес-рахунок)</span>
+                                            <span className="currency-code">BUSINESS</span>
                                         </div>
                                     </button>
                                 </div>

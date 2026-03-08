@@ -1,5 +1,5 @@
 // src/api.ts
-import type { CustomerData, Account, Transaction, Page, AnalyticsSummary, IbanPaymentRequest, InternetPaymentRequest } from './types';
+import type { CustomerData, Account, AccountType, Transaction, Page, AnalyticsSummary, IbanPaymentRequest, InternetPaymentRequest } from './types';
 
 const getAuthHeaders = () => {
     const token = sessionStorage.getItem('accessToken') || localStorage.getItem('accessToken');
@@ -63,7 +63,7 @@ export const fetchCustomerData = async (): Promise<CustomerData> => {
     return res.json();
 };
 
-export const createAccount = async (accountType: string): Promise<Account> => {
+export const createAccount = async (accountType: AccountType): Promise<Account> => {
     const res = await fetch('/api/v1/accounts/create', {
         method: 'POST',
         headers: getAuthHeaders(),
