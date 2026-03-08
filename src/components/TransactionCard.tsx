@@ -10,6 +10,8 @@ export interface TransactionCardProps {
 const formatAmount = (value: number) =>
     new Intl.NumberFormat('uk-UA', { minimumFractionDigits: 2, maximumFractionDigits: 2 }).format(value);
 
+const CARD_FALLBACK = 'Карта';
+
 const getTransactionTitle = (transaction: Transaction) => {
     switch (transaction.transactionType) {
         case 'IBAN_PAYMENT':
@@ -37,8 +39,8 @@ const TransactionCard: React.FC<TransactionCardProps> = ({ transaction }) => {
     const amountColor = isIncoming ? 'var(--green-600)' : 'var(--red-600)';
     const title = getTransactionTitle(transaction);
     const subtitle = transaction.transactionType === 'IBAN_PAYMENT' ? transaction.description : '';
-    const senderName = `${transaction.sender?.firstName ?? ''} ${transaction.sender?.lastName ?? ''}`.trim() || 'Карта';
-    const receiverName = `${transaction.receiver?.firstName ?? ''} ${transaction.receiver?.lastName ?? ''}`.trim() || 'Карта';
+    const senderName = `${transaction.sender?.firstName ?? ''} ${transaction.sender?.lastName ?? ''}`.trim() || CARD_FALLBACK;
+    const receiverName = `${transaction.receiver?.firstName ?? ''} ${transaction.receiver?.lastName ?? ''}`.trim() || CARD_FALLBACK;
 
     const [expanded, setExpanded] = useState(false);
 
