@@ -1,6 +1,6 @@
 // src/selections/transation/TransactionsSection.tsx
-import React, { useEffect, useState } from 'react';
-import { useQuery, keepPreviousData } from '@tanstack/react-query';
+import React, { useEffect, useMemo, useRef } from 'react';
+import { useInfiniteQuery } from '@tanstack/react-query';
 import { fetchTransactions } from '../../api';
 import type { Account, Transaction } from '../../types';
 import TransactionCard from '../../components/TransactionCard.tsx';
@@ -20,42 +20,75 @@ export interface TransactionsSectionProps {
     onAnalytics: () => void;
 }
 
+const PAGE_SIZE = 10;
+
 const TransactionsSection: React.FC<TransactionsSectionProps> = ({
                                                                      accounts,
                                                                      selectedAccountIndex,
                                                                      setSelectedAccountIndex,
                                                                      onAnalytics
-                                                                 }) => {
-    const [page, setPage] = useState(0);
-
+                                                                  }) => {
     const selectedAccount = accounts[selectedAccountIndex];
     const accountNumber = selectedAccount?.accountNumber;
+    const scrollContainerRef = useRef<HTMLDivElement | null>(null);
+    const loadMoreTriggerRef = useRef<HTMLDivElement | null>(null);
 
-    // Reset pagination when account changes
-    useEffect(() => {
-        if (accountNumber) setPage(0);
-    }, [accountNumber]);
-
-    const { data, isLoading, isError } = useQuery({
-        queryKey: ['transactions', accountNumber, page],
-        queryFn: () => fetchTransactions(accountNumber!, page, 10),
+    const {
+        data,
+        isLoading,
+        isError,
+        fetchNextPage,
+        hasNextPage,
+        isFetchingNextPage,
+    } = useInfiniteQuery({
+        queryKey: ['transactions', accountNumber],
+        queryFn: ({ pageParam }) => fetchTransactions(accountNumber!, pageParam, PAGE_SIZE),
         enabled: !!accountNumber,
-        placeholderData: keepPreviousData,
+        initialPageParam: 0,
+        getNextPageParam: lastPage => (
+            lastPage.last
+                ? undefined
+                : lastPage.pageable.pageNumber + 1
+        ),
         staleTime: 1000 * 60 * 5, // 5 minutes cache
     });
 
-    const transactions = data?.content || [];
-    const totalPages = data?.totalPages || 0;
+    const transactions = useMemo(
+        () => data?.pages.flatMap(page => page.content) ?? [],
+        [data],
+    );
+
+    useEffect(() => {
+        const root = scrollContainerRef.current;
+        const trigger = loadMoreTriggerRef.current;
+
+        if (!root || !trigger || !hasNextPage) {
+            return;
+        }
+
+        const observer = new IntersectionObserver(
+            entries => {
+                const entry = entries[0];
+
+                if (entry?.isIntersecting && !isFetchingNextPage) {
+                    void fetchNextPage();
+                }
+            },
+            {
+                root,
+                rootMargin: '120px 0px',
+                threshold: 0.1,
+            },
+        );
+
+        observer.observe(trigger);
+
+        return () => {
+            observer.disconnect();
+        };
+    }, [fetchNextPage, hasNextPage, isFetchingNextPage, transactions.length]);
 
     if (!selectedAccount) return null;
-
-    const handlePrev = () => {
-        if (page > 0) setPage(p => p - 1);
-    };
-
-    const handleNext = () => {
-        if (page < totalPages - 1) setPage(p => p + 1);
-    };
 
     return (
         <div className="transactions-list">
@@ -88,11 +121,13 @@ const TransactionsSection: React.FC<TransactionsSectionProps> = ({
 
             <h3 className="history-headline">Історія транзакцій</h3>
 
-            <div className="account-transactions">
+            <div className="account-transactions" ref={scrollContainerRef}>
                 {isLoading ? (
-                    <div style={{ textAlign: 'center', padding: '2rem', color: '#718096' }}>Завантаження...</div>
+                    <div className="transactions-loading-state" aria-live="polite" aria-label="Завантаження транзакцій">
+                        <div className="transactions-spinner" />
+                    </div>
                 ) : isError ? (
-                     <div style={{ textAlign: 'center', padding: '2rem', color: 'red' }}>Помилка завантаження транзакцій</div>
+                    <div className="transactions-error-state">Помилка завантаження транзакцій</div>
                 ) : transactions.length > 0 ? (
                     <>
                         {transactions.map((tr: Transaction, idx: number) => (
@@ -101,34 +136,19 @@ const TransactionsSection: React.FC<TransactionsSectionProps> = ({
                                 transaction={tr}
                             />
                         ))}
+
+                        <div ref={loadMoreTriggerRef} className="transactions-load-trigger" aria-hidden="true" />
+
+                        {isFetchingNextPage && (
+                            <div className="transactions-loading-more" aria-live="polite" aria-label="Завантаження наступних транзакцій">
+                                <div className="transactions-spinner transactions-spinner--small" />
+                            </div>
+                        )}
                     </>
                 ) : (
-                    <div style={{ textAlign: 'center', padding: '2rem' }}>Немає транзакцій</div>
+                    <div className="transactions-empty-state">Немає транзакцій</div>
                 )}
             </div>
-
-            {/* Pagination Controls */}
-            {totalPages > 1 && (
-                <div className="pagination-controls">
-                    <button
-                        className="pagination-btn"
-                        onClick={handlePrev}
-                        disabled={page === 0 || isLoading}
-                    >
-                        &larr; Назад
-                    </button>
-                    <span className="pagination-info">
-                        Сторінка {page + 1} з {totalPages}
-                    </span>
-                    <button
-                        className="pagination-btn"
-                        onClick={handleNext}
-                        disabled={page >= totalPages - 1 || isLoading}
-                    >
-                        Вперед &rarr;
-                    </button>
-                </div>
-            )}
         </div>
     );
 };

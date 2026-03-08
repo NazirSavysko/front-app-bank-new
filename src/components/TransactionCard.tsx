@@ -18,16 +18,65 @@ const formatParticipantName = (person?: Transaction['sender'] | null) =>
 const getParticipantName = (person?: Transaction['sender'] | null) =>
     formatParticipantName(person) || CARD_FALLBACK;
 
+const TransferIcon = () => (
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+        <path d="M4 7.5A2.5 2.5 0 0 1 6.5 5h11A2.5 2.5 0 0 1 20 7.5v9A2.5 2.5 0 0 1 17.5 19h-11A2.5 2.5 0 0 1 4 16.5z" />
+        <path d="M4 9.5h16" />
+        <path d="m9 15 2 2-2 2" />
+        <path d="M15 17H9" />
+    </svg>
+);
+
+const IbanPaymentIcon = () => (
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+        <path d="M4 20h16" />
+        <path d="M6 20V9.5L12 5l6 4.5V20" />
+        <path d="M9 12h.01" />
+        <path d="M12 12h.01" />
+        <path d="M15 12h.01" />
+        <path d="M10 20v-4h4v4" />
+    </svg>
+);
+
+const InternetPaymentIcon = () => (
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+        <circle cx="12" cy="12" r="8" />
+        <path d="M4 12h16" />
+        <path d="M12 4a12.3 12.3 0 0 1 0 16" />
+        <path d="M12 4a12.3 12.3 0 0 0 0 16" />
+    </svg>
+);
+
+const DefaultTransactionIcon = () => (
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+        <path d="M12 5v14" />
+        <path d="M8 9l4-4 4 4" />
+        <path d="m8 15 4 4 4-4" />
+    </svg>
+);
+
 const getTransactionIcon = (transactionType: string) => {
     switch (transactionType) {
         case 'IBAN_PAYMENT':
-            return '₴';
+            return {
+                className: 'transaction-icon transaction-icon--iban',
+                element: <IbanPaymentIcon />,
+            };
         case 'INTERNET_PAYMENT':
-            return '🌐';
+            return {
+                className: 'transaction-icon transaction-icon--internet',
+                element: <InternetPaymentIcon />,
+            };
         case 'TRANSFER':
-            return '⇄';
+            return {
+                className: 'transaction-icon transaction-icon--transfer',
+                element: <TransferIcon />,
+            };
         default:
-            return '•';
+            return {
+                className: 'transaction-icon transaction-icon--default',
+                element: <DefaultTransactionIcon />,
+            };
     }
 };
 
@@ -104,7 +153,7 @@ const TransactionCard: React.FC<TransactionCardProps> = ({ transaction }) => {
             aria-expanded={expanded}
         >
             <div className="transaction-header">
-                <div className="transaction-icon" aria-hidden="true">{icon}</div>
+                <div className={icon.className} aria-hidden="true">{icon.element}</div>
                 <div className="transaction-header-content">
                     <div className="transaction-header-main">
                         <div className="transaction-title">{title}</div>
