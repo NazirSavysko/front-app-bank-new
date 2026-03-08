@@ -9,6 +9,40 @@ const getAuthHeaders = () => {
     };
 };
 
+const createTransactionsPage = ({
+    content,
+    pageNumber,
+    pageSize,
+    first,
+    last,
+    totalPages,
+    totalElements,
+}: {
+    content: Transaction[];
+    pageNumber: number;
+    pageSize: number;
+    first?: boolean;
+    last?: boolean;
+    totalPages?: number;
+    totalElements?: number;
+}): Page<Transaction> => {
+    const inferredLastPage = typeof last === 'boolean' ? last : content.length < pageSize;
+    const estimatedTotalPages = inferredLastPage ? pageNumber + 1 : pageNumber + 2;
+    const estimatedTotalElements = pageNumber * pageSize + content.length;
+
+    return {
+        content,
+        pageable: {
+            pageNumber,
+            pageSize,
+        },
+        totalPages: typeof totalPages === 'number' ? totalPages : estimatedTotalPages,
+        totalElements: typeof totalElements === 'number' ? totalElements : estimatedTotalElements,
+        first: typeof first === 'boolean' ? first : pageNumber === 0,
+        last: inferredLastPage,
+    };
+};
+
 export const fetchCustomerData = async (): Promise<CustomerData> => {
     const res = await fetch('/api/customers/customer', {
         method: 'GET',
@@ -59,7 +93,28 @@ export const fetchTransactions = async (
         throw new Error(body.message || 'Failed to fetch transactions');
     }
 
-    return res.json();
+    const data = await res.json();
+
+    if (Array.isArray(data)) {
+        return createTransactionsPage({
+            content: data,
+            pageNumber: page,
+            pageSize,
+        });
+    }
+
+    const content = Array.isArray(data?.content) ? data.content : [];
+    const resolvedPageNumber = typeof data?.pageable?.pageNumber === 'number' ? data.pageable.pageNumber : page;
+    const resolvedPageSize = typeof data?.pageable?.pageSize === 'number' ? data.pageable.pageSize : pageSize;
+    return createTransactionsPage({
+        content,
+        pageNumber: resolvedPageNumber,
+        pageSize: resolvedPageSize,
+        totalPages: typeof data?.totalPages === 'number' ? data.totalPages : undefined,
+        totalElements: typeof data?.totalElements === 'number' ? data.totalElements : undefined,
+        first: typeof data?.first === 'boolean' ? data.first : undefined,
+        last: typeof data?.last === 'boolean' ? data.last : undefined,
+    });
 };
 
 export const fetchAnalyticsSummary = async (
