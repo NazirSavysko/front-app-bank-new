@@ -49,7 +49,9 @@
     overflow-y: auto;
     overflow-x: hidden;
     padding-right: 0.5rem; /* Відступ під скролбар */
+    padding-bottom: 0.5rem;
     scroll-behavior: smooth;
+    position: relative;
 
     /* Дизайн скролбару */
     scrollbar-width: thin;
@@ -173,6 +175,11 @@
     cursor: pointer;
 }
 
+.transaction-card:focus-visible {
+    outline: none;
+    box-shadow: var(--shadow-soft), var(--focus-ring);
+}
+
 .transaction-card:not(.expanded) .transaction-body,
 .transaction-card:not(.expanded) .transaction-footer {
     display: none;
@@ -222,30 +229,74 @@
 /* Заголовок */
 .transaction-header {
     display: flex;
-    align-items: center;
+    align-items: flex-start;
     gap: .9rem;
     margin-bottom: .85rem;
     padding-bottom: .6rem;
     border-bottom: 1px solid rgba(0,0,0,.04);
-    font-size: 1.05rem;
-    font-weight: 700;
-    letter-spacing: .2px;
 }
-.transaction-header .arrow {
-    width: 40px; height: 40px;
+
+.transaction-icon {
+    width: 40px;
+    height: 40px;
     border-radius: 50%;
-    display:flex; align-items:center; justify-content:center;
-    font-size: 1.35rem; font-weight: 800; color: #fff; flex-shrink: 0;
-    background: linear-gradient(135deg,#667eea 0%,#764ba2 100%);
-    box-shadow: 0 6px 18px rgba(102,126,234,.28);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
 }
-.transaction-card[data-type="incoming"] .arrow {
-    background: linear-gradient(135deg,var(--green-500) 0%,var(--green-600) 100%);
-    box-shadow: 0 6px 18px rgba(16,185,129,.28);
+
+.transaction-icon svg {
+    display: block;
 }
-.transaction-card[data-type="outgoing"] .arrow {
-    background: linear-gradient(135deg,var(--red-500) 0%,var(--red-600) 100%);
-    box-shadow: 0 6px 18px rgba(239,68,68,.28);
+
+.transaction-icon--transfer {
+    background: #dbeafe;
+    color: #1d4ed8;
+}
+
+.transaction-icon--iban-payment {
+    background: #dcfce7;
+    color: #166534;
+}
+
+.transaction-icon--internet-payment {
+    background: #ede9fe;
+    color: #6d28d9;
+}
+
+.transaction-summary {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: 1rem;
+    flex: 1;
+    min-width: 0;
+}
+
+.transaction-summary-main {
+    min-width: 0;
+}
+
+.transaction-title {
+    font-size: 1rem;
+    font-weight: 700;
+    color: var(--text-main);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.transaction-date {
+    margin-top: 0.25rem;
+    font-size: 0.88rem;
+    color: var(--text-muted);
+}
+
+.transaction-amount {
+    font-size: 1rem;
+    font-weight: 700;
+    white-space: nowrap;
 }
 
 /* Тіло/підвал */
@@ -301,63 +352,6 @@
     border: 1px solid rgba(239,68,68,.25);
 }
 
-/* Індикатор розгортання */
-.transaction-card {
-    background: var(--bg-card);
-    border-radius: var(--radius);
-    padding: 1.5rem;
-    margin-bottom: 1rem;
-    box-shadow: var(--shadow-soft);
-    backdrop-filter: blur(4px);
-    border: 1px solid var(--border-soft);
-    transition: all 0.3s ease;
-    position: relative;
-    overflow: hidden;
-    cursor: pointer;
-}
-
-.transaction-card:not(.expanded) .transaction-body,
-.transaction-card:not(.expanded) .transaction-footer {
-    display: none;
-}
-
-.transaction-card:not(.expanded) .transaction-header {
-    margin-bottom: 0;
-    padding-bottom: 0;
-    border-bottom: none;
-}
-
-.transaction-card.expanded {
-    background: #ffffff !important; /* Force white background for visibility */
-    box-shadow: 0 15px 30px rgba(0,0,0,0.15);
-    transform: scale(1.01);
-    z-index: 5;
-    color: #2d3748 !important; /* Force dark text */
-}
-
-/* Ensure text colors inside expanded card are dark */
-.transaction-card.expanded .transaction-body strong {
-    color: #4a5568 !important;
-}
-.transaction-card.expanded .transaction-body div {
-    color: #2d3748 !important;
-}
-
-
-.transaction-card::after {
-    content:'▼';
-    position: absolute;
-    top: 1.8rem;
-    right: 1.5rem;
-    color: var(--text-muted);
-    font-size: 1rem;
-    transition: transform .3s ease, color .3s ease;
-}
-.transaction-card.expanded::after {
-    transform: rotate(180deg);
-    color: var(--primary-600);
-}
-
 /* Окремий контейнер для заголовку/аналітики */
 .transactions-top-bar {
     display: flex;
@@ -388,8 +382,48 @@
     text-transform: none; /* Make it look like "Транзакції" title if desired, or keep standard */
 }
 
-/* Немає транзакцій */
-.account-transactions p {
+@keyframes transactions-spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+
+.transactions-loading {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.transactions-loading--initial {
+    min-height: 260px;
+}
+
+.transactions-loading--more {
+    padding: 0.5rem 0 1rem;
+}
+
+.transactions-spinner {
+    border: 3px solid #e2e8f0;
+    border-top-color: #667eea;
+    border-radius: 50%;
+    animation: transactions-spin 0.9s linear infinite;
+}
+
+.transactions-spinner--lg {
+    width: 48px;
+    height: 48px;
+}
+
+.transactions-spinner--sm {
+    width: 28px;
+    height: 28px;
+}
+
+.transactions-load-trigger {
+    width: 100%;
+    height: 1px;
+}
+
+.transactions-message {
     text-align:center;
     padding: 1.6rem;
     color: var(--text-muted);
@@ -399,6 +433,14 @@
     border-radius: var(--radius);
     margin: 1rem 0;
     border: 1px dashed var(--border-soft);
+}
+
+.transactions-message--error {
+    color: var(--red-600);
+}
+
+.transactions-empty-state {
+    margin-bottom: 0;
 }
 
 /* Адаптив */
@@ -411,8 +453,9 @@
     }
     .transactions-header h3 { font-size: 1.02rem; }
     .transaction-card { padding: 1rem; }
-    .transaction-header { font-size: 1rem; gap: .7rem; }
-    .transaction-header .arrow { width: 36px; height: 36px; font-size: 1.2rem; }
+    .transaction-header { gap: .7rem; }
+    .transaction-summary { gap: 0.75rem; }
+    .transaction-icon { width: 36px; height: 36px; }
 }
 @media (max-width: 480px) {
     .analytics-button { padding: .55rem .85rem; }
@@ -422,14 +465,22 @@
         gap: 1rem;
     }
     .transaction-body { grid-template-columns: 1fr; }
+    .transaction-summary {
+        flex-direction: column;
+        gap: 0.5rem;
+    }
+    .transaction-amount {
+        font-size: 0.95rem;
+    }
 }
 
 /* Зменшення руху для чутливих користувачів */
 @media (prefers-reduced-motion: reduce) {
-    .transaction-card, .analytics-button, .transaction-card::after {
+    .transaction-card, .analytics-button, .transactions-spinner {
         transition: none !important;
     }
     .transactions-list { scroll-behavior: auto; }
+    .transactions-spinner { animation: none !important; }
 }
 
 /* Темна тема */
