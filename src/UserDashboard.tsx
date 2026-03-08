@@ -3,6 +3,7 @@ import { Routes, Route, Navigate, NavLink, useNavigate } from 'react-router-dom'
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import type {CustomerData} from './types';
 import './UserDashboard.css';
+import {createAccount} from "./api.ts";
 
 const AccountsSection = lazy(() => import('./selections/account/AccountsSection.tsx'));
 const TransactionsSection = lazy(() => import('./selections/transation/TransactionsSection.tsx'));
@@ -63,25 +64,7 @@ const UserDashboard: React.FC = () => {
 
     // Mutation for adding account
     const createAccountMutation = useMutation({
-        mutationFn: async (currency: string) => {
-             const token = sessionStorage.getItem('accessToken') || localStorage.getItem('accessToken');
-            const res = await fetch('/api/accounts', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    Authorization: token ? `Bearer ${token}` : ''
-                },
-                body: JSON.stringify({
-                    currency: currency,
-                    accountType: 'CURRENT'
-                })
-            });
-            if (!res.ok) {
-                const data = await res.json();
-                throw new Error(data.message || 'Помилка створення рахунку');
-            }
-            return res.json();
-        },
+        mutationFn: (accountType: string) => createAccount(accountType),
         onSuccess: () => {
              queryClient.invalidateQueries({ queryKey: ['customer'] });
              setShowAddModal(false);
