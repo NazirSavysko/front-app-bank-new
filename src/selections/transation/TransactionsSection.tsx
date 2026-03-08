@@ -36,6 +36,7 @@ const TransactionsSection: React.FC<TransactionsSectionProps> = ({
     const {
         data,
         isLoading,
+        isFetching,
         isError,
         fetchNextPage,
         hasNextPage,
@@ -50,13 +51,16 @@ const TransactionsSection: React.FC<TransactionsSectionProps> = ({
                 ? undefined
                 : lastPage.pageable.pageNumber + 1
         ),
-        staleTime: 1000 * 60 * 5, // 5 minutes cache
+        staleTime: 0,
+        gcTime: 0,
+        refetchOnMount: true,
     });
 
     const transactions = useMemo(
         () => data?.pages.flatMap(page => page.content) ?? [],
         [data],
     );
+    const isInitialLoading = !data && (isLoading || isFetching);
 
     useEffect(() => {
         const root = scrollContainerRef.current;
@@ -70,7 +74,7 @@ const TransactionsSection: React.FC<TransactionsSectionProps> = ({
             entries => {
                 const entry = entries[0];
 
-                if (entry.isIntersecting) {
+                if (entry.isIntersecting && hasNextPage && !isFetchingNextPage) {
                     void fetchNextPage();
                 }
             },
@@ -122,7 +126,7 @@ const TransactionsSection: React.FC<TransactionsSectionProps> = ({
             <h3 className="history-headline">Історія транзакцій</h3>
 
             <div className="account-transactions" ref={scrollContainerRef}>
-                {isLoading ? (
+                {isInitialLoading ? (
                     <div className="transactions-loading-state" aria-live="polite" aria-label="Завантаження транзакцій">
                         <div className="transactions-spinner" />
                     </div>
