@@ -23,11 +23,22 @@ const TRANSACTION_LABELS: Record<string, string> = {
     INTERNET_PAYMENT: 'Поповнення інтернету',
 };
 
-const formatPersonName = (person?: { firstName: string; lastName: string }) =>
-    [person?.firstName, person?.lastName].filter(Boolean).join(' ');
+const TRANSACTION_ICON_VARIANTS: Record<string, string> = {
+    TRANSFER: 'transfer',
+    IBAN_PAYMENT: 'iban-payment',
+    INTERNET_PAYMENT: 'internet-payment',
+};
+
+const formatPersonName = (person?: { firstName: string; lastName: string }) => {
+    if (!person) {
+        return '';
+    }
+
+    return [person.firstName, person.lastName].filter(Boolean).join(' ');
+};
 
 const maskCardNumber = (cardNumber?: string) => (
-    cardNumber ? `**** ${cardNumber.slice(-4)}` : '—'
+    cardNumber ? (cardNumber.length > 4 ? `**** ${cardNumber.slice(-4)}` : '****') : '—'
 );
 
 const TransactionTypeIcon: React.FC<{ transactionType: string }> = ({ transactionType }) => {
@@ -102,10 +113,10 @@ const TransactionCard: React.FC<TransactionCardProps> = ({ transaction }) => {
         }
     })();
     const amountColor = isIncoming ? 'var(--green-600)' : 'var(--red-600)';
-    const iconVariant = transaction.transactionType.toLowerCase().replace(/_/g, '-');
+    const iconVariant = TRANSACTION_ICON_VARIANTS[transaction.transactionType] || 'transfer';
 
     const [expanded, setExpanded] = useState(false);
-    const toggleExpanded = () => setExpanded(value => !value);
+    const toggleExpanded = () => setExpanded(prevExpanded => !prevExpanded);
 
     return (
         <div
@@ -113,7 +124,12 @@ const TransactionCard: React.FC<TransactionCardProps> = ({ transaction }) => {
             data-type={typeAttr}
             onClick={toggleExpanded}
             onKeyDown={event => {
-                if (event.key === 'Enter' || event.key === ' ') {
+                if (event.key === 'Enter') {
+                    toggleExpanded();
+                }
+            }}
+            onKeyUp={event => {
+                if (event.key === ' ') {
                     event.preventDefault();
                     toggleExpanded();
                 }

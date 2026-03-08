@@ -122,7 +122,7 @@ const TransactionsSection: React.FC<TransactionsSectionProps> = ({
             <div className="account-transactions" ref={transactionsContainerRef}>
                 {isLoading ? (
                     <div className="transactions-loading transactions-loading--initial">
-                        <div className="transactions-spinner transactions-spinner--lg" aria-label="Loading transactions"></div>
+                        <div className="transactions-spinner transactions-spinner--lg" aria-label="Завантаження транзакцій"></div>
                     </div>
                 ) : isError ? (
                     <div className="transactions-message transactions-message--error">Помилка завантаження транзакцій</div>
@@ -143,7 +143,7 @@ const TransactionsSection: React.FC<TransactionsSectionProps> = ({
                         )}
                         {isFetchingNextPage && (
                             <div className="transactions-loading transactions-loading--more">
-                                <div className="transactions-spinner transactions-spinner--sm" aria-label="Loading more transactions"></div>
+                                <div className="transactions-spinner transactions-spinner--sm" aria-label="Завантаження додаткових транзакцій"></div>
                             </div>
                         )}
                     </>
