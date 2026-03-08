@@ -12,11 +12,11 @@ const formatAmount = (value: number) =>
 
 const CARD_FALLBACK = 'Карта';
 
-const getParticipantFullName = (person?: Transaction['sender'] | null) =>
+const formatParticipantName = (person?: Transaction['sender'] | null) =>
     `${person?.firstName ?? ''} ${person?.lastName ?? ''}`.trim();
 
 const getParticipantName = (person?: Transaction['sender'] | null) =>
-    getParticipantFullName(person) || CARD_FALLBACK;
+    formatParticipantName(person) || CARD_FALLBACK;
 
 const getTransactionIcon = (transactionType: string) => {
     switch (transactionType) {
@@ -31,7 +31,13 @@ const getTransactionIcon = (transactionType: string) => {
     }
 };
 
-const getMaskedCardSuffix = (cardNumber: string) => (cardNumber ? ` **** ${cardNumber.slice(-4)}` : '');
+const getMaskedCardSuffix = (cardNumber: string) => {
+    if (!cardNumber) {
+        return '';
+    }
+
+    return cardNumber.length >= 4 ? ` **** ${cardNumber.slice(-4)}` : ' ****';
+};
 
 const getTransactionTitle = (transaction: Transaction) => {
     switch (transaction.transactionType) {
@@ -62,9 +68,10 @@ const TransactionCard: React.FC<TransactionCardProps> = ({ transaction }) => {
     const formattedDate = formatUkDateTime(transaction.transactionDate);
     const senderName = getParticipantName(transaction.sender);
     const receiverName = getParticipantName(transaction.receiver);
+    const ibanParticipantLabel = transaction.isRecipient ? 'Відправник:' : 'Отримувач:';
     const ibanParticipantName = transaction.isRecipient
-        ? getParticipantFullName(transaction.sender)
-        : getParticipantFullName(transaction.receiver);
+        ? formatParticipantName(transaction.sender)
+        : formatParticipantName(transaction.receiver);
 
     const [expanded, setExpanded] = useState(false);
 
@@ -126,7 +133,7 @@ const TransactionCard: React.FC<TransactionCardProps> = ({ transaction }) => {
                             <>
                                 {ibanParticipantName && (
                                     <div className="transaction-detail-item transaction-detail-item-full">
-                                        <strong>{transaction.isRecipient ? 'Відправник:' : 'Отримувач:'}</strong>
+                                        <strong>{ibanParticipantLabel}</strong>
                                         <div>{ibanParticipantName}</div>
                                     </div>
                                 )}
