@@ -56,9 +56,8 @@ const TransactionsSection: React.FC<TransactionsSectionProps> = ({
 
     useEffect(() => {
         const triggerElement = loadMoreTriggerRef.current;
-        const containerElement = transactionsContainerRef.current;
 
-        if (!triggerElement || !containerElement) {
+        if (!triggerElement) {
             return;
         }
 
@@ -71,7 +70,7 @@ const TransactionsSection: React.FC<TransactionsSectionProps> = ({
                 }
             },
             {
-                root: containerElement,
+                root: null,
                 rootMargin: '0px 0px 120px 0px',
             }
         );

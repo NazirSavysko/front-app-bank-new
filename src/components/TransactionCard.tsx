@@ -17,11 +17,20 @@ const STATUS_LABELS: Record<string, string> = {
     CANCELED: 'Скасовано',
 };
 
-const TRANSACTION_LABELS: Record<string, string> = {
-    TRANSFER: 'Переказ на картку',
-    IBAN_PAYMENT: 'Оплата за IBAN',
-    INTERNET_PAYMENT: 'Поповнення інтернету',
-};
+const TRANSACTION_TITLES = {
+    TRANSFER: {
+        incoming: 'Поповнення з картки',
+        outgoing: 'Переказ на картку',
+    },
+    IBAN_PAYMENT: {
+        incoming: 'Поповнення за IBAN',
+        outgoing: 'Оплата за IBAN',
+    },
+    INTERNET_PAYMENT: {
+        incoming: 'Оплата інтернету',
+        outgoing: 'Оплата інтернету',
+    },
+} as const;
 
 const TRANSACTION_ICON_VARIANTS: Record<string, string> = {
     TRANSFER: 'transfer',
@@ -88,9 +97,7 @@ const TransactionTypeIcon: React.FC<{ transactionType: string }> = ({ transactio
 const TransactionCard: React.FC<TransactionCardProps> = ({ transaction }) => {
     const senderCard = transaction.senderCardNumber || '';
     const receiverCard = transaction.receiverCardNumber || '';
-    const isExternalPayment =
-        transaction.transactionType === 'IBAN_PAYMENT' || transaction.transactionType === 'INTERNET_PAYMENT';
-    const isIncoming = !isExternalPayment && transaction.isRecipient;
+    const isIncoming = transaction.isRecipient === true;
     const statusLabel = STATUS_LABELS[transaction.status] || transaction.status;
     const statusClass = transaction.status === 'COMPLETED' ? 'status complete' : 'status cancelled';
     const typeAttr = isIncoming ? 'incoming' : 'outgoing';
@@ -98,18 +105,16 @@ const TransactionCard: React.FC<TransactionCardProps> = ({ transaction }) => {
     const mainAmount = `${amountPrefix}${formatAmount(transaction.amount)} ${transaction.currencyCode}`;
     const senderName = formatPersonName(transaction.sender);
     const receiverName = formatPersonName(transaction.receiver);
-    const counterpartyName = isIncoming ? senderName : receiverName;
-    const operationLabel = TRANSACTION_LABELS[transaction.transactionType] || 'Транзакція';
     const shortTitle = (() => {
         switch (transaction.transactionType) {
             case 'TRANSFER':
-                return counterpartyName || operationLabel;
+                return isIncoming ? TRANSACTION_TITLES.TRANSFER.incoming : TRANSACTION_TITLES.TRANSFER.outgoing;
             case 'IBAN_PAYMENT':
-                return receiverName || operationLabel;
+                return isIncoming ? TRANSACTION_TITLES.IBAN_PAYMENT.incoming : TRANSACTION_TITLES.IBAN_PAYMENT.outgoing;
             case 'INTERNET_PAYMENT':
-                return operationLabel;
+                return TRANSACTION_TITLES.INTERNET_PAYMENT.outgoing;
             default:
-                return operationLabel;
+                return 'Транзакція';
         }
     })();
     const amountColor = isIncoming ? 'var(--green-600)' : 'var(--red-600)';
