@@ -220,7 +220,7 @@ const UserDashboard: React.FC = () => {
                                         setSelectedMonth={setSelectedMonth}
                                         selectedYear={selectedYear}
                                         setSelectedYear={setSelectedYear}
-                                        onBack={() => navigate('/dashboard/accounts')}
+                                        onBack={() => navigate('/dashboard/transactions')}
                                      />
                                 } />
                                 <Route path="*" element={<Navigate to="accounts" replace />} />
@@ -354,4 +354,3 @@ const UserDashboard: React.FC = () => {
 };
 
 export default UserDashboard;
-

@@ -1,5 +1,7 @@
 // src/selections/analytic/AnalyticsSection.tsx
 import React, { useMemo, useCallback } from 'react';
+import { useQuery } from '@tanstack/react-query';
+import { fetchAllTransactions } from '../../api';
 import type { CustomerData, Transaction } from '../../types';
 import './AnalyticsSection.css';
 import {
@@ -76,12 +78,17 @@ const AnalyticsSection: React.FC<AnalyticsSectionProps> = ({
 
     const accountToShow = selectedAccount || customer?.accounts[0];
     const currencySymbol = getCurrencySymbol(accountToShow?.currency);
-
-    // Transactions are temporarily disabled for analytics due to backend changes
-    const allTransactions: Transaction[] = useMemo(
-        () => [],
-        []
-    );
+    const {
+        data: allTransactions = [],
+        isLoading,
+        isError,
+    } = useQuery({
+        queryKey: ['analytics-transactions', selectedAnalyticsAccount],
+        queryFn: () => fetchAllTransactions(selectedAnalyticsAccount),
+        enabled: !!selectedAnalyticsAccount,
+        staleTime: 0,
+        refetchOnMount: true,
+    });
 
     const curStart = useMemo(() => new Date(selectedYear, selectedMonth, 1), [selectedYear, selectedMonth]);
     const curEnd = useMemo(() => new Date(selectedYear, selectedMonth + 1, 1), [selectedYear, selectedMonth]);
@@ -207,11 +214,17 @@ const AnalyticsSection: React.FC<AnalyticsSectionProps> = ({
                     </div>
                 </div>
 
-                {/* Если транзакций нет (или пока отключены), покажем сообщение */}
-                {currentPeriodTransactions.length === 0 ? (
+                {isLoading ? (
                     <div className="no-data-chart">
-                        <p>На жаль, аналітика тимчасово недоступна, так як історія транзакцій завантажується окремо.</p>
-                        <p style={{fontSize: '0.9rem', color: '#718096'}}>Ми працюємо над відновленням цього функціоналу.</p>
+                        <p>Завантаження аналітики...</p>
+                    </div>
+                ) : isError ? (
+                    <div className="no-data-chart">
+                        <p>Не вдалося завантажити аналітику з сервера.</p>
+                    </div>
+                ) : currentPeriodTransactions.length === 0 ? (
+                    <div className="no-data-chart">
+                        <p>Немає транзакцій за вибраний період.</p>
                     </div>
                 ) : (
                     <div className="charts-grid">

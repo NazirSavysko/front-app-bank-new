@@ -62,4 +62,25 @@ export const fetchTransactions = async (
     return res.json();
 };
 
+export const fetchAllTransactions = async (
+    accountNumber: string,
+    pageSize = 100
+): Promise<Transaction[]> => {
+    const transactions: Transaction[] = [];
+    let page = 0;
+
+    while (true) {
+        const result = await fetchTransactions(accountNumber, page, pageSize);
+        transactions.push(...result.content);
+
+        const nextPage = result.pageable.pageNumber + 1;
+        if (result.last || nextPage >= result.totalPages) {
+            break;
+        }
+
+        page = nextPage;
+    }
+
+    return transactions;
+};
 
