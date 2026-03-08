@@ -89,7 +89,7 @@ const InternetPaymentForm: React.FC<InternetPaymentFormProps> = ({
                 providerName,
                 contractNumber,
             });
-            await queryClient.invalidateQueries({ queryKey: ['transactions', currentAccount.accountNumber] });
+            await queryClient.invalidateQueries({ queryKey: ['transactions'] });
             alert('Оплата Інтернету успішна!');
             onBack();
         } catch (err) {

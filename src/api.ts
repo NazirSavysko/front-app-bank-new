@@ -30,7 +30,7 @@ export const fetchCustomerData = async (): Promise<CustomerData> => {
 };
 
 export const createAccount = async (accountType: string): Promise<Account> => {
-    const res = await fetch('/api/accounts/create', {
+    const res = await fetch('/api/v1/accounts/create', {
         method: 'POST',
         headers: getAuthHeaders(),
         body: JSON.stringify({ accountType }),

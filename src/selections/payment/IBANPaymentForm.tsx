@@ -58,7 +58,7 @@ const IBANPaymentForm: React.FC<IBANPaymentFormProps> = ({
                 taxNumber,
                 purpose,
             });
-            await queryClient.invalidateQueries({ queryKey: ['transactions', currentAccount.accountNumber] });
+            await queryClient.invalidateQueries({ queryKey: ['transactions'] });
             alert('Платіж надіслано успішно!');
             onBack();
         } catch (err) {
