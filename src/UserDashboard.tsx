@@ -1,7 +1,7 @@
 import React, {useEffect, useState, lazy, Suspense} from 'react';
 import { Routes, Route, Navigate, NavLink, useNavigate } from 'react-router-dom';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import type {AccountType, CustomerData} from './types';
+import type {AccountCurrency, AccountType, CustomerData} from './types';
 import './UserDashboard.css';
 import {createAccount} from "./api.ts";
 
@@ -48,6 +48,7 @@ const UserDashboard: React.FC = () => {
     const [showAddModal, setShowAddModal] = useState(false);
     const [showProfile, setShowProfile] = useState(false);
     const [newAccountType, setNewAccountType] = useState<AccountType>('CURRENT');
+    const [newAccountCurrency, setNewAccountCurrency] = useState<AccountCurrency>('UAH');
     const [accountError, setAccountError] = useState('');
     const [copyMessage, setCopyMessage] = useState('');
 
@@ -64,12 +65,13 @@ const UserDashboard: React.FC = () => {
 
     // Mutation for adding account
     const createAccountMutation = useMutation({
-        mutationFn: (accountType: AccountType) => createAccount(accountType),
+        mutationFn: (payload: { accountType: AccountType; currency: AccountCurrency }) => createAccount(payload),
         onSuccess: () => {
              queryClient.invalidateQueries({ queryKey: ['customer'] });
-             setShowAddModal(false);
-             setNewAccountType('CURRENT');
-             navigate('/dashboard/accounts');
+              setShowAddModal(false);
+              setNewAccountType('CURRENT');
+              setNewAccountCurrency('UAH');
+              navigate('/dashboard/accounts');
         },
         onError: (err: Error) => {
              setAccountError(`❌ ${err.message}`);
@@ -79,14 +81,24 @@ const UserDashboard: React.FC = () => {
     const handleAddAccount = async () => {
         if (createAccountMutation.isPending) return;
         setAccountError('');
-        createAccountMutation.mutate(newAccountType);
+        createAccountMutation.mutate({
+            accountType: newAccountType,
+            currency: newAccountType === 'FOP' ? 'UAH' : newAccountCurrency,
+        });
     };
 
     const handleCloseAddModal = () => {
         setShowAddModal(false);
         setAccountError('');
         setNewAccountType('CURRENT');
+        setNewAccountCurrency('UAH');
     };
+
+    useEffect(() => {
+        if (newAccountType === 'FOP') {
+            setNewAccountCurrency('UAH');
+        }
+    }, [newAccountType]);
 
     // Initialize analytics account remains same
     useEffect(() => {
@@ -307,6 +319,26 @@ const UserDashboard: React.FC = () => {
                                         </div>
                                     </button>
                                 </div>
+                            </div>
+                            <div className="form-group">
+                                <label className="form-label" htmlFor="account-currency-select">Валюта рахунку:</label>
+                                <select
+                                    id="account-currency-select"
+                                    className="account-currency-select"
+                                    value={newAccountCurrency}
+                                    onChange={(e) => setNewAccountCurrency(e.target.value as AccountCurrency)}
+                                    disabled={newAccountType === 'FOP'}
+                                    aria-disabled={newAccountType === 'FOP'}
+                                >
+                                    <option value="UAH">UAH</option>
+                                    <option value="USD">USD</option>
+                                    <option value="EUR">EUR</option>
+                                </select>
+                                {newAccountType === 'FOP' && (
+                                    <div className="account-currency-hint">
+                                        Для ФОП-рахунку доступна лише валюта UAH.
+                                    </div>
+                                )}
                             </div>
                             {accountError && (
                                 <div className="error-banner" role="alert">

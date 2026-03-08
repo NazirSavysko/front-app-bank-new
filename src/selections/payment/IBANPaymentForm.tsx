@@ -27,9 +27,22 @@ const IBANPaymentForm: React.FC<IBANPaymentFormProps> = ({
     const [amount, setAmount] = useState('');
     const [isLoading, setIsLoading] = useState(false);
     const [error, setError] = useState<string | null>(null);
+    const ibanError =
+        recipientIban.length === 0
+            ? null
+            : !/^UA[A-Z0-9]{30}$/.test(recipientIban)
+                ? 'Невірний формат IBAN. IBAN має починатися з UA та містити 32 символи без пробілів.'
+                : null;
+    const isSubmitDisabled = isLoading || Boolean(ibanError);
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
+
+        if (ibanError) {
+            setError(ibanError);
+            return;
+        }
+
         setError(null);
         setIsLoading(true);
 
@@ -119,11 +132,16 @@ const IBANPaymentForm: React.FC<IBANPaymentFormProps> = ({
                     <input
                         type="text"
                         value={recipientIban}
-                        onChange={(e) => setRecipientIban(e.target.value)}
+                        onChange={(e) => setRecipientIban(e.target.value.toUpperCase())}
                         placeholder="UA000000000000000000000000000"
                         required
                         className="form-input"
+                        maxLength={32}
+                        autoCapitalize="characters"
+                        spellCheck={false}
+                        aria-invalid={Boolean(ibanError)}
                     />
+                    {ibanError && <div className="field-error-message">{ibanError}</div>}
 
                     <label className="input-label mt-4">ЄДРПОУ / ІПН</label>
                     <input
@@ -159,7 +177,7 @@ const IBANPaymentForm: React.FC<IBANPaymentFormProps> = ({
                 </div>
 
                 <div className="form-submit-container">
-                    <button type="submit" className="submit-button-primary" disabled={isLoading}>
+                    <button type="submit" className="submit-button-primary" disabled={isSubmitDisabled}>
                         {isLoading ? 'Обробка...' : 'Сплатити'}
                     </button>
                 </div>

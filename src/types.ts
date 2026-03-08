@@ -48,6 +48,7 @@ export interface AnalyticsSummary {
 }
 
 export type AccountType = 'CURRENT' | 'FOP';
+export type AccountCurrency = 'UAH' | 'USD' | 'EUR';
 
 /** Счёт/карта */
 export interface Account {
@@ -55,7 +56,7 @@ export interface Account {
     accountNumber: string;
     accountType?: AccountType;
     balance: number;
-    currency: string; // "UAH" | "USD" | "EUR"
+    currency: AccountCurrency;
     edrpou?: string;
     status: string;
     card: {
