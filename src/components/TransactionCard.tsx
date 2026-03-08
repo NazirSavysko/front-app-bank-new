@@ -12,6 +12,9 @@ const formatAmount = (value: number) =>
 
 const CARD_FALLBACK = 'Карта';
 
+const getParticipantName = (person?: Transaction['sender'] | null) =>
+    `${person?.firstName ?? ''} ${person?.lastName ?? ''}`.trim() || CARD_FALLBACK;
+
 const getTransactionTitle = (transaction: Transaction) => {
     switch (transaction.transactionType) {
         case 'IBAN_PAYMENT':
@@ -38,9 +41,9 @@ const TransactionCard: React.FC<TransactionCardProps> = ({ transaction }) => {
     const mainAmount = `${amountPrefix}${formatAmount(transaction.amount)} ${transaction.currencyCode}`;
     const amountColor = isIncoming ? 'var(--green-600)' : 'var(--red-600)';
     const title = getTransactionTitle(transaction);
-    const subtitle = transaction.transactionType === 'IBAN_PAYMENT' ? transaction.description : '';
-    const senderName = `${transaction.sender?.firstName ?? ''} ${transaction.sender?.lastName ?? ''}`.trim() || CARD_FALLBACK;
-    const receiverName = `${transaction.receiver?.firstName ?? ''} ${transaction.receiver?.lastName ?? ''}`.trim() || CARD_FALLBACK;
+    const showDescriptionInHeader = transaction.transactionType === 'IBAN_PAYMENT' && transaction.description;
+    const senderName = getParticipantName(transaction.sender);
+    const receiverName = getParticipantName(transaction.receiver);
 
     const [expanded, setExpanded] = useState(false);
 
@@ -55,9 +58,9 @@ const TransactionCard: React.FC<TransactionCardProps> = ({ transaction }) => {
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: '1rem', width: '100%' }}>
                     <div>
                         <div style={{ fontWeight: 700 }}>{title}</div>
-                        {subtitle && (
+                        {showDescriptionInHeader && (
                             <div style={{ marginTop: '.2rem', fontSize: '.92rem', fontWeight: 500, color: 'var(--text-muted)' }}>
-                                {subtitle}
+                                {transaction.description}
                             </div>
                         )}
                     </div>
@@ -82,7 +85,7 @@ const TransactionCard: React.FC<TransactionCardProps> = ({ transaction }) => {
                         {receiverCard && ` **** ${receiverCard.slice(-4)}`}
                     </div>
                 </div>
-                {transaction.description && transaction.transactionType !== 'IBAN_PAYMENT' && (
+                {transaction.description && !showDescriptionInHeader && (
                     <div style={{ flexBasis: '100%' }}>
                         <strong>Опис:</strong>
                         <div>{transaction.description}</div>
