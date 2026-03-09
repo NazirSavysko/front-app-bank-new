@@ -568,7 +568,6 @@ const TransfersSection: React.FC<TransfersSectionProps> = ({
                 <div className="modal-overlay verification-overlay" role="dialog" aria-modal="true">
                     <div className="verification-modal">
                         <div className="verification-header">
-                            <div className="verification-icon">📧</div>
                             <h3>Підтвердження переказу</h3>
                             <button
                                 className="modal-close"
@@ -583,7 +582,6 @@ const TransfersSection: React.FC<TransfersSectionProps> = ({
                             <div className="email-info">
                                 <p className="verification-text">Код підтвердження надіслано на пошту</p>
                                 <div className="email-display">
-                                    <span className="email-icon">📮</span>
                                     <strong>{customer?.email}</strong>
                                 </div>
                             </div>
@@ -625,7 +623,6 @@ const TransfersSection: React.FC<TransfersSectionProps> = ({
 
                             {transferError && (
                                 <div className="verification-error">
-                                    <span className="error-icon">⚠️</span>
                                     <span>{transferError.replace('❌ ', '')}</span>
                                 </div>
                             )}
