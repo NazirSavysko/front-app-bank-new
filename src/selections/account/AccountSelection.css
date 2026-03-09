@@ -1,19 +1,32 @@
 .accounts-list {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+    display: flex;
+    flex-wrap: nowrap;
+    overflow-x: auto;
     gap: 1rem;
     padding: 0.35rem 0.1rem 0.5rem;
     list-style: none;
     margin: 0;
+    align-items: stretch;
+    scroll-snap-type: x mandatory;
+    scrollbar-width: none;
+    -ms-overflow-style: none;
+    -webkit-overflow-scrolling: touch;
+}
+
+.accounts-list::-webkit-scrollbar {
+    display: none;
 }
 
 .account-wrapper {
+    flex: 0 0 320px;
+    min-width: 320px;
     cursor: pointer;
     transition: all 0.2s ease-in-out;
     display: flex;
     flex-direction: column;
     min-height: 220px;
     position: relative;
+    scroll-snap-align: center;
 }
 
 .account-wrapper:hover {
@@ -51,6 +64,8 @@
 }
 
 .account-wrapper.add-card {
+    flex: 0 0 320px;
+    min-width: 320px;
     display: flex;
     flex-direction: column;
     min-height: 220px;
@@ -248,26 +263,14 @@
    ========================================= */
 @media (max-width: 768px) {
     .accounts-list {
-        display: flex;
-        flex-wrap: nowrap;
-        overflow-x: auto;
         gap: 1rem;
         padding: 0.35rem 0.15rem 1rem;
-        scroll-snap-type: x mandatory;
-        scrollbar-width: none;
-        -ms-overflow-style: none;
-        -webkit-overflow-scrolling: touch;
-        align-items: stretch;
-    }
-
-    .accounts-list::-webkit-scrollbar {
-        display: none;
     }
 
     .account-wrapper {
         flex: 0 0 85vw;
         width: 85vw;
-        scroll-snap-align: center;
+        min-width: 85vw;
         transform: scale(0.98);
         opacity: 0.96;
         transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
@@ -291,6 +294,7 @@
     .account-wrapper.add-card {
         flex: 0 0 85vw;
         width: 85vw;
+        min-width: 85vw;
         min-height: 210px;
         flex-direction: column;
     }

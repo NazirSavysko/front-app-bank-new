@@ -553,8 +553,58 @@
     .sender-card {
         flex: 0 0 85vw;
         width: 85vw;
-        min-height: 168px;
+        max-height: 100px;
+        min-height: 100px;
+        padding: 0.65rem 0.75rem;
+        border-radius: 16px;
         scroll-snap-align: center;
+    }
+
+    .mini-card {
+        gap: 0.35rem;
+    }
+
+    .card-type {
+        font-size: 0.58rem;
+        letter-spacing: 1px;
+    }
+
+    .selected-check {
+        width: 20px;
+        height: 20px;
+        font-size: 0.78rem;
+    }
+
+    .card-number {
+        margin: 0.2rem 0 0.35rem;
+        font-size: 0.78rem;
+        letter-spacing: 1px;
+    }
+
+    .balance-label {
+        font-size: 0.58rem;
+    }
+
+    .balance-amount {
+        font-size: 0.86rem;
+    }
+
+    .card-expire {
+        font-size: 0.62rem;
+    }
+
+    .card-expire::before {
+        font-size: 0.36rem;
+    }
+
+    .card-warning {
+        padding: 0.35rem;
+        font-size: 0.66rem;
+    }
+
+    .selected-card-info {
+        padding: 0.65rem 0.8rem;
+        font-size: 0.8rem;
     }
 
     .form-row {

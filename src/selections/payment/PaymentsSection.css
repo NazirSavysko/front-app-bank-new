@@ -1,6 +1,6 @@
 .payments-container {
-    padding: 2rem;
-    max-width: 1400px; /* Wider to accommodate the 4-column layout comfortably */
+    padding: 1rem 0;
+    max-width: 960px;
     margin: 0 auto;
     font-family: 'Inter', system-ui, -apple-system, sans-serif;
 }
@@ -14,10 +14,11 @@
 
 /* Common Section Style */
 .search-section, .categories-section {
-    background: #F5F5FA; /* Light lavender background from design */
-    padding: 1.5rem 2rem;
-    border-radius: 4px; /* Slightly rounded or square */
-    margin-bottom: 2rem;
+    background: #F5F5FA;
+    padding: 1.25rem;
+    border-radius: 18px;
+    margin-bottom: 1rem;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.05);
 }
 
 /* Headers inside sections */
@@ -39,11 +40,13 @@
 /* Search Bar */
 .search-bar-wrapper {
     position: relative;
-    max-width: 400px;
+    max-width: 100%;
     display: flex;
     align-items: center;
-    border-bottom: 1px solid #ccc;
-    padding-bottom: 8px;
+    border: 1px solid rgba(148, 163, 184, 0.24);
+    border-radius: 14px;
+    background: rgba(255,255,255,0.92);
+    padding: 0.85rem 1rem;
 }
 
 .search-icon {
@@ -70,147 +73,145 @@
     color: #999;
 }
 
-/* Categories Grid */
 .categories-grid {
-    display: grid;
-    grid-template-columns: repeat(4, 1fr);
-    grid-auto-rows: 160px; /* Fixed height unit */
-    gap: 1.5rem;
-    grid-auto-flow: dense; /* Crucial for packing tall/short items */
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+    gap: 0.75rem;
 }
 
 .category-card {
-    border-radius: 12px;
-    padding: 1.5rem;
-    color: white;
+    width: 100%;
+    border: none;
+    border-radius: 16px;
+    padding: 0.95rem 1rem;
+    color: #111827;
     cursor: pointer;
-    transition: transform 0.2s, box-shadow 0.2s;
+    transition: all 0.2s ease-in-out;
     display: flex;
-    flex-direction: column;
-    justify-content: space-between;
+    align-items: center;
+    gap: 0.9rem;
     position: relative;
     overflow: hidden;
+    background: rgba(255,255,255,0.92);
+    box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+    text-align: left;
 }
 
 .category-card:hover {
     transform: translateY(-2px);
-    box-shadow: 0 8px 16px rgba(0,0,0,0.1);
+    box-shadow: 0 8px 20px rgba(0,0,0,0.08);
 }
 
-/* Sizing Classes */
-.category-card.tall {
-    grid-row: span 2;
-    padding: 2rem;
-    gap: 1rem;
-    /* Reset from previous */
-    align-items: stretch;
-    justify-content: flex-start;
-}
-.category-card.tall .category-icon {
-    /* Make icon take available space and center itself */
-    flex: 1;
+.category-icon-badge {
+    width: 44px;
+    height: 44px;
+    border-radius: 999px;
     display: flex;
     align-items: center;
     justify-content: center;
-    margin: 0;
-    transform: scale(2.0); /* Larger */
-}
-.category-card.tall .category-content {
-    /* Text at bottom left */
-    text-align: left;
-    width: 100%;
-    margin-top: 0;
-}
-
-.category-card.short {
-    grid-row: span 1;
-    /* Icon top-left, Text bottom-left */
-    justify-content: space-between;
-    align-items: flex-start;
-    padding: 1.5rem;
-}
-.category-card.short .category-content {
-    width: 100%;
-    text-align: left;
-}
-.category-card.short .category-icon {
-    margin-bottom: 0.5rem;
-    transform: scale(1.0);
+    flex-shrink: 0;
 }
 
 .category-icon {
-    margin-bottom: 0.5rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
 }
 
 .category-content h3 {
     font-size: 16px;
-    font-weight: 500;
-    margin: 0 0 4px 0;
+    font-weight: 600;
+    margin: 0 0 2px 0;
     line-height: 1.2;
 }
 
 .category-content p {
     font-size: 12px;
-    opacity: 0.85;
+    opacity: 0.8;
     margin: 0;
     line-height: 1.3;
-    font-weight: 300;
+    font-weight: 400;
+}
+
+.category-content {
+    flex: 1;
+    min-width: 0;
+}
+
+.category-chevron {
+    width: 20px;
+    height: 20px;
+    color: #94a3b8;
+    flex-shrink: 0;
+}
+
+.category-chevron svg {
+    width: 100%;
+    height: 100%;
 }
 
 /* Colors matching design */
-/* User requested all cards to be in the same VIBRANT PURPLE color */
-.bg-purple, .bg-blue, .bg-indigo {
-    /* Uniform color based on the "Travel" card style/purple square provided */
-    background: linear-gradient(135deg, #7F73FF 0%, #7663F6 100%);
-}
-
-/* Specific flat-ish look from screenshot - Uniform for all cards */
-.category-card.bg-purple,
-.category-card.bg-blue,
-.category-card.bg-indigo {
-    /* Brighter Violet/Purple Gradient */
-    background: linear-gradient(150deg, #8476FF, #715EF0);
-}
-
-/* Make page text darker/black */
 .page-title, .search-section h2, .categories-section h2, .category-content h3 {
-    color: #000; /* Pure black for titles */
+    color: #000;
 }
 .subtitle {
-    color: #222; /* Very dark grey for subtitles */
-    font-weight: 400; /* Slightly bolder */
+    color: #222;
+    font-weight: 400;
 }
-/* Except card text which must remain white on dark backgrounds */
-.category-card, .category-card .category-content h3, .category-card .category-content p {
-    color: #FFFFFF;
+.category-card .category-content h3,
+.category-card .category-content p {
+    color: #0f172a;
 }
 
-/* Icons */
 .category-icon svg {
-    stroke: white;
+    width: 22px;
+    height: 22px;
+    stroke: currentColor;
+}
+
+.bg-purple .category-icon-badge {
+    background: rgba(127, 115, 255, 0.16);
+    color: #6d28d9;
+}
+
+.bg-blue .category-icon-badge {
+    background: rgba(59, 130, 246, 0.16);
+    color: #2563eb;
+}
+
+.bg-indigo .category-icon-badge {
+    background: rgba(99, 102, 241, 0.16);
+    color: #4f46e5;
 }
 
 /* Responsive */
 @media (max-width: 1024px) {
-    .categories-grid {
-        grid-template-columns: repeat(3, 1fr);
+    .payments-container {
+        max-width: 100%;
     }
 }
 
 @media (max-width: 768px) {
-    .categories-grid {
-        grid-template-columns: repeat(2, 1fr);
+    .payments-container {
+        padding: 0.5rem 0;
+    }
+
+    .search-section,
+    .categories-section {
+        padding: 1rem;
+        border-radius: 16px;
+    }
+
+    .category-card {
+        padding: 0.85rem 0.9rem;
+        gap: 0.75rem;
     }
 }
 
 @media (max-width: 480px) {
-    .categories-grid {
-        grid-template-columns: 1fr;
-    }
-    .category-card.tall {
-        grid-row: span 1; /* Reset tall on mobile */
-        min-height: 200px;
+    .category-content h3 {
+        font-size: 15px;
     }
 }
-
 

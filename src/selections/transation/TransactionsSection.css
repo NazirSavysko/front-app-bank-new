@@ -40,31 +40,38 @@
     width: 100%;
     max-width: 1200px; /* Розширюємо для ПК */
     margin: 0 auto;
+    height: calc(100vh - 280px);
+    display: flex;
+    flex-direction: column;
+    overflow-y: auto;
+    overflow-x: hidden;
+    scroll-behavior: smooth;
 }
 
 /* Список карток: скролимо тільки його */
 .account-transactions {
     width: 100%;
-    max-height: 520px; /* Висота області перегляду */
-    overflow-y: auto;
+    flex: 1;
+    min-height: 0;
+    overflow-y: visible;
     overflow-x: hidden;
     padding-right: 0.5rem; /* Відступ під скролбар */
     padding-bottom: 0.5rem;
-    scroll-behavior: smooth;
     position: relative;
-
-    /* Дизайн скролбару */
-    scrollbar-width: thin;
-    scrollbar-color: rgba(100,116,139,.35) transparent;
 }
-.account-transactions::-webkit-scrollbar { width: 8px; }
-.account-transactions::-webkit-scrollbar-thumb {
+
+.transactions-list::-webkit-scrollbar { width: 8px; }
+.transactions-list::-webkit-scrollbar-thumb {
     background: rgba(100,116,139,.35);
     border-radius: 999px;
     background-clip: padding-box;
     border: 2px solid transparent;
 }
-.account-transactions:hover::-webkit-scrollbar-thumb { background: rgba(100,116,139,.55); }
+.transactions-list:hover::-webkit-scrollbar-thumb { background: rgba(100,116,139,.55); }
+.transactions-list {
+    scrollbar-width: thin;
+    scrollbar-color: rgba(100,116,139,.35) transparent;
+}
 
 /* Панель фільтрів: звичайна, не липка, щоб прокручувалася */
 .transactions-filter {
@@ -445,7 +452,11 @@
 
 /* Адаптив */
 @media (max-width: 820px) {
-    .transactions-list { max-width: 100%; padding: 0 .5rem; }
+    .transactions-list {
+        max-width: 100%;
+        padding: 0 .5rem;
+        height: calc(100vh - 250px);
+    }
     .transactions-filter {
         padding: 1rem;
         gap: 1rem;
@@ -458,6 +469,9 @@
     .transaction-icon { width: 36px; height: 36px; }
 }
 @media (max-width: 480px) {
+    .transactions-list {
+        height: calc(100vh - 220px);
+    }
     .analytics-button { padding: .55rem .85rem; }
     .transactions-filter {
         padding: 1rem;
