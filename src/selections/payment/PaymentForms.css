@@ -1,5 +1,14 @@
+.payment-form-wrapper {
+    width: 100%;
+    min-height: 100%;
+    display: flex;
+    justify-content: center;
+    padding-bottom: 2rem;
+}
+
 .payment-form-container {
     max-width: 760px;
+    width: 100%;
     margin: 0 auto;
     padding: 1rem 0;
     font-family: 'Inter', sans-serif;
@@ -37,12 +46,16 @@
     font-weight: 600;
     margin: 0;
     color: #000000;
+    flex: 1;
+    text-align: center;
+    margin-right: 44px; /* Balance back button width to center text */
 }
 
 .payment-form {
     display: flex;
     flex-direction: column;
     gap: 1rem;
+    padding-bottom: 2rem;
 }
 
 .form-group-card {
@@ -53,6 +66,17 @@
     border: 1px solid rgba(148, 163, 184, 0.18);
     display: grid;
     gap: 0.75rem;
+}
+
+/* Sender tax info styling - blue box */
+.sender-tax-info {
+    font-size: 0.9rem;
+    color: #1e3a8a;
+    background-color: #dbeafe;
+    padding: 0.75rem 1rem;
+    border-radius: 8px;
+    margin-top: 0.5rem;
+    border: 1px solid #bfdbfe;
 }
 
 .input-label {
@@ -98,99 +122,34 @@
 .search-icon-right {
     position: absolute;
     right: 12px;
-    color: #999;
+    color: #94a3b8;
     pointer-events: none;
 }
 
-.mt-4 {
-    margin-top: 0.25rem;
-}
-
-.submit-button-primary {
-    width: min(100%, 200px);
-    min-height: 48px;
-    padding: 0.85rem 1.25rem;
-    background: linear-gradient(90deg, #6366f1 0%, #8b5cf6 100%);
-    border: none;
-    border-radius: 12px;
-    color: white;
-    font-size: 16px;
-    font-weight: 600;
-    cursor: pointer;
-    transition: all 0.2s ease-in-out;
-    margin-top: 0;
-}
-
-.submit-button-primary:hover {
-    transform: translateY(-1px);
-    box-shadow: 0 4px 12px rgba(99, 102, 241, 0.3);
-}
-
-.submit-button-primary:active {
-    transform: translateY(0);
-}
-
-/* Specific overrides */
-.account-selector {
-    appearance: none;
-    background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6 9 12 15 18 9'%3e%3c/polyline%3e%3c/svg%3e");
-    background-repeat: no-repeat;
-    background-position: right 1rem center;
-    background-size: 1em;
-}
-
-.account-info-note {
-    margin-top: 0;
-    padding: 0.85rem 1rem;
-    border-radius: 10px;
-    background: linear-gradient(135deg, #eff6ff 0%, #dbeafe 100%);
-    border: 1px solid #93c5fd;
-    color: #1d4ed8;
-    font-size: 0.95rem;
-    font-weight: 500;
-}
-
-.field-error-message {
-    margin-top: -0.15rem;
-    color: #dc2626;
-    font-size: 0.9rem;
-    font-weight: 500;
-}
-
-.form-input[aria-invalid="true"] {
-    border-color: #dc2626;
-    background-color: #fef2f2;
-}
-
-.form-input::placeholder {
-    color: #888;
-    opacity: 1; /* Firefox */
-}
-
-/* Provider suggestions */
+/* Provider suggestions dropdown */
 .provider-suggestions {
     position: absolute;
     top: 100%;
     left: 0;
-    right: 0;
-    background: white;
-    border: 1px solid #ddd;
-    border-radius: 8px;
-    margin-top: 4px;
+    width: 100%;
     max-height: 200px;
     overflow-y: auto;
-    z-index: 10;
-    box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+    background-color: #fff;
+    border: 1px solid #e2e8f0;
+    border-radius: 12px;
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+    z-index: 50;
+    margin-top: 4px;
     list-style: none;
     padding: 0;
-    color: #333;
 }
 
 .provider-suggestions li {
-    padding: 10px 16px;
+    padding: 0.75rem 1rem;
     cursor: pointer;
-    border-bottom: 1px solid #eee;
-    color: #333;
+    border-bottom: 1px solid #f1f5f9;
+    color: #334155;
+    transition: background-color 0.2s;
 }
 
 .provider-suggestions li:last-child {
@@ -198,51 +157,98 @@
 }
 
 .provider-suggestions li:hover {
-    background-color: #f5f5f5;
+    background-color: #f8fafc;
+    color: #0f172a;
 }
 
 .provider-suggestions li.no-results {
-    color: #999;
+    color: #94a3b8;
     cursor: default;
+    text-align: center;
+    padding: 1rem;
 }
 
-.payment-error-message {
-    padding: 0.85rem 1rem;
+/* Sticky submit button at bottom on mobile */
+.submit-payment-btn {
+    margin-top: 1rem;
+    background: #6366f1; /* Indigo color from screenshot */
+    color: white;
+    border: none;
     border-radius: 12px;
-    border: 1px solid #fecaca;
-    background: #fef2f2;
-    color: #b91c1c;
-    font-size: 0.95rem;
+    font-size: 1rem;
     font-weight: 600;
-    box-shadow: 0 4px 12px rgba(239, 68, 68, 0.08);
+    padding: 1rem;
+    cursor: pointer;
+    transition: background-color 0.2s;
+    box-shadow: 0 4px 12px rgba(99, 102, 241, 0.3);
 }
 
-.form-submit-container {
-    display: flex;
-    justify-content: flex-end;
-    margin-top: 0.25rem;
+.submit-payment-btn:hover {
+    background-color: #4f46e5;
+}
+
+.submit-payment-btn:disabled {
+    background-color: #a5b4fc;
+    cursor: not-allowed;
+    box-shadow: none;
 }
 
 @media (max-width: 768px) {
+    .payment-form-wrapper {
+        background-color: #fff; /* White background for the whole form area on mobile */
+        width: 100%;
+        height: 100dvh; /* Full viewport height */
+        position: fixed; /* Lock to screen */
+        top: 0;
+        left: 0;
+        z-index: 9999; /* Ensure it's on top */
+        overflow-y: auto; /* Internal scroll */
+        -webkit-overflow-scrolling: touch;
+        align-items: flex-start;
+        padding-bottom: 0; /* padding handled in container */
+    }
+
     .payment-form-container {
-        padding: 0.25rem 0 0;
+        padding: 0 1rem;
+        /* Increased padding bottom so content scrolls above the fixed button */
+        padding-bottom: calc(160px + env(safe-area-inset-bottom));
+    }
+
+    .payment-header {
+        position: sticky;
+        top: 0;
+        background: #fff;
+        z-index: 10;
+        padding: 1rem 0;
+        margin-bottom: 1rem;
+        /* Add shadow on scroll if needed, but simple is okay */
     }
 
     .payment-header h2 {
-        font-size: 1.25rem;
+        font-size: 1.2rem;
     }
 
     .form-group-card {
-        padding: 1rem;
+        border: 1px solid #e2e8f0;
+        box-shadow: none; /* Flatter look on mobile inside white container */
         border-radius: 16px;
+        background: #f8fafc; /* Slightly grey background for inputs areas to contrast with white page */
     }
 
-    .form-submit-container {
-        justify-content: stretch;
+     /* Make inputs white inside the grey card */
+    .form-input, .form-select {
+        background-color: #fff;
+        border: 1px solid #e2e8f0;
     }
 
-    .submit-button-primary {
-        width: 100%;
+    .submit-payment-btn {
+        position: fixed;
+        bottom: calc(85px + env(safe-area-inset-bottom)); /* Position above nav bar */
+        left: 50%;
+        transform: translateX(-50%);
+        width: 90%;
+        max-width: 400px;
+        z-index: 20;
+        margin-top: 0;
     }
 }
-

@@ -1,9 +1,12 @@
-import React, { useEffect } from 'react';
+import React from 'react';
 import { Routes, Route, useNavigate } from 'react-router-dom';
 import type { Account } from '../../types.ts';
 import './PaymentsSection.css';
 import InternetPaymentForm from './InternetPaymentForm';
 import IBANPaymentForm from './IBANPaymentForm';
+
+// Import CSS
+import './PaymentForms.css';
 
 export interface PaymentsSectionProps {
     /** List of user accounts */
@@ -16,18 +19,6 @@ export interface PaymentsSectionProps {
 
 const PaymentsHome: React.FC = () => {
     const navigate = useNavigate();
-
-    useEffect(() => {
-        const dashboard = document.querySelector('.user-dashboard');
-        if (dashboard) {
-            dashboard.classList.add('payments-mode-active');
-        }
-        return () => {
-            if (dashboard) {
-                dashboard.classList.remove('payments-mode-active');
-            }
-        };
-    }, []);
 
     const categories = [
         { id: 'travel', title: 'Подорожі', desc: 'Купуйте авіаквитки та бронюйте номер в готелі', color: 'bg-purple', size: 'tall' },
@@ -62,47 +53,45 @@ const PaymentsHome: React.FC = () => {
     };
 
     return (
-        <div className="payments-wrapper">
-            <div className="payments-container">
-                <h1 className="page-title">Платежі</h1>
+        <div className="payments-container">
+            <h1 className="page-title">Платежі</h1>
 
-                <section className="search-section">
-                    <h2>Новий платіж</h2>
-                    <p className="subtitle">Для створення платежу скористайтеся пошуком</p>
-                    <div className="search-bar-wrapper">
-                        <span className="search-icon">
-                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
-                        </span>
-                        <input
-                            type="text"
-                            placeholder="Введіть IBAN або назву підприємства"
-                            className="search-input"
-                            onClick={() => navigate('iban')}
-                            onFocus={() => navigate('iban')}
-                        />
-                    </div>
-                </section>
+            <section className="search-section">
+                <h2>Новий платіж</h2>
+                <p className="subtitle">Для створення платежу скористайтеся пошуком</p>
+                <div className="search-bar-wrapper">
+                    <span className="search-icon">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+                    </span>
+                    <input
+                        type="text"
+                        placeholder="Введіть IBAN або назву підприємства"
+                        className="search-input"
+                        onClick={() => navigate('iban')}
+                        onFocus={() => navigate('iban')}
+                    />
+                </div>
+            </section>
 
-                <section className="categories-section">
-                    <h2>Категорії платежів</h2>
-                    <div className="categories-grid">
-                        {categories.map(cat => (
-                            <button
-                                key={cat.id}
-                                type="button"
-                                className={`category-card ${cat.color} ${cat.size}`}
-                                onClick={() => handleCategoryClick(cat.id)}
-                            >
-                                <div className="category-icon">{getIcon(cat.id)}</div>
-                                <div className="category-content">
-                                    <h3>{cat.title}</h3>
-                                    <p>{cat.desc}</p>
-                                </div>
-                            </button>
-                        ))}
-                    </div>
-                </section>
-            </div>
+            <section className="categories-section">
+                <h2>Категорії платежів</h2>
+                <div className="categories-grid">
+                    {categories.map(cat => (
+                        <button
+                            key={cat.id}
+                            type="button"
+                            className={`category-card ${cat.color} ${cat.size}`}
+                            onClick={() => handleCategoryClick(cat.id)}
+                        >
+                            <div className="category-icon">{getIcon(cat.id)}</div>
+                            <div className="category-content">
+                                <h3>{cat.title}</h3>
+                                <p>{cat.desc}</p>
+                            </div>
+                        </button>
+                    ))}
+                </div>
+            </section>
         </div>
     );
 };
@@ -111,7 +100,8 @@ const PaymentsSection: React.FC<PaymentsSectionProps> = (props) => {
     const navigate = useNavigate();
 
     return (
-        <Routes>
+        <div className="payments-wrapper">
+             <Routes>
             <Route index element={<PaymentsHome />} />
             <Route path="internet" element={
                 <InternetPaymentForm
@@ -131,6 +121,7 @@ const PaymentsSection: React.FC<PaymentsSectionProps> = (props) => {
             } />
             <Route path="*" element={<PaymentsHome />} />
         </Routes>
+        </div>
     );
 };
 
