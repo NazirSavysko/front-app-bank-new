@@ -38,7 +38,7 @@
 .transactions-list {
     min-height: auto;
     width: 100%;
-    max-width: 1200px; /* Розширюємо для ПК */
+    max-width: 1200px; /* Wider desktop layout */
     margin: 0 auto;
     height: calc(100vh - 280px);
     display: flex;
@@ -46,16 +46,18 @@
     overflow-y: auto;
     overflow-x: hidden;
     scroll-behavior: smooth;
+    scrollbar-width: thin;
+    scrollbar-color: rgba(100,116,139,.35) transparent;
 }
 
-/* Список карток: скролимо тільки його */
+/* Transaction cards area */
 .account-transactions {
     width: 100%;
     flex: 1;
     min-height: 0;
-    overflow-y: visible;
+    overflow-y: clip;
     overflow-x: hidden;
-    padding-right: 0.5rem; /* Відступ під скролбар */
+    padding-right: 0.5rem; /* Space for scrollbar */
     padding-bottom: 0.5rem;
     position: relative;
 }
@@ -68,12 +70,8 @@
     border: 2px solid transparent;
 }
 .transactions-list:hover::-webkit-scrollbar-thumb { background: rgba(100,116,139,.55); }
-.transactions-list {
-    scrollbar-width: thin;
-    scrollbar-color: rgba(100,116,139,.35) transparent;
-}
 
-/* Панель фільтрів: звичайна, не липка, щоб прокручувалася */
+/* Filter panel remains part of the normal scrolling flow */
 .transactions-filter {
     position: relative;
     z-index: 10;
@@ -450,7 +448,7 @@
     margin-bottom: 0;
 }
 
-/* Адаптив */
+/* Responsive */
 @media (max-width: 820px) {
     .transactions-list {
         max-width: 100%;

@@ -19,7 +19,6 @@
 
 .account-wrapper {
     flex: 0 0 320px;
-    min-width: 320px;
     cursor: pointer;
     transition: all 0.2s ease-in-out;
     display: flex;
@@ -65,7 +64,6 @@
 
 .account-wrapper.add-card {
     flex: 0 0 320px;
-    min-width: 320px;
     display: flex;
     flex-direction: column;
     min-height: 220px;
