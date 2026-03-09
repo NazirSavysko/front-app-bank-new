@@ -1,0 +1,251 @@
+.payment-form-wrapper {
+    width: 100%;
+    min-height: 100%;
+    display: flex;
+    justify-content: center;
+    padding-bottom: 2rem;
+}
+
+.payment-form-container {
+    max-width: 760px;
+    width: 100%;
+    margin: 0 auto;
+    padding: 1rem 0;
+    font-family: 'Inter', sans-serif;
+}
+
+.payment-header {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    margin-bottom: 1.25rem;
+}
+
+.back-button {
+    background: none;
+    border: none;
+    cursor: pointer;
+    width: 44px;
+    height: 44px;
+    margin-right: 0;
+    padding: 0;
+    color: #666;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 12px;
+    transition: all 0.2s ease-in-out;
+}
+
+.back-button:hover {
+    background-color: rgba(99, 102, 241, 0.08);
+}
+
+.payment-header h2 {
+    font-size: 1.45rem;
+    font-weight: 600;
+    margin: 0;
+    color: #000000;
+    flex: 1;
+    text-align: center;
+    margin-right: 44px; /* Balance back button width to center text */
+}
+
+.payment-form {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+    padding-bottom: 2rem;
+}
+
+.form-group-card {
+    background: #fff;
+    padding: 1.25rem;
+    border-radius: 18px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+    border: 1px solid rgba(148, 163, 184, 0.18);
+    display: grid;
+    gap: 0.75rem;
+}
+
+/* Sender tax info styling - blue box */
+.sender-tax-info {
+    font-size: 0.9rem;
+    color: #1e3a8a;
+    background-color: #dbeafe;
+    padding: 0.75rem 1rem;
+    border-radius: 8px;
+    margin-top: 0.5rem;
+    border: 1px solid #bfdbfe;
+}
+
+.input-label {
+    display: block;
+    font-size: 0.92rem;
+    color: #334155;
+    margin-bottom: 0;
+    font-weight: 600;
+}
+
+.input-wrapper {
+    position: relative;
+    display: flex;
+    align-items: center;
+    width: 100%;
+}
+
+.search-wrapper {
+    position: relative;
+}
+
+.form-input, .form-select {
+    width: 100%;
+    min-height: 48px;
+    padding: 0.75rem 1rem;
+    font-size: 16px;
+    border: 1px solid rgba(148, 163, 184, 0.32);
+    border-radius: 12px;
+    background-color: #f8fafc;
+    color: #0f172a !important;
+    transition: all 0.2s ease-in-out;
+    box-sizing: border-box;
+    opacity: 1;
+}
+
+.form-input:focus, .form-select:focus {
+    outline: none;
+    border-color: #6366f1;
+    background-color: #fff;
+    box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.14);
+}
+
+.search-icon-right {
+    position: absolute;
+    right: 12px;
+    color: #94a3b8;
+    pointer-events: none;
+}
+
+/* Provider suggestions dropdown */
+.provider-suggestions {
+    position: absolute;
+    top: 100%;
+    left: 0;
+    width: 100%;
+    max-height: 200px;
+    overflow-y: auto;
+    background-color: #fff;
+    border: 1px solid #e2e8f0;
+    border-radius: 12px;
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+    z-index: 50;
+    margin-top: 4px;
+    list-style: none;
+    padding: 0;
+}
+
+.provider-suggestions li {
+    padding: 0.75rem 1rem;
+    cursor: pointer;
+    border-bottom: 1px solid #f1f5f9;
+    color: #334155;
+    transition: background-color 0.2s;
+}
+
+.provider-suggestions li:last-child {
+    border-bottom: none;
+}
+
+.provider-suggestions li:hover {
+    background-color: #f8fafc;
+    color: #0f172a;
+}
+
+.provider-suggestions li.no-results {
+    color: #94a3b8;
+    cursor: default;
+    text-align: center;
+    padding: 1rem;
+}
+
+/* Sticky submit button at bottom on mobile */
+.submit-payment-btn {
+    margin-top: 1rem;
+    background: #8476FF; /* Purple color matching categories */
+    color: white;
+    border: none;
+    border-radius: 12px;
+    font-size: 1rem;
+    font-weight: 600;
+    padding: 1rem;
+    cursor: pointer;
+    transition: background-color 0.2s;
+    box-shadow: 0 4px 12px rgba(132, 118, 255, 0.3);
+}
+
+.submit-payment-btn:hover {
+    background-color: #715EF0; /* Darker purple on hover */
+}
+
+.submit-payment-btn:disabled {
+    background-color: #C0BDFA;
+    cursor: not-allowed;
+    box-shadow: none;
+}
+
+@media (max-width: 768px) {
+    .payment-form-wrapper {
+        background-color: #fff; /* White background for the whole form area on mobile */
+        width: 100%;
+        position: fixed; /* Lock to screen */
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        height: auto;
+        z-index: 10001; /* Ensure it's on top of bottom nav (usually 10000) */
+        overflow-y: auto; /* Internal scroll */
+        -webkit-overflow-scrolling: touch;
+        display: block;
+        padding-bottom: 0; /* padding handled in container */
+    }
+
+    .payment-form-container {
+        padding: 0 2rem;
+        /* Increased padding bottom so content scrolls above the fixed button */
+        padding-bottom: calc(160px + env(safe-area-inset-bottom));
+    }
+
+    .payment-header {
+        position: sticky;
+        top: 0;
+        background: #fff;
+        z-index: 10002; /* Ensure header is on top of content */
+        padding: 1rem 0;
+        margin-bottom: 1rem;
+        /* Add shadow on scroll if needed, but simple is okay */
+    }
+
+    .payment-header h2 {
+        font-size: 1.2rem;
+    }
+
+    .form-group-card {
+        border: 1px solid #e2e8f0;
+        box-shadow: none; /* Flatter look on mobile inside white container */
+        border-radius: 16px;
+        background: #f8fafc; /* Slightly grey background for inputs areas to contrast with white page */
+    }
+
+     /* Make inputs white inside the grey card */
+    .form-input, .form-select {
+        background-color: #fff;
+        border: 1px solid #e2e8f0;
+    }
+
+    .submit-payment-btn {
+        width: 100%;
+        margin-top: 1.5rem;
+        margin-bottom: 2rem;
+    }
+}

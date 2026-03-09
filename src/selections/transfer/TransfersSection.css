@@ -1,8 +1,8 @@
 /* Заголовок */
 .transfer-header {
     text-align: center;
-    margin: 0 auto 2.5rem;
-    padding-bottom: 1.5rem;
+    margin: 0 auto 1.5rem;
+    padding-bottom: 1rem;
     position: relative;
     max-width: 1200px;
 }
@@ -20,7 +20,7 @@
 }
 
 .transfer-header h3 {
-    font-size: 1.8rem;
+    font-size: 1.55rem;
     background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
@@ -31,54 +31,69 @@
 
 .transfer-header p {
     color: #718096;
-    font-size: 1rem;
+    font-size: 0.95rem;
     margin: 0;
     font-weight: 500;
     opacity: .9;
 }
 
-/* Основная форма */
-.transfer-main-form {
-    display: flex;
-    flex-direction: column;
-    gap: 2.5rem;
-    max-width: 1200px;
-    margin: 0 auto;
-    padding: 0 1.5rem;
+/* Fix scrolling specifically for transfers section */
+/* .user-dashboard.transfers-mode-active styles removed to prevent double scrollbars */
+
+.transfers-wrapper {
+    flex: 1;
+    width: 100%;
+    /* overflow-y: auto; - Removed to use parent scroll */
+    /* height: 100%; - Removed to allow content to flow */
 }
 
-/* Выбор карт */
+/* Основная форма */
+.transfer-main-form {
+    display: grid;
+    grid-template-columns: minmax(0, 1.05fr) minmax(320px, 0.95fr);
+    gap: 1.25rem;
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0 0.25rem;
+}
+
 .sender-section h4, .recipient-section h4 {
     color: #2d3748;
-    margin-bottom: 1.5rem;
-    font-size: 1.2rem;
+    margin-bottom: 1rem;
+    font-size: 1rem;
     font-weight: 700;
 }
 
 .recipient-section h4 {
-    margin-bottom: 2rem;
+    margin-bottom: 1rem;
 }
 
-/* ========== КАРТОЧКИ: ДЕСКТОП (SCROLLABLE) ========= */
+.sender-section,
+.recipient-section {
+    background: rgba(255, 255, 255, 0.94);
+    border-radius: 20px;
+    padding: 1.1rem;
+    border: 1px solid rgba(148, 163, 184, 0.18);
+    box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+    min-width: 0;
+}
+
 .sender-cards {
     display: flex;
     overflow-x: auto;
-    gap: 1.5rem;
-    margin-bottom: 1.5rem;
-    padding-bottom: 1rem; /* Місце для скролбару */
+    gap: 1rem;
+    margin-bottom: 1rem;
+    padding-bottom: 0.6rem;
     scroll-behavior: smooth;
-
-    /* Скролбар (Firefox) */
     scrollbar-width: thin;
     scrollbar-color: rgba(102, 126, 234, 0.3) transparent;
 }
 
-/* Скролбар (Webkit) */
 .sender-cards::-webkit-scrollbar {
-    height: 8px;
+    height: 6px;
 }
 .sender-cards::-webkit-scrollbar-track {
-    background: rgba(237, 242, 247, 0.5); /* #edf2f7 opacity */
+    background: rgba(237, 242, 247, 0.5);
     border-radius: 4px;
 }
 .sender-cards::-webkit-scrollbar-thumb {
@@ -91,27 +106,28 @@
 }
 
 .sender-card {
-    /* Фіксована ширина для скролу */
-    flex: 0 0 420px;
-    width: 420px;
-
-    border-radius: 20px;
-    padding: 1.75rem;
+    flex: 0 0 280px;
+    width: 280px;
+    min-height: 184px;
+    border-radius: 18px;
+    padding: 1rem;
     cursor: pointer;
-    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-
-    /* Deep Blue/Purple Gradient - More elegant */
+    transition: all 0.2s ease-in-out;
     background: linear-gradient(120deg, #4f46e5 0%, #7c3aed 100%);
-    box-shadow: 0 10px 30px rgba(79, 70, 229, 0.3);
+    box-shadow: 0 8px 18px rgba(79, 70, 229, 0.22);
     border: 1px solid rgba(255, 255, 255, 0.1);
     color: #fff;
-
     position: relative;
     overflow: hidden;
 }
 
+.sender-card--fop {
+    background: linear-gradient(135deg, #1a365d 0%, #2d3748 55%, #b7791f 100%);
+    border-color: rgba(184, 134, 11, 0.35);
+    box-shadow: 0 8px 24px rgba(26, 54, 93, 0.32);
+}
+
 .sender-card::before {
-    /* Subtle noise texture or shine effect overlay */
     content: '';
     position: absolute;
     top: 0; left: 0; right: 0; bottom: 0;
@@ -120,20 +136,21 @@
 }
 
 .sender-card.selected {
-    /* Glowing border effect instead of harsh double border */
     box-shadow: 0 0 0 3px #fff, 0 20px 40px rgba(79, 70, 229, 0.5);
-    transform: translateY(-4px) scale(1.01);
+    transform: translateY(-2px);
     z-index: 5;
 }
 
-/* Typography & Layout inside card */
+.sender-card--fop.selected {
+    box-shadow: 0 0 0 3px rgba(255, 255, 255, 0.96), 0 20px 40px rgba(26, 54, 93, 0.42);
+}
+
 .card-type {
-    /* Clean text, no box */
-    font-size: 0.8rem;
+    font-size: 0.72rem;
     font-weight: 800;
     color: rgba(255, 255, 255, 0.85);
     text-transform: uppercase;
-    letter-spacing: 2px;
+    letter-spacing: 1.6px;
     padding: 0;
     background: transparent;
     border: none;
@@ -141,27 +158,26 @@
 }
 
 .selected-check {
-    /* Elegant circle check */
-    width: 32px;
-    height: 32px;
+    width: 28px;
+    height: 28px;
     background: #fff;
     color: #4f46e5;
     border-radius: 50%;
     display: flex;
     align-items: center;
     justify-content: center;
-    font-size: 1.2rem;
+    font-size: 1rem;
     font-weight: 900;
     box-shadow: 0 4px 10px rgba(0,0,0,0.2);
 }
 
 .card-number {
     font-family: 'Courier New', monospace;
-    font-size: 1.5rem;
+    font-size: 1rem;
     font-weight: 600;
     color: #fff;
-    letter-spacing: 4px;
-    margin: 2.5rem 0 1.5rem;
+    letter-spacing: 2px;
+    margin: 1.2rem 0 1rem;
     text-shadow: 0 2px 4px rgba(0,0,0,0.25);
     background: none;
     -webkit-text-fill-color: initial;
@@ -169,11 +185,9 @@
 }
 
 .card-info {
-    /* Removed boxy background */
     background: transparent;
     border: none;
     padding: 0;
-    /* Align bottom row */
     align-items: flex-end;
     margin-top: auto;
 }
@@ -187,7 +201,7 @@
 
 .balance-label {
     color: rgba(255, 255, 255, 0.7);
-    font-size: 0.75rem;
+    font-size: 0.68rem;
     text-transform: uppercase;
     letter-spacing: 1px;
     font-weight: 600;
@@ -195,7 +209,7 @@
 
 .balance-amount {
     color: #fff;
-    font-size: 1.6rem;
+    font-size: 1.2rem;
     font-weight: 800;
     text-shadow: 0 2px 10px rgba(0,0,0,0.2);
     line-height: 1;
@@ -208,11 +222,10 @@
     color: #fca5a5; /* Soft red text for low balance */
 }
 
-/* Expiration date style at bottom right */
 .card-expire {
     color: rgba(255, 255, 255, 0.9);
     background: transparent;
-    font-size: 1rem;
+    font-size: 0.82rem;
     font-family: 'Courier New', monospace;
     text-align: right;
     display: flex;
@@ -222,7 +235,7 @@
 
 .card-expire::before {
     content: 'VALID THRU';
-    font-size: 0.5rem;
+    font-size: 0.45rem;
     color: rgba(255, 255, 255, 0.6);
     margin-bottom: 2px;
     text-transform: uppercase;
@@ -233,7 +246,7 @@
 
 .sender-card.insufficient-funds {
     border: 2px solid rgba(245, 101, 101, 0.6);
-    filter: grayscale(0.8); /* Desaturate to show inactive/disabled state */
+    filter: grayscale(0.8);
     opacity: 0.7;
     cursor: not-allowed;
 }
@@ -246,16 +259,34 @@
 .mini-card {
     display: flex;
     flex-direction: column;
-    gap: 1rem;
+    gap: 0.75rem;
     position: relative;
     z-index: 2;
-    flex: 1; /* Take all available height */
+    flex: 1;
 }
 
 .card-header {
     display: flex;
     justify-content: space-between;
     align-items: center;
+}
+
+.card-header-actions {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.sender-card-badge {
+    padding: 0.22rem 0.6rem;
+    border-radius: 999px;
+    font-size: 0.68rem;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: #1a202c;
+    background: rgba(255, 255, 255, 0.9);
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.12);
 }
 
 /* Old definitions removed, see above for new styles */
@@ -268,45 +299,43 @@
     background: linear-gradient(135deg, rgba(245, 101, 101, .9) 0%, rgba(229, 62, 62, .9) 100%);
     color: #fff;
     text-align: center;
-    padding: .75rem;
-    font-size: .85rem;
+    padding: .55rem;
+    font-size: .78rem;
     font-weight: 700;
     border-radius: 0 0 20px 20px;
 }
 
-/* Инфо о выбранной карте */
 .selected-card-info {
     display: flex;
     align-items: center;
     gap: .75rem;
     background: linear-gradient(135deg, rgba(72, 187, 120, .15) 0%, rgba(56, 161, 105, .15) 100%);
     color: #38a169;
-    padding: 1rem 1.5rem;
-    border-radius: 16px;
-    font-size: .95rem;
+    padding: 0.8rem 1rem;
+    border-radius: 14px;
+    font-size: .88rem;
     font-weight: 600;
     border: 2px solid rgba(72, 187, 120, .3);
 }
 
-/* Поля формы */
 .form-row {
     display: grid;
     grid-template-columns: 1fr 1fr;
-    gap: 2rem;
-    margin-bottom: 2rem;
+    gap: 1rem;
+    margin-bottom: 1rem;
 }
 
 .form-field {
     display: flex;
     flex-direction: column;
-    gap: .75rem;
+    gap: .5rem;
     position: relative;
 }
 
 .form-field label {
     font-weight: 700;
     color: #4a5568;
-    font-size: 1rem;
+    font-size: 0.92rem;
 }
 
 .required {
@@ -321,15 +350,16 @@
 
 .card-number-input, .amount-input, .description-input {
     width: 100%;
-    padding: 1rem 1.25rem;
-    border: 3px solid rgba(102, 126, 234, .15);
-    border-radius: 16px;
-    font-size: 1rem;
-    transition: .3s;
+    min-height: 48px;
+    padding: 0.8rem 1rem;
+    border: 1px solid rgba(102, 126, 234, .2);
+    border-radius: 14px;
+    font-size: 0.98rem;
+    transition: all 0.2s ease-in-out;
     background: linear-gradient(135deg, rgba(255, 255, 255, .9) 0%, rgba(248, 250, 252, .9) 100%);
     color: #2d3748;
     font-weight: 600;
-    box-shadow: 0 4px 15px rgba(102, 126, 234, .1), inset 0 1px 0 rgba(255, 255, 255, .8);
+    box-shadow: 0 4px 12px rgba(102, 126, 234, .08), inset 0 1px 0 rgba(255, 255, 255, .8);
 }
 
 .card-number-input {
@@ -342,7 +372,7 @@
     outline: none;
     border-color: #667eea;
     background: linear-gradient(135deg, #fff 0%, #f8fafc 100%);
-    box-shadow: 0 8px 30px rgba(102, 126, 234, .25), 0 0 0 4px rgba(102, 126, 234, .1), inset 0 1px 0 #fff;
+    box-shadow: 0 0 0 3px rgba(102, 126, 234, .12), 0 8px 20px rgba(102, 126, 234, .15), inset 0 1px 0 #fff;
 }
 
 .card-number-input.valid, .amount-input.valid {
@@ -361,12 +391,12 @@
 
 .currency-suffix {
     position: absolute;
-    right: 4rem;
+    right: 3.3rem;
     top: 50%;
     transform: translateY(-50%);
     color: #667eea;
     font-weight: 800;
-    font-size: 1rem;
+    font-size: 0.92rem;
     pointer-events: none;
     background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
     -webkit-background-clip: text;
@@ -374,29 +404,10 @@
     background-clip: text;
 }
 
-.input-icon {
-    position: absolute;
-    right: 1rem;
-    top: 50%;
-    transform: translateY(-50%);
-    width: 32px;
-    height: 32px;
-    border-radius: 50%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 1rem;
-    font-weight: bold;
-}
-
-.input-icon.valid {
-    background: linear-gradient(135deg, #48bb78 0%, #38a169 100%);
-    color: #fff;
-}
 
 .field-hint {
     min-height: 2rem;
-    font-size: .9rem;
+    font-size: .85rem;
     font-weight: 600;
     display: flex;
     flex-direction: column;
@@ -418,11 +429,10 @@
     font-weight: 700;
 }
 
-/* Быстрые суммы */
 .amount-suggestions {
     display: flex;
-    gap: .75rem;
-    margin-bottom: .75rem;
+    gap: .5rem;
+    margin-bottom: .35rem;
     flex-wrap: wrap;
 }
 
@@ -430,13 +440,19 @@
     background: linear-gradient(135deg, rgba(102, 126, 234, .1) 0%, rgba(118, 75, 162, .1) 100%);
     color: #667eea;
     border: 2px solid rgba(102, 126, 234, .3);
-    padding: .5rem 1rem;
+    min-height: 44px;
+    padding: .45rem .9rem;
     border-radius: 12px;
-    font-size: .9rem;
+    font-size: .85rem;
     font-weight: 700;
     cursor: pointer;
     position: relative;
     overflow: hidden;
+    transition: all 0.2s ease-in-out;
+}
+
+.amount-suggestion:hover {
+    background: linear-gradient(135deg, rgba(102, 126, 234, .16) 0%, rgba(118, 75, 162, .14) 100%);
 }
 
 /* Ошибки-валлидации */
@@ -444,8 +460,8 @@
     background: linear-gradient(135deg, rgba(245, 101, 101, .1) 0%, rgba(229, 62, 62, .1) 100%), linear-gradient(135deg, #fef2f2 0%, #fee2e2 100%);
     border: 2px solid rgba(245, 101, 101, .3);
     border-radius: 20px;
-    padding: 2rem;
-    margin-top: 2rem;
+    padding: 1.25rem;
+    margin-top: 1rem;
     position: relative;
     overflow: hidden;
 }
@@ -454,28 +470,28 @@
     display: flex;
     align-items: center;
     gap: .75rem;
-    margin-bottom: 1.5rem;
+    margin-bottom: 1rem;
     color: #e53e3e;
     font-weight: 700;
-    font-size: 1.1rem;
+    font-size: 1rem;
 }
 
 .error-list {
     list-style: none;
     display: flex;
     flex-direction: column;
-    gap: .75rem;
+    gap: .5rem;
     padding: 0;
     margin: 0;
 }
 
 .error-list li {
     background: linear-gradient(135deg, rgba(255, 255, 255, .9) 0%, rgba(255, 255, 255, .7) 100%);
-    padding: 1rem 1.25rem;
+    padding: 0.85rem 1rem;
     border-radius: 12px;
     border-left: 4px solid #f56565;
     color: #c53030;
-    font-size: .95rem;
+    font-size: .9rem;
     font-weight: 600;
     box-shadow: 0 4px 15px rgba(245, 101, 101, .1);
 }
@@ -483,25 +499,24 @@
 /* Кнопки */
 .transfer-buttons {
     display: flex;
-    gap: 1.5rem;
-    margin: 3rem auto 0;
+    gap: 1rem;
+    margin-top: 2rem;
     justify-content: center;
     align-items: center;
-    max-width: 1200px;
-    padding: 0 1.5rem;
+    width: 100%;
 }
 
 .btn-clear, .btn-send {
-    padding: 1.25rem 2.5rem;
+    padding: 0.95rem 1.5rem;
     border: 0;
-    border-radius: 16px;
-    font-size: 1rem;
+    border-radius: 14px;
+    font-size: 0.95rem;
     font-weight: 700;
     cursor: pointer;
     display: flex;
     align-items: center;
-    gap: .75rem;
-    min-height: 56px;
+    gap: .65rem;
+    min-height: 48px;
     position: relative;
     text-transform: uppercase;
     letter-spacing: 1px;
@@ -518,8 +533,149 @@
     background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
     color: #fff;
     border: 3px solid transparent;
-    min-width: 220px;
+    min-width: 200px;
     box-shadow: 0 8px 25px rgba(102, 126, 234, .4), 0 4px 15px rgba(0, 0, 0, .1);
+}
+
+@media (max-width: 900px) {
+    .transfer-main-form {
+        grid-template-columns: 1fr;
+    }
+}
+
+@media (max-width: 768px) {
+    .transfer-header {
+        margin-bottom: 1rem;
+        padding-bottom: 0.75rem;
+    }
+
+    .transfers-wrapper {
+        padding-bottom: 0; /* Remove wrapper padding on mobile so content touches bottom */
+    }
+
+    .transfer-main-form {
+        /* Remove gap so sections can touch if needed, but we mostly care about the last one */
+        gap: 1rem;
+        padding-bottom: 0;
+        margin-bottom: 0;
+    }
+
+    .sender-section {
+        margin-bottom: 0.5rem;
+    }
+
+    .recipient-section {
+        padding: 1.25rem 0.95rem calc(80px + env(safe-area-inset-bottom)); /* Add bottom padding for nav bar inside the card */
+        border-radius: 18px 18px 0 0; /* Straight bottom corners */
+        margin-bottom: 0; /* Flush to bottom */
+        min-height: 60vh; /* Ensure it takes up space */
+        box-shadow: 0 -4px 20px rgba(0,0,0,0.05); /* Shadow upwards */
+    }
+
+    .transfer-header h3 {
+        font-size: 1.3rem;
+    }
+
+    .transfer-header p {
+        font-size: 0.88rem;
+    }
+
+    .sender-section,
+    .recipient-section {
+        padding: 0.95rem;
+        border-radius: 18px;
+    }
+
+    .sender-cards {
+        gap: 0.75rem;
+        scroll-snap-type: x mandatory;
+    }
+
+    .sender-card {
+        flex: 0 0 78vw;
+        width: 78vw;
+        max-width: 290px;
+        max-height: 112px;
+        min-height: 112px;
+        padding: 0.78rem 0.85rem;
+        border-radius: 16px;
+        scroll-snap-align: start;
+    }
+
+    .mini-card {
+        gap: 0.3rem;
+        height: 100%;
+        justify-content: space-between;
+    }
+
+    .card-type {
+        font-size: 0.62rem;
+        letter-spacing: 1.1px;
+    }
+
+    .card-header-actions {
+        gap: 0.35rem;
+    }
+
+    .sender-card-badge {
+        font-size: 0.56rem;
+        padding: 0.18rem 0.45rem;
+    }
+
+    .selected-check {
+        width: 22px;
+        height: 22px;
+        font-size: 0.8rem;
+    }
+
+    .card-number {
+        margin: 0.15rem 0 0.25rem;
+        font-size: 0.82rem;
+        letter-spacing: 1.2px;
+    }
+
+    .balance-label {
+        font-size: 0.58rem;
+    }
+
+    .balance-amount {
+        font-size: 0.92rem;
+    }
+
+    .card-expire {
+        font-size: 0.65rem;
+    }
+
+    .card-expire::before {
+        font-size: 0.36rem;
+    }
+
+    .card-warning {
+        padding: 0.35rem;
+        font-size: 0.66rem;
+    }
+
+    .selected-card-info {
+        padding: 0.65rem 0.8rem;
+        font-size: 0.8rem;
+    }
+
+    .form-row {
+        grid-template-columns: 1fr;
+    }
+
+    .transfer-buttons {
+        flex-direction: column-reverse; /* Keep column reverse */
+        align-items: center; /* Center buttons */
+        gap: 0.75rem;
+        margin-top: 1.5rem;
+    }
+
+    .btn-clear,
+    .btn-send {
+        width: 90%; /* Narrower than 100% */
+        max-width: 320px; /* Max width */
+    }
 }
 
 .btn-send:disabled, .btn-clear:disabled {
@@ -639,7 +795,7 @@
     inset: 0;
     width: 100%;
     height: 100%;
-    z-index: 1000;
+    z-index: 2200;
     background: rgba(0, 0, 0, .45);
     display: flex;
     align-items: center;
@@ -659,6 +815,8 @@
     max-width: 520px;
     padding: 1.25rem 1.25rem 1rem;
     box-shadow: 0 20px 40px rgba(0, 0, 0, .2);
+    position: relative;
+    z-index: 2201;
 }
 
 .verification-header {
@@ -847,74 +1005,7 @@
     cursor: not-allowed;
 }
 
-/* ======== МОБИЛЬНАЯ АДАПТАЦИЯ ======== */
-
-/* Вариант по умолчанию: горизонтальная карусель карточек на телефонах */
 @media (max-width: 768px) {
-    .sender-cards {
-        display: grid;
-        grid-auto-flow: column;
-        grid-auto-columns: 85%;
-        overflow-x: auto;
-        gap: 1rem;
-        padding-bottom: .5rem;
-        scroll-snap-type: x mandatory;
-        -webkit-overflow-scrolling: touch;
-    }
-
-    .sender-card {
-        scroll-snap-align: start;
-        width: 100%;
-        max-width: 320px; /* Reduced max-width slightly for better fit */
-        margin: 0 auto;
-        padding: 1.25rem; /* Reduced padding */
-        min-height: 200px; /* Reduced height */
-    }
-
-    /* Scaling down text for mobile */
-    .card-number {
-        font-size: 1.25rem;
-        letter-spacing: 2px;
-        margin: 1.5rem 0 1rem;
-    }
-
-    .balance-amount {
-        font-size: 1.3rem;
-    }
-
-    .selected-check {
-        width: 26px;
-        height: 26px;
-        font-size: 1rem;
-    }
-
-    .card-type {
-        font-size: 0.75rem;
-    }
-
-    .card-expire {
-        font-size: 0.9rem;
-    }
-
-    .form-row {
-        grid-template-columns: 1fr;
-        gap: 1.25rem;
-    }
-
-    .transfer-main-form {
-        padding: 0 1rem;
-    }
-
-    .transfer-buttons {
-        flex-direction: column;
-        gap: 1rem;
-    }
-
-    .btn-clear, .btn-send {
-        width: 100%;
-        justify-content: center;
-    }
-
     .verification-overlay {
         padding-top: 8vh !important;
     }

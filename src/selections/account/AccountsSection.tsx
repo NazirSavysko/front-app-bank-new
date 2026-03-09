@@ -27,12 +27,21 @@ const AccountsSection: React.FC<AccountsSectionProps> = ({
     useEffect(() => {
         const el = listRef.current;
         if (!el) return;
+
         const handleWheel = (e: WheelEvent) => {
-            if (e.deltaY === 0) return;
-            // Scroll horizontally instead of vertically
-            e.preventDefault();
-            el.scrollLeft += e.deltaY;
+             // Check if content is scrollable
+            if (el.scrollWidth <= el.clientWidth) return;
+
+            // Prioritize horizontal scroll if present, otherwise map vertical to horizontal
+            const delta = Math.abs(e.deltaX) > Math.abs(e.deltaY) ? e.deltaX : e.deltaY;
+
+            if (delta !== 0) {
+                e.preventDefault();
+                // Increase scroll speed slightly for better UX
+                el.scrollLeft += delta * 1.5;
+            }
         };
+
         el.addEventListener('wheel', handleWheel, { passive: false });
         return () => el.removeEventListener('wheel', handleWheel);
     }, []);

@@ -37,11 +37,27 @@ export interface Payment {
     purpose: string;
 }
 
+export interface AnalyticsSummary {
+    accountNumber: string;
+    year: number;
+    month: number;
+    totalIncome: number;
+    totalExpense: number;
+    operationsCount: number;
+    currency: string;
+}
+
+export type AccountType = 'CURRENT' | 'FOP';
+export type AccountCurrency = 'UAH' | 'USD' | 'EUR';
+
 /** Счёт/карта */
 export interface Account {
+    id: number;
     accountNumber: string;
+    accountType: AccountType;
     balance: number;
-    currency: string; // "UAH" | "USD" | "EUR"
+    currency: AccountCurrency;
+    edrpou: string;
     status: string;
     card: {
         cardNumber: string;
@@ -71,4 +87,20 @@ export interface TransferSuccess {
     transactionDate: string;
     numberOfCard: string;
     status: string;
+}
+
+export interface IbanPaymentRequest {
+    accountId: number;      // ID счета отправителя (внимание: именно ID, а не accountNumber)
+    amount: number;         // Сумма платежа
+    recipientName: string;  // ПИБ или название компании
+    recipientIban: string;  // IBAN получателя (должен начинаться с UA)
+    taxNumber: string;      // ЄДРПОУ / ІПН
+    purpose: string;        // Назначение платежа
+}
+
+export interface InternetPaymentRequest {
+    accountId: number;      // ID счета отправителя
+    amount: number;         // Сумма платежа
+    providerName: string;   // Название провайдера (например, "Lanet")
+    contractNumber: string; // Номер договора / лицевой счет
 }

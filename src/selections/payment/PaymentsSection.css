@@ -1,9 +1,259 @@
-.payments-list { width:100%; max-width:800px; margin:0 auto; }
-.account-payments h3 {
-    font-size:1.1rem; font-weight:700; color:#2d3748; margin-bottom:1rem; text-align:center;
+.payments-container {
+    padding: 2rem;
+    max-width: 1400px;
+    margin: 0 auto;
+    font-family: 'Inter', system-ui, -apple-system, sans-serif;
 }
-.payment-item {
-    display:grid; grid-template-columns: 1fr 1fr 2fr; gap:.75rem;
-    background: rgba(255,255,255,.9); border:1px solid rgba(255,255,255,.18);
-    padding:.75rem 1rem; border-radius:10px; margin-bottom:.5rem;
+
+/* Fix scrolling specifically for payments section */
+/* .user-dashboard.payments-mode-active styles removed to prevent double scrollbars */
+
+.payments-wrapper {
+    flex: 1;
+    width: 100%;
+}
+/* End fix scrolling */
+
+.page-title {
+    font-size: 24px;
+    font-weight: 500;
+    color: #000;
+    margin-bottom: 1.5rem;
+}
+
+.search-section, .categories-section {
+    background: #F5F5FA;
+    padding: 1.5rem 2rem;
+    border-radius: 4px;
+    margin-bottom: 2rem;
+}
+
+.search-section h2, .categories-section h2 {
+    font-size: 20px;
+    font-weight: 400;
+    color: #000;
+    margin-bottom: 0.5rem;
+    margin-top: 0;
+}
+
+.subtitle {
+    color: #666;
+    font-size: 14px;
+    margin-bottom: 1.5rem;
+    font-weight: 300;
+}
+
+.search-bar-wrapper {
+    position: relative;
+    max-width: 400px;
+    display: flex;
+    align-items: center;
+    border-bottom: 1px solid #ccc;
+    padding-bottom: 8px;
+}
+
+.search-icon {
+    color: #999;
+    margin-right: 12px;
+    display: flex;
+    align-items: center;
+}
+
+.search-input {
+    width: 100%;
+    border: none;
+    background: transparent;
+    font-size: 14px;
+    color: #333;
+    padding: 0;
+}
+
+.search-input:focus {
+    outline: none;
+}
+
+.search-input::placeholder {
+    color: #9ca3af;
+}
+
+.categories-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    grid-auto-rows: 160px;
+    gap: 1.5rem;
+    grid-auto-flow: dense;
+}
+
+.category-card {
+    border: none;
+    border-radius: 12px;
+    padding: 1.5rem;
+    color: white;
+    cursor: pointer;
+    transition: transform 0.2s, box-shadow 0.2s;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    position: relative;
+    overflow: hidden;
+    text-align: left;
+}
+
+.category-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 16px rgba(0,0,0,0.1);
+}
+
+.category-card.tall {
+    grid-row: span 2;
+    padding: 2rem;
+    gap: 1rem;
+    align-items: stretch;
+    justify-content: flex-start;
+}
+
+.category-card.tall .category-icon {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0;
+    transform: scale(2);
+}
+
+.category-card.tall .category-content {
+    text-align: left;
+    width: 100%;
+    margin-top: 0;
+}
+
+.category-card.short {
+    grid-row: span 1;
+    justify-content: space-between;
+    align-items: flex-start;
+    padding: 1.5rem;
+}
+
+.category-card.short .category-content {
+    width: 100%;
+    text-align: left;
+}
+
+.category-card.short .category-icon {
+    margin-bottom: 0.5rem;
+    transform: scale(1);
+}
+
+.category-icon {
+    margin-bottom: 0.5rem;
+}
+
+.category-content h3 {
+    font-size: 16px;
+    font-weight: 500;
+    margin: 0 0 4px 0;
+    line-height: 1.2;
+}
+
+.category-content p {
+    font-size: 12px;
+    opacity: 0.85;
+    margin: 0;
+    line-height: 1.3;
+    font-weight: 300;
+}
+
+.bg-purple, .bg-blue, .bg-indigo {
+    background: linear-gradient(135deg, #7F73FF 0%, #7663F6 100%);
+}
+
+.category-card.bg-purple,
+.category-card.bg-blue,
+.category-card.bg-indigo {
+    background: linear-gradient(150deg, #8476FF, #715EF0);
+}
+
+.page-title, .search-section h2, .categories-section h2, .category-content h3 {
+    color: #000;
+}
+
+.subtitle {
+    color: #222;
+    font-weight: 400;
+}
+
+.category-card,
+.category-card .category-content h3,
+.category-card .category-content p {
+    color: #FFFFFF;
+}
+
+.category-icon svg {
+    stroke: white;
+}
+
+@media (max-width: 1024px) {
+    .categories-grid {
+        grid-template-columns: repeat(3, 1fr);
+    }
+}
+
+@media (max-width: 768px) {
+    .payments-wrapper {
+        padding-bottom: 0;
+    }
+
+    .payments-container {
+        padding: 0;
+        min-height: 100%;
+        display: flex;
+        flex-direction: column;
+    }
+
+    .page-title {
+        padding: 0 1rem;
+        margin-top: 1rem;
+    }
+
+    .search-section {
+        margin: 0 1rem 1.5rem;
+    }
+
+    .categories-section {
+        padding: 1.15rem;
+        border-radius: 16px 16px 0 0;
+        margin-bottom: 0;
+        flex-grow: 1;
+        padding-bottom: calc(85px + env(safe-area-inset-bottom));
+    }
+
+    .categories-grid {
+        grid-template-columns: repeat(2, 1fr);
+        gap: 0.75rem;
+        grid-auto-rows: min-content; /* Allow content to dictate height somewhat, but we have fixed classes */
+    }
+
+    .category-card {
+        padding: 1rem;
+        min-height: 140px;
+    }
+
+    /* Override tall/short for mobile grid specifically if needed,
+       but the general classes with dense flow should work if rows are consistent.
+       We set a base row height for mobile to keep alignment.
+    */
+    .categories-grid {
+         grid-auto-rows: 155px; /* Adjust height for mobile */
+    }
+
+    .category-card.tall {
+        padding: 1.5rem;
+    }
+}
+
+@media (max-width: 480px) {
+    /* Ensure 2 columns persist on mobile as requested */
+    .categories-grid {
+        grid-template-columns: repeat(2, 1fr);
+    }
 }
