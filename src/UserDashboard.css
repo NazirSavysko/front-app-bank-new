@@ -544,9 +544,9 @@
 
 @media (min-width: 769px) {
     .dashboard-tabs {
-        display: inline-flex;
-        align-self: flex-start;
-        flex-wrap: wrap;
+        display: flex;
+        width: 100%;
+        flex-wrap: nowrap;
     }
 }
 
