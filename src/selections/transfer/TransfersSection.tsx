@@ -556,22 +556,22 @@ const TransfersSection: React.FC<TransfersSectionProps> = ({
                             </ul>
                         </div>
                     )}
-                </div>
-            </div>
 
-            <div className="transfer-buttons">
-                <button className="btn-clear" onClick={resetTransferForm} disabled={emailSending} type="button">
-                    <span className="btn-icon">♻</span>Очистити форму
-                </button>
-                <button
-                    className="btn-send"
-                    onClick={sendEmailVerification}
-                    disabled={emailSending}
-                    type="button"
-                >
-                    <span className="btn-icon">{emailSending ? '⏳' : '🚀'}</span>
-                    <span>{emailSending ? 'Відправлення коду...' : 'Відправити переказ'}</span>
-                </button>
+                    <div className="transfer-buttons">
+                        <button className="btn-clear" onClick={resetTransferForm} disabled={emailSending} type="button">
+                            <span className="btn-icon">♻</span>Очистити форму
+                        </button>
+                        <button
+                            className="btn-send"
+                            onClick={sendEmailVerification}
+                            disabled={emailSending}
+                            type="button"
+                        >
+                            <span className="btn-icon">{emailSending ? '⏳' : '🚀'}</span>
+                            <span>{emailSending ? 'Відправлення коду...' : 'Відправити переказ'}</span>
+                        </button>
+                    </div>
+                </div>
             </div>
 
             {showEmailVerification && (
