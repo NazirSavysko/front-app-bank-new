@@ -23,9 +23,9 @@ const PaymentsHome: React.FC = () => {
     const categories = [
         { id: 'travel', title: 'Подорожі', desc: 'Купуйте авіаквитки та бронюйте номер в готелі', color: 'bg-purple', size: 'tall' },
         { id: 'internet', title: 'Інтернет', desc: 'Переглянути послуги', color: 'bg-blue', size: 'short' },
-        { id: 'utilities', title: 'Комунальні послуги', desc: 'Перевірте рахунки', color: 'bg-indigo', size: 'short' },
-        { id: 'mobile', title: 'Мобільний', desc: 'Поповніть баланс', color: 'bg-indigo', size: 'short' },
         { id: 'electronics', title: 'Електроніка', desc: 'Купуйте смартфони, ноутбуки, електроніку для дому та саду', color: 'bg-indigo', size: 'tall' },
+        { id: 'mobile', title: 'Мобільний', desc: 'Поповніть баланс', color: 'bg-indigo', size: 'short' },
+        { id: 'utilities', title: 'Комунальні послуги', desc: 'Перевірте рахунки', color: 'bg-indigo', size: 'short' },
         { id: 'taxes', title: 'Податки', desc: 'Сплатіть податки', color: 'bg-indigo', size: 'short' },
     ];
 
