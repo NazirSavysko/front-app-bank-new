@@ -126,6 +126,10 @@
     background: rgba(255, 255, 255, 0.9);
     border-radius: 20px;
     padding: 0.45rem;
+    width: fit-content;
+    max-width: 100%;
+    margin: 0 auto;
+    justify-content: center;
     overflow-x: auto;
     box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
 
@@ -140,7 +144,7 @@
 }
 
 .tab-button {
-    flex: 1 1 0;
+    flex: 0 0 180px;
     min-height: 44px;
     padding: 0.7rem 1rem;
     border: 0;
@@ -153,6 +157,7 @@
     text-align: center;
     transition: all 0.2s ease-in-out;
     text-decoration: none;
+    white-space: nowrap;
 }
 
 .tab-button:hover {
@@ -545,7 +550,6 @@
 @media (min-width: 769px) {
     .dashboard-tabs {
         display: flex;
-        width: 100%;
         flex-wrap: nowrap;
     }
 }
