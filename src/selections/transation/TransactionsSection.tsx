@@ -92,10 +92,6 @@ const TransactionsSection: React.FC<TransactionsSectionProps> = ({
             {/* Top Bar */}
             <div className="transactions-top-bar main-header">
                 <h2 className="section-title-internal">Транзакції</h2>
-                <button className="analytics-button" onClick={onAnalytics} title="Перейти до аналітики">
-                    <span className="analytics-icon">📊</span>
-                    Аналітика
-                </button>
             </div>
 
             {/* Account Selector */}
