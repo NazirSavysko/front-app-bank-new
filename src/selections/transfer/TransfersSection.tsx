@@ -401,7 +401,6 @@ const TransfersSection: React.FC<TransfersSectionProps> = ({
                     </div>
                     {transferData.senderCardNumber && selectedAccount && (
                         <div className="selected-card-info">
-                            <span className="info-icon">💳</span>
                             <span>
                 Обрано картку: **** {transferData.senderCardNumber.slice(-4)} (
                                 {selectedAccount.balance.toLocaleString()} {selectedAccount.currency})
@@ -431,9 +430,6 @@ const TransfersSection: React.FC<TransfersSectionProps> = ({
                                     onChange={e => handleCardNumberChange(e.target.value)}
                                     maxLength={19}
                                 />
-                                {transferData.recipientCardNumber.length === 16 && (
-                                    <div className="input-icon valid">✓</div>
-                                )}
                             </div>
                             <div className="field-hint">
                                 {transferData.recipientCardNumber.length > 0 &&
@@ -477,11 +473,6 @@ const TransfersSection: React.FC<TransfersSectionProps> = ({
                                     inputMode="decimal"
                                 />
                                 <div className="currency-suffix">{selectedAccount?.currency}</div>
-                                {transferData.amount &&
-                                    parseFloat(transferData.amount) > 0 &&
-                                    parseFloat(transferData.amount) <= (selectedAccount?.balance || 0) && (
-                                        <div className="input-icon valid">✓</div>
-                                    )}
                             </div>
                             <div className="field-hint">
                                 <div className="amount-suggestions">
@@ -559,7 +550,7 @@ const TransfersSection: React.FC<TransfersSectionProps> = ({
 
                     <div className="transfer-buttons">
                         <button className="btn-clear" onClick={resetTransferForm} disabled={emailSending} type="button">
-                            <span className="btn-icon">♻</span>Очистити форму
+                            Очистити форму
                         </button>
                         <button
                             className="btn-send"
@@ -567,7 +558,6 @@ const TransfersSection: React.FC<TransfersSectionProps> = ({
                             disabled={emailSending}
                             type="button"
                         >
-                            <span className="btn-icon">{emailSending ? '⏳' : '🚀'}</span>
                             <span>{emailSending ? 'Відправлення коду...' : 'Відправити переказ'}</span>
                         </button>
                     </div>
