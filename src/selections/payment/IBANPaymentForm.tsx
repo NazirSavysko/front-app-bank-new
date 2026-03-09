@@ -4,9 +4,9 @@ import { createIbanPayment } from '../../api';
 import type { Account } from '../../types';
 import './PaymentForms.css';
 
-const UKRAINIAN_IBAN_REGEX = /^UA\d{6}[A-Z0-9]{24}$/;
+const UKRAINIAN_IBAN_REGEX = /^UA\d{6}[A-Z0-9]{26}$/;
 const UKRAINIAN_IBAN_ERROR =
-    'Невірний формат IBAN. IBAN має починатися з UA, потім 6 цифр, потім 24 символи (великі літери або цифри), всього 32 символи без пробілів.';
+    'Невірний формат IBAN. IBAN має починатися з UA, потім 6 цифр, потім 26 символів (великі літери або цифри), всього 34 символи без пробілів.';
 
 interface IBANPaymentFormProps {
     accounts: Account[];
@@ -140,11 +140,11 @@ const IBANPaymentForm: React.FC<IBANPaymentFormProps> = ({
                     <input
                         type="text"
                         value={recipientIban}
-                        onChange={(e) => setRecipientIban(e.target.value.toUpperCase())}
+                        onChange={(e) => setRecipientIban(e.target.value.toUpperCase().slice(0, 34))}
                         placeholder="UA000000000000000000000000000"
                         required
                         className="form-input"
-                        maxLength={32}
+                        maxLength={34}
                         autoCapitalize="characters"
                         spellCheck={false}
                         aria-invalid={Boolean(ibanError)}
