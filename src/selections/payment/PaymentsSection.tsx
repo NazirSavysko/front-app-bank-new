@@ -18,12 +18,12 @@ const PaymentsHome: React.FC = () => {
     const navigate = useNavigate();
 
     const categories = [
-        { id: 'travel', title: 'Подорожі', desc: 'Купуйте авіаквитки та бронюйте номер в готелі', color: 'bg-purple' },
-        { id: 'internet', title: 'Інтернет', desc: 'Переглянути послуги', color: 'bg-blue' },
-        { id: 'electronics', title: 'Електроніка', desc: 'Купуйте смартфони, ноутбуки, електроніку для дому та саду', color: 'bg-indigo' },
-        { id: 'utilities', title: 'Комунальні послуги', desc: 'Перевірте рахунки', color: 'bg-indigo' },
-        { id: 'mobile', title: 'Мобільний', desc: 'Поповніть баланс', color: 'bg-indigo' },
-        { id: 'taxes', title: 'Податки', desc: 'Сплатіть податки', color: 'bg-indigo' },
+        { id: 'travel', title: 'Подорожі', desc: 'Купуйте авіаквитки та бронюйте номер в готелі', color: 'bg-purple', size: 'tall' },
+        { id: 'internet', title: 'Інтернет', desc: 'Переглянути послуги', color: 'bg-blue', size: 'short' },
+        { id: 'electronics', title: 'Електроніка', desc: 'Купуйте смартфони, ноутбуки, електроніку для дому та саду', color: 'bg-indigo', size: 'tall' },
+        { id: 'utilities', title: 'Комунальні послуги', desc: 'Перевірте рахунки', color: 'bg-indigo', size: 'short' },
+        { id: 'mobile', title: 'Мобільний', desc: 'Поповніть баланс', color: 'bg-indigo', size: 'short' },
+        { id: 'taxes', title: 'Податки', desc: 'Сплатіть податки', color: 'bg-indigo', size: 'short' },
     ];
 
     const getIcon = (id: string) => {
@@ -77,21 +77,14 @@ const PaymentsHome: React.FC = () => {
                         <button
                             key={cat.id}
                             type="button"
-                            className={`category-card ${cat.color}`}
+                            className={`category-card ${cat.color} ${cat.size}`}
                             onClick={() => handleCategoryClick(cat.id)}
                         >
-                            <div className="category-icon-badge">
-                                <div className="category-icon">{getIcon(cat.id)}</div>
-                            </div>
+                            <div className="category-icon">{getIcon(cat.id)}</div>
                             <div className="category-content">
                                 <h3>{cat.title}</h3>
                                 <p>{cat.desc}</p>
                             </div>
-                            <span className="category-chevron" aria-hidden="true">
-                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                                    <path d="M9 6l6 6-6 6" />
-                                </svg>
-                            </span>
                         </button>
                     ))}
                 </div>

@@ -43,11 +43,9 @@
     height: calc(100vh - 280px);
     display: flex;
     flex-direction: column;
-    overflow-y: auto;
+    min-height: 0;
+    overflow: hidden;
     overflow-x: hidden;
-    scroll-behavior: smooth;
-    scrollbar-width: thin;
-    scrollbar-color: rgba(100,116,139,.35) transparent;
 }
 
 /* Transaction cards area */
@@ -55,21 +53,24 @@
     width: 100%;
     flex: 1;
     min-height: 0;
-    overflow-y: clip;
+    overflow-y: auto;
     overflow-x: hidden;
     padding-right: 0.5rem; /* Space for scrollbar */
-    padding-bottom: 0.5rem;
+    padding-bottom: 1rem;
     position: relative;
+    scroll-behavior: smooth;
+    scrollbar-width: thin;
+    scrollbar-color: rgba(100,116,139,.35) transparent;
 }
 
-.transactions-list::-webkit-scrollbar { width: 8px; }
-.transactions-list::-webkit-scrollbar-thumb {
+.account-transactions::-webkit-scrollbar { width: 8px; }
+.account-transactions::-webkit-scrollbar-thumb {
     background: rgba(100,116,139,.35);
     border-radius: 999px;
     background-clip: padding-box;
     border: 2px solid transparent;
 }
-.transactions-list:hover::-webkit-scrollbar-thumb { background: rgba(100,116,139,.55); }
+.account-transactions:hover::-webkit-scrollbar-thumb { background: rgba(100,116,139,.55); }
 
 /* Filter panel remains part of the normal scrolling flow */
 .transactions-filter {
@@ -453,7 +454,7 @@
     .transactions-list {
         max-width: 100%;
         padding: 0 .5rem;
-        height: calc(100vh - 250px);
+        height: calc(100dvh - 240px);
     }
     .transactions-filter {
         padding: 1rem;
@@ -468,13 +469,16 @@
 }
 @media (max-width: 480px) {
     .transactions-list {
-        height: calc(100vh - 220px);
+        height: calc(100dvh - 210px);
     }
     .analytics-button { padding: .55rem .85rem; }
     .transactions-filter {
         padding: 1rem;
         grid-template-columns: 1fr; /* 1 колонка на телефонах */
         gap: 1rem;
+    }
+    .account-transactions {
+        padding-bottom: 5rem;
     }
     .transaction-body { grid-template-columns: 1fr; }
     .transaction-summary {
