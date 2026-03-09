@@ -9,6 +9,7 @@ export interface TransfersSectionProps {
     onCopy?: (msg: string) => void;
     selectedAccountIndex?: number;
     setSelectedAccountIndex?: (index: number) => void;
+    onTransferFlowStateChange?: (state: 'idle' | 'sending-code' | 'awaiting-code' | 'verifying-code') => void;
 }
 
 const TransfersSection: React.FC<TransfersSectionProps> = ({
@@ -16,7 +17,8 @@ const TransfersSection: React.FC<TransfersSectionProps> = ({
                                                                onTransferComplete,
                                                                onCopy,
                                                                selectedAccountIndex,
-                                                               setSelectedAccountIndex
+                                                               setSelectedAccountIndex,
+                                                               onTransferFlowStateChange
                                                            }) => {
     const queryClient = useQueryClient();
     const [transferData, setTransferData] = useState({
@@ -255,6 +257,23 @@ const TransfersSection: React.FC<TransfersSectionProps> = ({
 
     const selectedAccount = customer?.accounts.find(a => a.card.cardNumber === transferData.senderCardNumber);
     const validationErrors = validateTransferForm();
+    const transferFlowState = codeVerifying
+        ? 'verifying-code'
+        : emailSending
+            ? 'sending-code'
+            : showEmailVerification
+                ? 'awaiting-code'
+                : 'idle';
+
+    useEffect(() => {
+        onTransferFlowStateChange?.(transferFlowState);
+    }, [onTransferFlowStateChange, transferFlowState]);
+
+    useEffect(() => {
+        return () => {
+            onTransferFlowStateChange?.('idle');
+        };
+    }, [onTransferFlowStateChange]);
 
     useEffect(() => {
         const el = senderCardsRef.current;
@@ -279,9 +298,21 @@ const TransfersSection: React.FC<TransfersSectionProps> = ({
         ));
     }, [customer, selectedAccountIndex]);
 
+    useEffect(() => {
+        const dashboard = document.querySelector('.user-dashboard');
+        if (dashboard) {
+            dashboard.classList.add('transfers-mode-active');
+        }
+        return () => {
+            if (dashboard) {
+                dashboard.classList.remove('transfers-mode-active');
+            }
+        };
+    }, []);
+
     if (transferSuccess) {
         return (
-            <>
+            <div className="transfers-wrapper">
                 <div className="transfer-success-card">
                     <div className="success-icon">✅</div>
                     <h3>Переказ виконано успішно!</h3>
@@ -323,12 +354,12 @@ const TransfersSection: React.FC<TransfersSectionProps> = ({
                         Зробити новий переказ
                     </button>
                 </div>
-            </>
+            </div>
         );
     }
 
     return (
-        <>
+        <div className="transfers-wrapper">
             <div className="transfer-header">
                 <h3>Переказ коштів між картками</h3>
                 <p>Швидкий і безпечний переказ коштів з картки на картку</p>
@@ -342,7 +373,7 @@ const TransfersSection: React.FC<TransfersSectionProps> = ({
                         {customer?.accounts.map(account => (
                             <div
                                 key={account.card.cardNumber}
-                                className={`sender-card ${
+                                className={`sender-card ${account.accountType === 'FOP' ? 'sender-card--fop' : ''} ${
                                     transferData.senderCardNumber === account.card.cardNumber ? 'selected' : ''
                                 } ${account.balance < 0.01 ? 'insufficient-funds' : ''}`}
                                 onClick={() => selectSenderCard(account.card.cardNumber)}
@@ -352,9 +383,12 @@ const TransfersSection: React.FC<TransfersSectionProps> = ({
                                 <div className="mini-card">
                                     <div className="card-header">
                                         <div className="card-type">{account.currency} картка</div>
-                                        {transferData.senderCardNumber === account.card.cardNumber && (
-                                            <div className="selected-check">✓</div>
-                                        )}
+                                        <div className="card-header-actions">
+                                            {account.accountType === 'FOP' && <div className="sender-card-badge">ФОП</div>}
+                                            {transferData.senderCardNumber === account.card.cardNumber && (
+                                                <div className="selected-check">✓</div>
+                                            )}
+                                        </div>
                                     </div>
                                     <div className="card-number" onClick={(e) => {
                                         e.stopPropagation();
@@ -389,9 +423,8 @@ const TransfersSection: React.FC<TransfersSectionProps> = ({
                     </div>
                     {transferData.senderCardNumber && selectedAccount && (
                         <div className="selected-card-info">
-                            <span className="info-icon">💳</span>
                             <span>
-                Обрано картку: **** {transferData.senderCardNumber.slice(-4)} (
+                Обрано картку: {selectedAccount.accountType === 'FOP' ? 'ФОП • ' : ''}**** {transferData.senderCardNumber.slice(-4)} (
                                 {selectedAccount.balance.toLocaleString()} {selectedAccount.currency})
               </span>
                         </div>
@@ -419,9 +452,6 @@ const TransfersSection: React.FC<TransfersSectionProps> = ({
                                     onChange={e => handleCardNumberChange(e.target.value)}
                                     maxLength={19}
                                 />
-                                {transferData.recipientCardNumber.length === 16 && (
-                                    <div className="input-icon valid">✓</div>
-                                )}
                             </div>
                             <div className="field-hint">
                                 {transferData.recipientCardNumber.length > 0 &&
@@ -465,11 +495,6 @@ const TransfersSection: React.FC<TransfersSectionProps> = ({
                                     inputMode="decimal"
                                 />
                                 <div className="currency-suffix">{selectedAccount?.currency}</div>
-                                {transferData.amount &&
-                                    parseFloat(transferData.amount) > 0 &&
-                                    parseFloat(transferData.amount) <= (selectedAccount?.balance || 0) && (
-                                        <div className="input-icon valid">✓</div>
-                                    )}
                             </div>
                             <div className="field-hint">
                                 <div className="amount-suggestions">
@@ -544,36 +569,27 @@ const TransfersSection: React.FC<TransfersSectionProps> = ({
                             </ul>
                         </div>
                     )}
-                </div>
-            </div>
 
-            <div className="transfer-buttons">
-                <button className="btn-clear" onClick={resetTransferForm} disabled={emailSending} type="button">
-                    <span className="btn-icon">♻</span>Очистити форму
-                </button>
-                <button
-                    className="btn-send"
-                    onClick={sendEmailVerification}
-                    disabled={
-                        emailSending ||
-                        validationErrors.length > 0 ||
-                        !transferData.senderCardNumber ||
-                        !transferData.recipientCardNumber ||
-                        !transferData.amount ||
-                        parseFloat(transferData.amount) <= 0
-                    }
-                    type="button"
-                >
-                    <span className="btn-icon">{emailSending ? '⏳' : '🚀'}</span>
-                    <span>{emailSending ? 'Відправлення коду...' : 'Відправити переказ'}</span>
-                </button>
+                    <div className="transfer-buttons">
+                        <button className="btn-clear" onClick={resetTransferForm} disabled={emailSending} type="button">
+                            Очистити форму
+                        </button>
+                        <button
+                            className="btn-send"
+                            onClick={sendEmailVerification}
+                            disabled={emailSending}
+                            type="button"
+                        >
+                            <span>{emailSending ? 'Відправлення коду...' : 'Відправити переказ'}</span>
+                        </button>
+                    </div>
+                </div>
             </div>
 
             {showEmailVerification && (
                 <div className="modal-overlay verification-overlay" role="dialog" aria-modal="true">
                     <div className="verification-modal">
                         <div className="verification-header">
-                            <div className="verification-icon">📧</div>
                             <h3>Підтвердження переказу</h3>
                             <button
                                 className="modal-close"
@@ -588,7 +604,6 @@ const TransfersSection: React.FC<TransfersSectionProps> = ({
                             <div className="email-info">
                                 <p className="verification-text">Код підтвердження надіслано на пошту</p>
                                 <div className="email-display">
-                                    <span className="email-icon">📮</span>
                                     <strong>{customer?.email}</strong>
                                 </div>
                             </div>
@@ -630,7 +645,6 @@ const TransfersSection: React.FC<TransfersSectionProps> = ({
 
                             {transferError && (
                                 <div className="verification-error">
-                                    <span className="error-icon">⚠️</span>
                                     <span>{transferError.replace('❌ ', '')}</span>
                                 </div>
                             )}
@@ -662,7 +676,7 @@ const TransfersSection: React.FC<TransfersSectionProps> = ({
                     </div>
                 </div>
             )}
-        </>
+        </div>
     );
 };
 

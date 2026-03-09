@@ -46,7 +46,6 @@ const AnalyticsSection: React.FC<AnalyticsSectionProps> = ({
                                                                setSelectedMonth,
                                                                selectedYear,
                                                                setSelectedYear,
-                                                               onBack,
                                                            }) => {
     const [summaryData, setSummaryData] = useState<AnalyticsSummary | null>(null);
     const [isLoading, setIsLoading] = useState(false);
@@ -123,9 +122,6 @@ const AnalyticsSection: React.FC<AnalyticsSectionProps> = ({
     return (
         <div className="analytics-container">
             <div className="analytics-topbar">
-                <button className="btn-back" onClick={onBack} title="Повернутися до транзакцій">
-                    ← Назад до транзакцій
-                </button>
                 <div>
                     <h2 className="analytics-title">Аналітика рахунку</h2>
                     <p className="analytics-subtitle">

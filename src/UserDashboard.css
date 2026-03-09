@@ -11,7 +11,7 @@
 .user-dashboard {
     min-height: 100dvh;
     background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-    padding: 0.5rem;
+    padding: 0.75rem;
     font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
     overflow-x: hidden;
     display: flex;
@@ -20,12 +20,13 @@
 
 .dashboard-content {
     width: 100%;
-    max-width: 1400px;
+    max-width: 1280px;
     margin: 0 auto;
     display: flex;
     flex-direction: column;
-    gap: 0.75rem;
+    gap: 1rem;
     flex-grow: 1;
+    min-height: 0;
 }
 
 /* =========================================
@@ -33,9 +34,9 @@
    ========================================= */
 .dashboard-header {
     background: rgba(255, 255, 255, 0.95);
-    padding: 0.75rem 1rem; /* Уменьшили отступы */
-    border-radius: 16px;
-    box-shadow: 0 4px 20px rgba(31, 38, 135, 0.2);
+    padding: 0.95rem 1.15rem;
+    border-radius: 20px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
     backdrop-filter: blur(10px);
     border: 1px solid rgba(255, 255, 255, 0.18);
 }
@@ -56,7 +57,7 @@
 }
 
 .dashboard-title {
-    font-size: 1.25rem;
+    font-size: 1.35rem;
     font-weight: 700;
     color: #2d3748;
     line-height: 1.2;
@@ -67,7 +68,7 @@
 
 /* На ПК показываем подзаголовок, на мобиле скроем для компактности */
 .dashboard-subtitle {
-    font-size: 0.85rem;
+    font-size: 0.92rem;
     color: #718096;
     margin-top: 0.2rem;
 }
@@ -82,17 +83,28 @@
 .profile-button {
     background: none;
     border: 0;
+    width: 44px;
+    height: 44px;
     padding: 0;
     cursor: pointer;
     border-radius: 50%;
     display: flex;
     align-items: center;
     justify-content: center;
-    transition: transform 0.2s;
+    transition: all 0.2s ease-in-out;
+}
+
+.profile-button:hover {
+    background: rgba(102, 126, 234, 0.08);
 }
 
 .profile-button:active {
     transform: scale(0.95);
+}
+
+.profile-button:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
 }
 
 .profile-avatar {
@@ -114,41 +126,54 @@
    TABS (HORIZONTAL SCROLL)
    ========================================= */
 .dashboard-tabs {
-    display: flex;
-    flex-direction: row;
-    gap: 0.5rem;
+    display: grid;
+    grid-template-columns: repeat(var(--dashboard-tab-count, 5), minmax(0, 1fr));
+    gap: 0.65rem;
     background: rgba(255, 255, 255, 0.9);
-    border-radius: 16px;
-    padding: 0.5rem;
-    overflow-x: auto;
-    overflow-y: hidden;
-    white-space: nowrap;
-    scrollbar-width: none;
-    -ms-overflow-style: none;
-    -webkit-overflow-scrolling: touch;
-}
-
-.dashboard-tabs::-webkit-scrollbar {
-    display: none;
+    border-radius: 20px;
+    padding: 0.55rem;
+    width: 100%;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
 }
 
 .tab-button {
-    flex: 0 0 auto;
-    padding: 0.6rem 1rem;
+    min-width: 0;
+    min-height: 52px;
+    padding: 0.85rem 1rem;
     border: 0;
     background: transparent;
-    border-radius: 10px;
-    font-size: 0.9rem;
+    border-radius: 999px;
+    font-size: 0.98rem;
     font-weight: 600;
+    line-height: 1.2;
     color: #718096;
     cursor: pointer;
-    transition: all 0.2s ease;
+    text-align: center;
+    transition: all 0.2s ease-in-out;
+    text-decoration: none;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.tab-button:hover {
+    background: rgba(102, 126, 234, 0.08);
+    color: #4a5568;
 }
 
 .tab-button.active {
     background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
     color: #fff;
-    box-shadow: 0 2px 10px rgba(102, 126, 234, 0.4);
+    box-shadow: 0 6px 18px rgba(102, 126, 234, 0.28);
+}
+
+.tab-button.is-disabled,
+.dashboard-bottom-nav__link.is-disabled {
+    cursor: not-allowed;
+    opacity: 0.7;
 }
 
 /* =========================================
@@ -159,26 +184,76 @@
     flex-direction: column;
     gap: 1rem;
     flex-grow: 1;
+    min-height: 0;
+    overflow: hidden;
 }
 
 .dashboard-section {
     background: rgba(255, 255, 255, 0.95);
-    border-radius: 16px;
-    padding: 1.25rem;
-    box-shadow: 0 4px 20px rgba(31, 38, 135, 0.15);
+    border-radius: 20px;
+    padding: 1.15rem;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
     backdrop-filter: blur(5px);
     border: 1px solid rgba(255, 255, 255, 0.4);
     display: flex;
     flex-direction: column;
+    min-height: 0;
+    flex-grow: 1;
+    overflow-y: auto;
+    overscroll-behavior-y: contain;
+
+    /* Firefox custom scrollbar */
+    scrollbar-width: thin;
+    scrollbar-color: rgba(156, 163, 175, 0.5) transparent;
+}
+
+/* Custom scrollbar for Webkit (Chrome, Safari, Edge) */
+.dashboard-section::-webkit-scrollbar {
+    width: 6px;
+    height: 6px;
+}
+
+.dashboard-section::-webkit-scrollbar-track {
+    background: transparent;
+    margin: 8px 0;
+}
+
+.dashboard-section::-webkit-scrollbar-thumb {
+    background-color: rgba(156, 163, 175, 0.5);
+    border-radius: 99px;
+    border: 2px solid transparent;
+    background-clip: content-box;
+}
+
+.dashboard-section::-webkit-scrollbar-thumb:hover {
+    background-color: rgba(107, 114, 128, 0.8);
 }
 
 .section-title {
     font-size: 1.1rem;
     font-weight: 700;
     color: #2d3748;
-    margin-bottom: 1rem;
+    margin-bottom: 0.9rem;
     padding-bottom: 0.75rem;
     border-bottom: 2px solid #edf2f7;
+}
+
+.dashboard-bottom-nav {
+    display: none;
+}
+
+.dashboard-bottom-nav__link {
+    text-decoration: none;
+}
+
+.dashboard-bottom-nav__icon svg {
+    width: 22px;
+    height: 22px;
+    fill: none;
+    stroke: currentColor;
+    stroke-width: 1.8;
+    stroke-linecap: round;
+    stroke-linejoin: round;
 }
 
 /* =========================================
@@ -441,17 +516,15 @@
    MOBILE SPECIFIC TWEAKS
    ========================================= */
 @media (max-width: 480px) {
-    /* Делаем хедер супер компактным */
     .dashboard-header {
-        padding: 0.5rem 0.75rem;
-        border-radius: 12px;
+        padding: 0.75rem 0.85rem;
+        border-radius: 16px;
     }
 
     .dashboard-title {
-        font-size: 1.1rem; /* Шрифт меньше */
+        font-size: 1.1rem;
     }
 
-    /* Скрываем подзаголовок чтобы сэкономить место по высоте */
     .dashboard-subtitle {
         display: none;
     }
@@ -462,7 +535,6 @@
         font-size: 0.9rem;
     }
 
-    /* Модалка на весь низ экрана */
     .modal-content {
         max-width: 100%;
         border-radius: 20px 20px 0 0;
@@ -477,6 +549,83 @@
 
     .currency-option {
         flex: 1 1 100%;
+    }
+}
+
+@media (min-width: 769px) {
+    .dashboard-tabs {
+        display: grid;
+        grid-template-columns: repeat(var(--dashboard-tab-count, 5), minmax(0, 1fr));
+    }
+}
+
+@media (max-width: 768px) {
+    .user-dashboard {
+        padding: 0.65rem;
+    }
+
+    .dashboard-content {
+        gap: 0.75rem;
+        padding-bottom: calc(116px + env(safe-area-inset-bottom));
+    }
+
+    .dashboard-header {
+        border-radius: 18px;
+        padding: 0.85rem 0.95rem;
+    }
+
+    .dashboard-tabs {
+        display: none;
+    }
+
+    .dashboard-section {
+        padding: 0.95rem;
+        border-radius: 18px;
+        padding-bottom: calc(1.15rem + env(safe-area-inset-bottom));
+    }
+
+    .section-title {
+        margin-bottom: 0.75rem;
+        font-size: 1rem;
+    }
+
+    .dashboard-bottom-nav {
+        position: fixed;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        display: grid;
+        grid-template-columns: repeat(5, minmax(0, 1fr));
+        gap: 0.35rem;
+        padding: 0.6rem 0.5rem calc(0.6rem + env(safe-area-inset-bottom));
+        background: rgba(255, 255, 255, 0.96);
+        backdrop-filter: blur(16px);
+        border-top: 1px solid rgba(148, 163, 184, 0.24);
+        box-shadow: 0 -8px 30px rgba(15, 23, 42, 0.12);
+        z-index: 1200;
+    }
+
+    .dashboard-bottom-nav__link {
+        min-width: 44px;
+        min-height: 44px;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        gap: 0.22rem;
+        padding: 0.42rem 0.2rem;
+        border-radius: 14px;
+        color: #64748b;
+        transition: all 0.2s ease-in-out;
+    }
+
+    .dashboard-bottom-nav__link.active {
+        color: #4c51bf;
+        background: rgba(102, 126, 234, 0.12);
+    }
+
+    .dashboard-bottom-nav__link.is-disabled {
+        pointer-events: none;
     }
 }
 
@@ -505,4 +654,8 @@
 @keyframes fadeIn {
     from { opacity: 0; transform: translateY(-5px); }
     to { opacity: 1; transform: translateY(0); }
+}
+
+.dashboard-navigation-locked .dashboard-content {
+    position: relative;
 }

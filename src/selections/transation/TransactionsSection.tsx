@@ -1,9 +1,7 @@
-// src/selections/transation/TransactionsSection.tsx
-import React, { useEffect, useMemo, useRef } from 'react';
-import { useInfiniteQuery } from '@tanstack/react-query';
-import { fetchTransactions } from '../../api';
-import type { Account, Page, Transaction } from '../../types';
+import React, { useEffect, useRef } from 'react';
+import type { Account, Transaction } from '../../types';
 import TransactionCard from '../../components/TransactionCard.tsx';
+import { useTransactions } from '../../hooks/useTransactions';
 import './TransactionsSection.css';
 
 export interface TransactionsSectionProps {
@@ -20,14 +18,11 @@ export interface TransactionsSectionProps {
     onAnalytics: () => void;
 }
 
-const PAGE_SIZE = 10;
-
 const TransactionsSection: React.FC<TransactionsSectionProps> = ({
                                                                      accounts,
                                                                      selectedAccountIndex,
-                                                                     setSelectedAccountIndex,
-                                                                     onAnalytics
-                                                                 }) => {
+                                                                     setSelectedAccountIndex
+                                                                  }) => {
     const transactionsContainerRef = useRef<HTMLDivElement | null>(null);
     const loadMoreTriggerRef = useRef<HTMLDivElement | null>(null);
 
@@ -35,24 +30,13 @@ const TransactionsSection: React.FC<TransactionsSectionProps> = ({
     const accountNumber = selectedAccount?.accountNumber;
 
     const {
-        data,
+        transactions,
         isLoading,
         isError,
         hasNextPage,
         isFetchingNextPage,
         fetchNextPage,
-    } = useInfiniteQuery<Page<Transaction>, Error>({
-        queryKey: ['transactions', accountNumber],
-        queryFn: ({ pageParam = 0 }) => fetchTransactions(accountNumber!, pageParam as number, PAGE_SIZE),
-        enabled: !!accountNumber,
-        initialPageParam: 0,
-        getNextPageParam: lastPage => (
-            lastPage.last ? undefined : lastPage.pageable.pageNumber + 1
-        ),
-        staleTime: 0,
-        gcTime: 0,
-        refetchOnMount: true,
-    });
+    } = useTransactions(accountNumber);
 
     useEffect(() => {
         const triggerElement = loadMoreTriggerRef.current;
@@ -70,7 +54,7 @@ const TransactionsSection: React.FC<TransactionsSectionProps> = ({
                 }
             },
             {
-                root: null,
+                root: transactionsContainerRef.current,
                 rootMargin: '0px 0px 120px 0px',
             }
         );
@@ -80,11 +64,6 @@ const TransactionsSection: React.FC<TransactionsSectionProps> = ({
         return () => observer.disconnect();
     }, [fetchNextPage, hasNextPage, isFetchingNextPage]);
 
-    const transactions = useMemo(
-        () => data?.pages.flatMap(page => page.content) ?? [],
-        [data]
-    );
-
     if (!selectedAccount) return null;
 
     return (
@@ -92,10 +71,6 @@ const TransactionsSection: React.FC<TransactionsSectionProps> = ({
             {/* Top Bar */}
             <div className="transactions-top-bar main-header">
                 <h2 className="section-title-internal">Транзакції</h2>
-                <button className="analytics-button" onClick={onAnalytics} title="Перейти до аналітики">
-                    <span className="analytics-icon">📊</span>
-                    Аналітика
-                </button>
             </div>
 
             {/* Account Selector */}

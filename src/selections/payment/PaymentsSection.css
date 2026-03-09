@@ -1,9 +1,18 @@
 .payments-container {
     padding: 2rem;
-    max-width: 1400px; /* Wider to accommodate the 4-column layout comfortably */
+    max-width: 1400px;
     margin: 0 auto;
     font-family: 'Inter', system-ui, -apple-system, sans-serif;
 }
+
+/* Fix scrolling specifically for payments section */
+/* .user-dashboard.payments-mode-active styles removed to prevent double scrollbars */
+
+.payments-wrapper {
+    flex: 1;
+    width: 100%;
+}
+/* End fix scrolling */
 
 .page-title {
     font-size: 24px;
@@ -12,15 +21,13 @@
     margin-bottom: 1.5rem;
 }
 
-/* Common Section Style */
 .search-section, .categories-section {
-    background: #F5F5FA; /* Light lavender background from design */
+    background: #F5F5FA;
     padding: 1.5rem 2rem;
-    border-radius: 4px; /* Slightly rounded or square */
+    border-radius: 4px;
     margin-bottom: 2rem;
 }
 
-/* Headers inside sections */
 .search-section h2, .categories-section h2 {
     font-size: 20px;
     font-weight: 400;
@@ -30,13 +37,12 @@
 }
 
 .subtitle {
-    color: #666; /* Grey text */
+    color: #666;
     font-size: 14px;
     margin-bottom: 1.5rem;
     font-weight: 300;
 }
 
-/* Search Bar */
 .search-bar-wrapper {
     position: relative;
     max-width: 400px;
@@ -67,19 +73,19 @@
 }
 
 .search-input::placeholder {
-    color: #999;
+    color: #9ca3af;
 }
 
-/* Categories Grid */
 .categories-grid {
     display: grid;
     grid-template-columns: repeat(4, 1fr);
-    grid-auto-rows: 160px; /* Fixed height unit */
+    grid-auto-rows: 160px;
     gap: 1.5rem;
-    grid-auto-flow: dense; /* Crucial for packing tall/short items */
+    grid-auto-flow: dense;
 }
 
 .category-card {
+    border: none;
     border-radius: 12px;
     padding: 1.5rem;
     color: white;
@@ -90,6 +96,7 @@
     justify-content: space-between;
     position: relative;
     overflow: hidden;
+    text-align: left;
 }
 
 .category-card:hover {
@@ -97,26 +104,24 @@
     box-shadow: 0 8px 16px rgba(0,0,0,0.1);
 }
 
-/* Sizing Classes */
 .category-card.tall {
     grid-row: span 2;
     padding: 2rem;
     gap: 1rem;
-    /* Reset from previous */
     align-items: stretch;
     justify-content: flex-start;
 }
+
 .category-card.tall .category-icon {
-    /* Make icon take available space and center itself */
     flex: 1;
     display: flex;
     align-items: center;
     justify-content: center;
     margin: 0;
-    transform: scale(2.0); /* Larger */
+    transform: scale(2);
 }
+
 .category-card.tall .category-content {
-    /* Text at bottom left */
     text-align: left;
     width: 100%;
     margin-top: 0;
@@ -124,18 +129,19 @@
 
 .category-card.short {
     grid-row: span 1;
-    /* Icon top-left, Text bottom-left */
     justify-content: space-between;
     align-items: flex-start;
     padding: 1.5rem;
 }
+
 .category-card.short .category-content {
     width: 100%;
     text-align: left;
 }
+
 .category-card.short .category-icon {
     margin-bottom: 0.5rem;
-    transform: scale(1.0);
+    transform: scale(1);
 }
 
 .category-icon {
@@ -157,40 +163,35 @@
     font-weight: 300;
 }
 
-/* Colors matching design */
-/* User requested all cards to be in the same VIBRANT PURPLE color */
 .bg-purple, .bg-blue, .bg-indigo {
-    /* Uniform color based on the "Travel" card style/purple square provided */
     background: linear-gradient(135deg, #7F73FF 0%, #7663F6 100%);
 }
 
-/* Specific flat-ish look from screenshot - Uniform for all cards */
 .category-card.bg-purple,
 .category-card.bg-blue,
 .category-card.bg-indigo {
-    /* Brighter Violet/Purple Gradient */
     background: linear-gradient(150deg, #8476FF, #715EF0);
 }
 
-/* Make page text darker/black */
 .page-title, .search-section h2, .categories-section h2, .category-content h3 {
-    color: #000; /* Pure black for titles */
+    color: #000;
 }
+
 .subtitle {
-    color: #222; /* Very dark grey for subtitles */
-    font-weight: 400; /* Slightly bolder */
+    color: #222;
+    font-weight: 400;
 }
-/* Except card text which must remain white on dark backgrounds */
-.category-card, .category-card .category-content h3, .category-card .category-content p {
+
+.category-card,
+.category-card .category-content h3,
+.category-card .category-content p {
     color: #FFFFFF;
 }
 
-/* Icons */
 .category-icon svg {
     stroke: white;
 }
 
-/* Responsive */
 @media (max-width: 1024px) {
     .categories-grid {
         grid-template-columns: repeat(3, 1fr);
@@ -198,19 +199,61 @@
 }
 
 @media (max-width: 768px) {
+    .payments-wrapper {
+        padding-bottom: 0;
+    }
+
+    .payments-container {
+        padding: 0;
+        min-height: 100%;
+        display: flex;
+        flex-direction: column;
+    }
+
+    .page-title {
+        padding: 0 1rem;
+        margin-top: 1rem;
+    }
+
+    .search-section {
+        margin: 0 1rem 1.5rem;
+    }
+
+    .categories-section {
+        padding: 1.15rem;
+        border-radius: 16px 16px 0 0;
+        margin-bottom: 0;
+        flex-grow: 1;
+        padding-bottom: calc(85px + env(safe-area-inset-bottom));
+    }
+
     .categories-grid {
         grid-template-columns: repeat(2, 1fr);
+        gap: 0.75rem;
+        grid-auto-rows: min-content; /* Allow content to dictate height somewhat, but we have fixed classes */
+    }
+
+    .category-card {
+        padding: 1rem;
+        min-height: 140px;
+    }
+
+    /* Override tall/short for mobile grid specifically if needed,
+       but the general classes with dense flow should work if rows are consistent.
+       We set a base row height for mobile to keep alignment.
+    */
+    .categories-grid {
+         grid-auto-rows: 155px; /* Adjust height for mobile */
+    }
+
+    .category-card.tall {
+        padding: 1.5rem;
     }
 }
 
 @media (max-width: 480px) {
+    /* Ensure 2 columns persist on mobile as requested */
     .categories-grid {
-        grid-template-columns: 1fr;
-    }
-    .category-card.tall {
-        grid-row: span 1; /* Reset tall on mobile */
-        min-height: 200px;
+        grid-template-columns: repeat(2, 1fr);
     }
 }
-
-

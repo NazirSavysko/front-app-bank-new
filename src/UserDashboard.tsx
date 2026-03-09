@@ -1,9 +1,11 @@
 import React, {useEffect, useState, lazy, Suspense} from 'react';
-import { Routes, Route, Navigate, NavLink, useNavigate } from 'react-router-dom';
-import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import type {AccountCurrency, AccountType, CustomerData} from './types';
+import { Routes, Route, Navigate, NavLink, useLocation, useNavigate } from 'react-router-dom';
+import { useMutation, useQueryClient } from '@tanstack/react-query';
+import type {AccountCurrency, AccountType} from './types';
 import './UserDashboard.css';
 import {createAccount} from "./api.ts";
+import SectionErrorBoundary from './components/SectionErrorBoundary';
+import { useAccounts } from './hooks/useAccounts';
 
 const AccountsSection = lazy(() => import('./selections/account/AccountsSection.tsx'));
 const TransactionsSection = lazy(() => import('./selections/transation/TransactionsSection.tsx'));
@@ -11,38 +13,80 @@ const PaymentsSection = lazy(() => import('./selections/payment/PaymentsSection.
 const TransfersSection = lazy(() => import('./selections/transfer/TransfersSection.tsx'));
 const AnalyticsSection = lazy(() => import('./selections/analytic/AnalyticsSection.tsx'));
 
+type DashboardNavIconName = 'accounts' | 'transfers' | 'payments' | 'history' | 'analytics';
+
+const DashboardNavIcon: React.FC<{ name: DashboardNavIconName }> = ({ name }) => {
+    switch (name) {
+        case 'accounts':
+            return (
+                <svg viewBox="0 0 24 24" aria-hidden="true">
+                    <rect x="3" y="5" width="18" height="14" rx="3"></rect>
+                    <path d="M3 10h18"></path>
+                    <path d="M7 15h4"></path>
+                </svg>
+            );
+        case 'transfers':
+            return (
+                <svg viewBox="0 0 24 24" aria-hidden="true">
+                    <path d="M7 7h11"></path>
+                    <path d="M14 4l4 3-4 3"></path>
+                    <path d="M17 17H6"></path>
+                    <path d="M10 14l-4 3 4 3"></path>
+                </svg>
+            );
+        case 'payments':
+            return (
+                <svg viewBox="0 0 24 24" aria-hidden="true">
+                    <path d="M12 3v18"></path>
+                    <path d="M17 7.5c0-1.9-2.2-3.5-5-3.5S7 5.6 7 7.5 9.2 11 12 11s5 1.6 5 3.5S14.8 18 12 18s-5-1.6-5-3.5"></path>
+                </svg>
+            );
+        case 'history':
+            return (
+                <svg viewBox="0 0 24 24" aria-hidden="true">
+                    <path d="M3 12a9 9 0 1 0 3-6.7"></path>
+                    <path d="M3 4v5h5"></path>
+                    <path d="M12 7v5l3 2"></path>
+                </svg>
+            );
+        case 'analytics':
+            return (
+                <svg viewBox="0 0 24 24" aria-hidden="true">
+                    <path d="M5 19V9"></path>
+                    <path d="M12 19V5"></path>
+                    <path d="M19 19v-7"></path>
+                </svg>
+            );
+        default:
+            return null;
+    }
+};
+
+const dashboardNavItems: Array<{ to: string; label: string; icon: DashboardNavIconName }> = [
+    { to: '/dashboard/accounts', label: 'Рахунки', icon: 'accounts' },
+    { to: '/dashboard/transfers', label: 'Перекази', icon: 'transfers' },
+    { to: '/dashboard/payments', label: 'Платежі', icon: 'payments' },
+    { to: '/dashboard/transactions', label: 'Історія', icon: 'history' },
+    { to: '/dashboard/analytics', label: 'Аналітика', icon: 'analytics' },
+];
+
+type DashboardTabsStyle = React.CSSProperties & {
+    '--dashboard-tab-count': string;
+};
+
 const UserDashboard: React.FC = () => {
+    const location = useLocation();
     const navigate = useNavigate();
     const queryClient = useQueryClient();
 
-    // React Query for Customer Data
-    const { data: customer, isLoading: loading, isError, error, refetch: refetchCustomer } = useQuery<CustomerData>({
-        queryKey: ['customer'],
-        queryFn: async () => {
-            const token = sessionStorage.getItem('accessToken') || localStorage.getItem('accessToken');
-            const res = await fetch('/api/customers/customer', {
-                method: 'GET',
-                headers: {
-                    'Content-Type': 'application/json',
-                    Authorization: token ? `Bearer ${token}` : ''
-                }
-            });
-            if (!res.ok) {
-                 if (res.status === 401 || res.status === 403) {
-                    sessionStorage.removeItem('accessToken');
-                    localStorage.removeItem('accessToken');
-                    localStorage.removeItem('customerData');
-                    navigate('/login');
-                    throw new Error('Unauthorized');
-                }
-                const body = await res.json().catch(() => ({} as { message?: string }));
-                throw new Error(body.message || 'Не вдалося отримати дані користувача');
-            }
-            return res.json();
-        },
-        staleTime: 60000, // 1 minute stale time
-        refetchInterval: 30000, // Auto refresh every 30 seconds
-    });
+    const {
+        customer,
+        accounts,
+        isLoading: loading,
+        error,
+        refetch: refetchCustomer,
+    } = useAccounts();
+    const isError = Boolean(error);
 
     const [selectedAccountIndex, setSelectedAccountIndex] = useState(0);
     const [showAddModal, setShowAddModal] = useState(false);
@@ -61,6 +105,7 @@ const UserDashboard: React.FC = () => {
     const [selectedAnalyticsAccount, setSelectedAnalyticsAccount] = useState<string>('');
     const [selectedMonth, setSelectedMonth] = useState<number>(new Date().getMonth());
     const [selectedYear, setSelectedYear] = useState<number>(new Date().getFullYear());
+    const [transferFlowState, setTransferFlowState] = useState<'idle' | 'sending-code' | 'awaiting-code' | 'verifying-code'>('idle');
 
 
     // Mutation for adding account
@@ -102,13 +147,67 @@ const UserDashboard: React.FC = () => {
 
     // Initialize analytics account remains same
     useEffect(() => {
-        if (customer?.accounts.length && !selectedAnalyticsAccount) {
-            setSelectedAnalyticsAccount(customer.accounts[0].accountNumber);
+        if (accounts.length && !selectedAnalyticsAccount) {
+            setSelectedAnalyticsAccount(accounts[0].accountNumber);
         }
-    }, [customer, selectedAnalyticsAccount]);
+    }, [accounts, selectedAnalyticsAccount]);
+
+    const dashboardTabsStyle: DashboardTabsStyle = {
+        '--dashboard-tab-count': `${dashboardNavItems.length}`,
+    };
+    const isTransferNavigationLocked = transferFlowState !== 'idle';
+
+    const handleLockedNavigationAttempt = (event: React.MouseEvent<HTMLElement>) => {
+        if (!isTransferNavigationLocked) {
+            return;
+        }
+
+        event.preventDefault();
+        event.stopPropagation();
+    };
+
+    useEffect(() => {
+        if (!copyMessage) return;
+
+        const timeoutId = window.setTimeout(() => {
+            setCopyMessage('');
+        }, 2800);
+
+        return () => window.clearTimeout(timeoutId);
+    }, [copyMessage]);
+
+    useEffect(() => {
+        if (!isTransferNavigationLocked || location.pathname.startsWith('/dashboard/transfers')) {
+            return;
+        }
+
+        navigate('/dashboard/transfers', { replace: true });
+    }, [isTransferNavigationLocked, location.pathname, navigate]);
+
+    useEffect(() => {
+        if (!isTransferNavigationLocked) {
+            return;
+        }
+
+        setShowProfile(false);
+    }, [isTransferNavigationLocked]);
+
+    useEffect(() => {
+        if (!isTransferNavigationLocked) {
+            return;
+        }
+
+        const handleBeforeUnload = (event: BeforeUnloadEvent) => {
+            event.preventDefault();
+            event.returnValue = '';
+        };
+
+        window.addEventListener('beforeunload', handleBeforeUnload);
+        return () => window.removeEventListener('beforeunload', handleBeforeUnload);
+    }, [isTransferNavigationLocked]);
 
     return (
-        <div className="user-dashboard">
+        <div className={`user-dashboard ${isTransferNavigationLocked ? 'dashboard-navigation-locked' : ''}`}>
             {copyMessage && <div className={`toast show`}>{copyMessage}</div>}
             <div className="dashboard-content">
                 <div className="dashboard-header">
@@ -121,7 +220,7 @@ const UserDashboard: React.FC = () => {
                         </div>
                         <div className="dashboard-actions">
                             <button className="profile-button" onClick={() => setShowProfile(!showProfile)}
-                                    aria-label="Відкрити профіль">
+                                    aria-label="Відкрити профіль" disabled={isTransferNavigationLocked}>
                                 <div className="profile-avatar">
                                     {customer ? `${customer.firstName.charAt(0)}${customer.lastName.charAt(0)}`.toUpperCase() : 'U'}
                                 </div>
@@ -129,19 +228,23 @@ const UserDashboard: React.FC = () => {
                         </div>
                     </div>
                 </div>
-                <div className="dashboard-tabs">
-                     <NavLink to="/dashboard/accounts" className={({ isActive }) => `tab-button ${isActive ? 'active' : ''}`}>
-                        Рахунки
-                    </NavLink>
-                    <NavLink to="/dashboard/transactions" className={({ isActive }) => `tab-button ${isActive ? 'active' : ''}`}>
-                        Транзакції
-                    </NavLink>
-                    <NavLink to="/dashboard/payments" className={({ isActive }) => `tab-button ${isActive ? 'active' : ''}`}>
-                        Платежі
-                    </NavLink>
-                    <NavLink to="/dashboard/transfers" className={({ isActive }) => `tab-button ${isActive ? 'active' : ''}`}>
-                        Перекази
-                    </NavLink>
+                <div
+                    className="dashboard-tabs"
+                    style={dashboardTabsStyle}
+                >
+                    {dashboardNavItems.map((item) => (
+                        <NavLink
+                            key={item.to}
+                            to={item.to}
+                            title={item.label}
+                            aria-label={item.label}
+                            aria-disabled={isTransferNavigationLocked}
+                            onClick={handleLockedNavigationAttempt}
+                            className={({ isActive }) => `tab-button ${isActive ? 'active' : ''} ${isTransferNavigationLocked ? 'is-disabled' : ''}`}
+                        >
+                            {item.label}
+                        </NavLink>
+                    ))}
                 </div>
                 {loading && (
                     <div className="loading">
@@ -160,75 +263,104 @@ const UserDashboard: React.FC = () => {
                     <div className="dashboard-grid">
                         <div className="dashboard-section">
                             {/* Section Title Logic - replicating previous behavior */}
-                            <Suspense fallback={<div className="loading-section">Loading section...</div>}>
-                            <Routes>
-                                <Route path="accounts" element={<h2 className="section-title">Мої рахунки</h2>} />
-                                <Route path="payments/*" element={<h2 className="section-title">Платежі</h2>} />
-                                <Route path="transfers" element={<h2 className="section-title">Перекази</h2>} />
-                                <Route path="analytics" element={<h2 className="section-title">Аналітика</h2>} />
-                                <Route path="*" element={null} />
-                            </Routes>
+                            <SectionErrorBoundary
+                                resetKey={location.pathname}
+                                onRetry={() => {
+                                    void refetchCustomer();
+                                }}
+                            >
+                                <Suspense fallback={<div className="loading-section">Loading section...</div>}>
+                                    <Routes>
+                                        <Route path="accounts" element={<h2 className="section-title">Мої рахунки</h2>} />
+                                        <Route path="payments/*" element={<h2 className="section-title">Платежі</h2>} />
+                                        <Route path="transfers" element={<h2 className="section-title">Перекази</h2>} />
+                                        <Route path="analytics" element={<h2 className="section-title">Аналітика</h2>} />
+                                        <Route path="*" element={null} />
+                                    </Routes>
 
-                            <Routes>
-                                <Route path="accounts" element={
-                                    <AccountsSection
-                                        accounts={customer.accounts}
-                                        selectedIndex={selectedAccountIndex}
-                                        onSelect={setSelectedAccountIndex}
-                                        onAddAccount={() => setShowAddModal(true)}
-                                        onCopy={(msg: string) => setCopyMessage(msg)}
-                                    />
-                                } />
-                                <Route path="transactions" element={
-                                    <TransactionsSection
-                                        accounts={customer.accounts}
-                                        selectedAccountIndex={selectedAccountIndex}
-                                        setSelectedAccountIndex={setSelectedAccountIndex}
-                                        filterStartDate={filterStartDate}
-                                        setFilterStartDate={setFilterStartDate}
-                                        filterEndDate={filterEndDate}
-                                        setFilterEndDate={setFilterEndDate}
-                                        filterType={filterType}
-                                        setFilterType={setFilterType}
-                                        onAnalytics={() => navigate('/dashboard/analytics')}
-                                    />
-                                } />
-                                <Route path="payments/*" element={
-                                    <PaymentsSection
-                                        accounts={customer.accounts}
-                                        selectedAccountIndex={selectedAccountIndex}
-                                        setSelectedAccountIndex={setSelectedAccountIndex}
-                                    />
-                                } />
-                                <Route path="transfers" element={
-                                    <TransfersSection
-                                        customer={customer}
-                                        onTransferComplete={async () => {
-                                             await refetchCustomer();
-                                        }}
-                                        onCopy={(msg: string) => setCopyMessage(msg)}
-                                        selectedAccountIndex={selectedAccountIndex}
-                                        setSelectedAccountIndex={setSelectedAccountIndex}
-                                    />
-                                } />
-                                <Route path="analytics" element={
-                                    <AnalyticsSection
-                                        customer={customer}
-                                        selectedAnalyticsAccount={selectedAnalyticsAccount}
-                                        setSelectedAnalyticsAccount={setSelectedAnalyticsAccount}
-                                        selectedMonth={selectedMonth}
-                                        setSelectedMonth={setSelectedMonth}
-                                        selectedYear={selectedYear}
-                                        setSelectedYear={setSelectedYear}
-                                        onBack={() => navigate('/dashboard/accounts')}
-                                     />
-                                } />
-                                <Route path="*" element={<Navigate to="accounts" replace />} />
-                            </Routes>
-                            </Suspense>
+                                    <Routes>
+                                        <Route path="accounts" element={
+                                            <AccountsSection
+                                                accounts={accounts}
+                                                selectedIndex={selectedAccountIndex}
+                                                onSelect={setSelectedAccountIndex}
+                                                onAddAccount={() => setShowAddModal(true)}
+                                                onCopy={(msg: string) => setCopyMessage(msg)}
+                                            />
+                                        } />
+                                        <Route path="transactions" element={
+                                            <TransactionsSection
+                                                accounts={accounts}
+                                                selectedAccountIndex={selectedAccountIndex}
+                                                setSelectedAccountIndex={setSelectedAccountIndex}
+                                                filterStartDate={filterStartDate}
+                                                setFilterStartDate={setFilterStartDate}
+                                                filterEndDate={filterEndDate}
+                                                setFilterEndDate={setFilterEndDate}
+                                                filterType={filterType}
+                                                setFilterType={setFilterType}
+                                                onAnalytics={() => navigate('/dashboard/analytics')}
+                                            />
+                                        } />
+                                        <Route path="payments/*" element={
+                                            <PaymentsSection
+                                                accounts={accounts}
+                                                selectedAccountIndex={selectedAccountIndex}
+                                                setSelectedAccountIndex={setSelectedAccountIndex}
+                                            />
+                                        } />
+                                        <Route path="transfers" element={
+                                            customer ? (
+                                                <TransfersSection
+                                                    customer={customer}
+                                                    onTransferComplete={async () => {
+                                                        await refetchCustomer();
+                                                    }}
+                                                    onCopy={(msg: string) => setCopyMessage(msg)}
+                                                    selectedAccountIndex={selectedAccountIndex}
+                                                    setSelectedAccountIndex={setSelectedAccountIndex}
+                                                    onTransferFlowStateChange={setTransferFlowState}
+                                                />
+                                            ) : null
+                                        } />
+                                        <Route path="analytics" element={
+                                            customer ? (
+                                                <AnalyticsSection
+                                                    customer={customer}
+                                                    selectedAnalyticsAccount={selectedAnalyticsAccount}
+                                                    setSelectedAnalyticsAccount={setSelectedAnalyticsAccount}
+                                                    selectedMonth={selectedMonth}
+                                                    setSelectedMonth={setSelectedMonth}
+                                                    selectedYear={selectedYear}
+                                                    setSelectedYear={setSelectedYear}
+                                                    onBack={() => navigate('/dashboard/accounts')}
+                                                 />
+                                            ) : null
+                                        } />
+                                        <Route path="*" element={<Navigate to="accounts" replace />} />
+                                    </Routes>
+                                </Suspense>
+                            </SectionErrorBoundary>
                         </div>
                     </div>
-                )}
+            )}
+
+            <nav className="dashboard-bottom-nav" aria-label="Основна навігація">
+                {dashboardNavItems.map((item) => (
+                    <NavLink
+                        key={item.to}
+                        to={item.to}
+                        aria-disabled={isTransferNavigationLocked}
+                        onClick={handleLockedNavigationAttempt}
+                        className={({ isActive }) => `dashboard-bottom-nav__link ${isActive ? 'active' : ''} ${isTransferNavigationLocked ? 'is-disabled' : ''}`}
+                    >
+                        <span className="dashboard-bottom-nav__icon">
+                            <DashboardNavIcon name={item.icon} />
+                        </span>
+                        <span className="dashboard-bottom-nav__label">{item.label}</span>
+                    </NavLink>
+                ))}
+            </nav>
             </div>
 
             {/* Profile Sidebar */}

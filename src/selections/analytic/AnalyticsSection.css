@@ -150,8 +150,9 @@
 
 .analytics-grid {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(340px, 1fr));
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
     gap: 12px;
+    flex-grow: 1;
 }
 
 .panel-card {
@@ -171,6 +172,7 @@
 
 .donut-wrap {
     height: 260px;
+    min-height: 260px;
 }
 
 .legend-row {

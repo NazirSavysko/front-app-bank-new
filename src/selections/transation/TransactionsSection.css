@@ -38,25 +38,31 @@
 .transactions-list {
     min-height: auto;
     width: 100%;
-    max-width: 1200px; /* Розширюємо для ПК */
+    max-width: 1200px; /* Wider desktop layout */
     margin: 0 auto;
+    height: calc(100vh - 280px);
+    display: flex;
+    flex-direction: column;
+    min-height: 0;
+    overflow: hidden;
+    overflow-x: hidden;
 }
 
-/* Список карток: скролимо тільки його */
+/* Transaction cards area */
 .account-transactions {
     width: 100%;
-    max-height: 520px; /* Висота області перегляду */
+    flex: 1;
+    min-height: 0;
     overflow-y: auto;
     overflow-x: hidden;
-    padding-right: 0.5rem; /* Відступ під скролбар */
-    padding-bottom: 0.5rem;
-    scroll-behavior: smooth;
+    padding-right: 0.5rem; /* Space for scrollbar */
+    padding-bottom: 1rem;
     position: relative;
-
-    /* Дизайн скролбару */
+    scroll-behavior: smooth;
     scrollbar-width: thin;
     scrollbar-color: rgba(100,116,139,.35) transparent;
 }
+
 .account-transactions::-webkit-scrollbar { width: 8px; }
 .account-transactions::-webkit-scrollbar-thumb {
     background: rgba(100,116,139,.35);
@@ -66,7 +72,7 @@
 }
 .account-transactions:hover::-webkit-scrollbar-thumb { background: rgba(100,116,139,.55); }
 
-/* Панель фільтрів: звичайна, не липка, щоб прокручувалася */
+/* Filter panel remains part of the normal scrolling flow */
 .transactions-filter {
     position: relative;
     z-index: 10;
@@ -443,9 +449,13 @@
     margin-bottom: 0;
 }
 
-/* Адаптив */
+/* Responsive */
 @media (max-width: 820px) {
-    .transactions-list { max-width: 100%; padding: 0 .5rem; }
+    .transactions-list {
+        max-width: 100%;
+        padding: 0 .5rem;
+        height: calc(100dvh - 240px);
+    }
     .transactions-filter {
         padding: 1rem;
         gap: 1rem;
@@ -458,11 +468,17 @@
     .transaction-icon { width: 36px; height: 36px; }
 }
 @media (max-width: 480px) {
+    .transactions-list {
+        height: calc(100dvh - 210px);
+    }
     .analytics-button { padding: .55rem .85rem; }
     .transactions-filter {
         padding: 1rem;
         grid-template-columns: 1fr; /* 1 колонка на телефонах */
         gap: 1rem;
+    }
+    .account-transactions {
+        padding-bottom: 5rem;
     }
     .transaction-body { grid-template-columns: 1fr; }
     .transaction-summary {
@@ -513,6 +529,17 @@
     .transaction-header { border-bottom-color: var(--border-soft); }
     .transaction-footer { border-top-color: var(--border-soft); }
     .account-transactions p { background: rgba(31,41,55,.85); color: var(--text-muted); border-color: var(--border-soft); }
+
+    /* Fix expanded card background in dark mode */
+    .transaction-card.expanded {
+        background: var(--bg-card-dark);
+        color: var(--text-main);
+    }
+    .transaction-card.expanded strong,
+    .transaction-card.expanded span,
+    .transaction-card.expanded div {
+        color: inherit;
+    }
 }
 
 /* Pagination Controls */
