@@ -121,6 +121,12 @@
     overflow: hidden;
 }
 
+.sender-card--fop {
+    background: linear-gradient(135deg, #1a365d 0%, #2d3748 55%, #b7791f 100%);
+    border-color: rgba(184, 134, 11, 0.35);
+    box-shadow: 0 8px 24px rgba(26, 54, 93, 0.32);
+}
+
 .sender-card::before {
     content: '';
     position: absolute;
@@ -133,6 +139,10 @@
     box-shadow: 0 0 0 3px #fff, 0 20px 40px rgba(79, 70, 229, 0.5);
     transform: translateY(-2px);
     z-index: 5;
+}
+
+.sender-card--fop.selected {
+    box-shadow: 0 0 0 3px rgba(255, 255, 255, 0.96), 0 20px 40px rgba(26, 54, 93, 0.42);
 }
 
 .card-type {
@@ -259,6 +269,24 @@
     display: flex;
     justify-content: space-between;
     align-items: center;
+}
+
+.card-header-actions {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.sender-card-badge {
+    padding: 0.22rem 0.6rem;
+    border-radius: 999px;
+    font-size: 0.68rem;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: #1a202c;
+    background: rgba(255, 255, 255, 0.9);
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.12);
 }
 
 /* Old definitions removed, see above for new styles */
@@ -583,6 +611,15 @@
     .card-type {
         font-size: 0.62rem;
         letter-spacing: 1.1px;
+    }
+
+    .card-header-actions {
+        gap: 0.35rem;
+    }
+
+    .sender-card-badge {
+        font-size: 0.56rem;
+        padding: 0.18rem 0.45rem;
     }
 
     .selected-check {

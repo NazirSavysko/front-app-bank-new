@@ -373,7 +373,7 @@ const TransfersSection: React.FC<TransfersSectionProps> = ({
                         {customer?.accounts.map(account => (
                             <div
                                 key={account.card.cardNumber}
-                                className={`sender-card ${
+                                className={`sender-card ${account.accountType === 'FOP' ? 'sender-card--fop' : ''} ${
                                     transferData.senderCardNumber === account.card.cardNumber ? 'selected' : ''
                                 } ${account.balance < 0.01 ? 'insufficient-funds' : ''}`}
                                 onClick={() => selectSenderCard(account.card.cardNumber)}
@@ -383,9 +383,12 @@ const TransfersSection: React.FC<TransfersSectionProps> = ({
                                 <div className="mini-card">
                                     <div className="card-header">
                                         <div className="card-type">{account.currency} картка</div>
-                                        {transferData.senderCardNumber === account.card.cardNumber && (
-                                            <div className="selected-check">✓</div>
-                                        )}
+                                        <div className="card-header-actions">
+                                            {account.accountType === 'FOP' && <div className="sender-card-badge">ФОП</div>}
+                                            {transferData.senderCardNumber === account.card.cardNumber && (
+                                                <div className="selected-check">✓</div>
+                                            )}
+                                        </div>
                                     </div>
                                     <div className="card-number" onClick={(e) => {
                                         e.stopPropagation();
@@ -421,7 +424,7 @@ const TransfersSection: React.FC<TransfersSectionProps> = ({
                     {transferData.senderCardNumber && selectedAccount && (
                         <div className="selected-card-info">
                             <span>
-                Обрано картку: **** {transferData.senderCardNumber.slice(-4)} (
+                Обрано картку: {selectedAccount.accountType === 'FOP' ? 'ФОП • ' : ''}**** {transferData.senderCardNumber.slice(-4)} (
                                 {selectedAccount.balance.toLocaleString()} {selectedAccount.currency})
               </span>
                         </div>
