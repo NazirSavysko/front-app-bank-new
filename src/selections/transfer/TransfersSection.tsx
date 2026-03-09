@@ -554,14 +554,7 @@ const TransfersSection: React.FC<TransfersSectionProps> = ({
                 <button
                     className="btn-send"
                     onClick={sendEmailVerification}
-                    disabled={
-                        emailSending ||
-                        validationErrors.length > 0 ||
-                        !transferData.senderCardNumber ||
-                        !transferData.recipientCardNumber ||
-                        !transferData.amount ||
-                        parseFloat(transferData.amount) <= 0
-                    }
+                    disabled={emailSending}
                     type="button"
                 >
                     <span className="btn-icon">{emailSending ? '⏳' : '🚀'}</span>

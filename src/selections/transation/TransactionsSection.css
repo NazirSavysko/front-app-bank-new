@@ -529,6 +529,17 @@
     .transaction-header { border-bottom-color: var(--border-soft); }
     .transaction-footer { border-top-color: var(--border-soft); }
     .account-transactions p { background: rgba(31,41,55,.85); color: var(--text-muted); border-color: var(--border-soft); }
+
+    /* Fix expanded card background in dark mode */
+    .transaction-card.expanded {
+        background: var(--bg-card-dark);
+        color: var(--text-main);
+    }
+    .transaction-card.expanded strong,
+    .transaction-card.expanded span,
+    .transaction-card.expanded div {
+        color: inherit;
+    }
 }
 
 /* Pagination Controls */
