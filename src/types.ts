@@ -54,10 +54,10 @@ export type AccountCurrency = 'UAH' | 'USD' | 'EUR';
 export interface Account {
     id: number;
     accountNumber: string;
-    accountType?: AccountType;
+    accountType: AccountType;
     balance: number;
     currency: AccountCurrency;
-    edrpou?: string;
+    edrpou: string;
     status: string;
     card: {
         cardNumber: string;

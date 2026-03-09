@@ -20,10 +20,14 @@ const IBANPaymentForm: React.FC<IBANPaymentFormProps> = ({
                                                               selectedAccountIndex,
                                                               setSelectedAccountIndex,
                                                            onBack,
-                                                           }) => {
+                                                            }) => {
     const queryClient = useQueryClient();
     const selectedAccount = accounts[selectedAccountIndex];
-    const isFopSender = selectedAccount?.accountType === 'FOP' || Boolean(selectedAccount?.edrpou);
+    const senderTaxIdMessage = selectedAccount
+        ? selectedAccount.accountType === 'FOP'
+            ? `Ви відправляєте як ФОП. Ваш ЄДРПОУ: ${selectedAccount.edrpou}`
+            : `Ваш ІПН: ${selectedAccount.edrpou}`
+        : null;
     const [recipientName, setRecipientName] = useState('');
     const [recipientIban, setRecipientIban] = useState('');
     const [taxNumber, setTaxNumber] = useState('');
@@ -116,9 +120,9 @@ const IBANPaymentForm: React.FC<IBANPaymentFormProps> = ({
                             <option disabled>Немає доступних карток</option>
                         )}
                     </select>
-                    {isFopSender && selectedAccount?.edrpou && (
+                    {senderTaxIdMessage && (
                         <div className="account-info-note">
-                            Ви відправляєте як ФОП. Ваш ІПН: {selectedAccount.edrpou}
+                            {senderTaxIdMessage}
                         </div>
                     )}
 

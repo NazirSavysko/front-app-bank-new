@@ -19,7 +19,8 @@ const AccountCard: React.FC<AccountCardProps> = ({ account, onCopy }) => {
     const [showCvv, setShowCvv] = useState(false);
     const [showNumber, setShowNumber] = useState(false);
     const [showAccountNumber, setShowAccountNumber] = useState(false);
-    const isFopAccount = account.accountType === 'FOP' || Boolean(account.edrpou);
+    const isFopAccount = account.accountType === 'FOP';
+    const taxIdLabel = isFopAccount ? 'ЄДРПОУ:' : 'ІПН / РНОКПП:';
 
     /** Format the card number into chunks of four digits separated by spaces. */
     const formatCardNumber = (num: string) => num.replace(/(\d{4})(?=\d)/g, '$1 ');
@@ -107,12 +108,10 @@ const AccountCard: React.FC<AccountCardProps> = ({ account, onCopy }) => {
                     Баланс: {account.balance.toLocaleString()} {account.currency}
                 </div>
                 <div className="card-status">Статус: {account.status}</div>
-                {account.edrpou && (
-                    <div className="account-tax-id">
-                        <span className="account-tax-id__label">ЄДРПОУ / ІПН</span>
-                        <span className="account-tax-id__value">{account.edrpou}</span>
-                    </div>
-                )}
+                <div className="account-tax-id">
+                    <span className="account-tax-id__label">{taxIdLabel}</span>
+                    <span className="account-tax-id__value">{account.edrpou}</span>
+                </div>
                 <div className="account-number" onClick={handleAccountClick}>
                     Номер рахунку: {showAccountNumber ? account.accountNumber : maskAccountNumber(account.accountNumber)}
                 </div>
