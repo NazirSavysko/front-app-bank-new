@@ -240,27 +240,31 @@ const UserDashboard: React.FC = () => {
                                             />
                                         } />
                                         <Route path="transfers" element={
-                                            <TransfersSection
-                                                customer={customer}
-                                                onTransferComplete={async () => {
-                                                    await refetchCustomer();
-                                                }}
-                                                onCopy={(msg: string) => setCopyMessage(msg)}
-                                                selectedAccountIndex={selectedAccountIndex}
-                                                setSelectedAccountIndex={setSelectedAccountIndex}
-                                            />
+                                            customer ? (
+                                                <TransfersSection
+                                                    customer={customer}
+                                                    onTransferComplete={async () => {
+                                                        await refetchCustomer();
+                                                    }}
+                                                    onCopy={(msg: string) => setCopyMessage(msg)}
+                                                    selectedAccountIndex={selectedAccountIndex}
+                                                    setSelectedAccountIndex={setSelectedAccountIndex}
+                                                />
+                                            ) : null
                                         } />
                                         <Route path="analytics" element={
-                                            <AnalyticsSection
-                                                customer={customer}
-                                                selectedAnalyticsAccount={selectedAnalyticsAccount}
-                                                setSelectedAnalyticsAccount={setSelectedAnalyticsAccount}
-                                                selectedMonth={selectedMonth}
-                                                setSelectedMonth={setSelectedMonth}
-                                                selectedYear={selectedYear}
-                                                setSelectedYear={setSelectedYear}
-                                                onBack={() => navigate('/dashboard/accounts')}
-                                             />
+                                            customer ? (
+                                                <AnalyticsSection
+                                                    customer={customer}
+                                                    selectedAnalyticsAccount={selectedAnalyticsAccount}
+                                                    setSelectedAnalyticsAccount={setSelectedAnalyticsAccount}
+                                                    selectedMonth={selectedMonth}
+                                                    setSelectedMonth={setSelectedMonth}
+                                                    selectedYear={selectedYear}
+                                                    setSelectedYear={setSelectedYear}
+                                                    onBack={() => navigate('/dashboard/accounts')}
+                                                 />
+                                            ) : null
                                         } />
                                         <Route path="*" element={<Navigate to="accounts" replace />} />
                                     </Routes>

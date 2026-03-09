@@ -1,4 +1,3 @@
-// src/selections/transation/TransactionsSection.tsx
 import React, { useEffect, useRef } from 'react';
 import type { Account, Transaction } from '../../types';
 import TransactionCard from '../../components/TransactionCard.tsx';
