@@ -4,6 +4,10 @@ import { createIbanPayment } from '../../api';
 import type { Account } from '../../types';
 import './PaymentForms.css';
 
+const UKRAINIAN_IBAN_REGEX = /^UA\d{6}[A-Z0-9]{26}$/;
+const UKRAINIAN_IBAN_ERROR =
+    'Невірний формат IBAN. IBAN має починатися з UA, потім 6 цифр, потім 26 символів (великі літери або цифри), всього 34 символи без пробілів.';
+
 interface IBANPaymentFormProps {
     accounts: Account[];
     selectedAccountIndex: number;
@@ -12,12 +16,18 @@ interface IBANPaymentFormProps {
 }
 
 const IBANPaymentForm: React.FC<IBANPaymentFormProps> = ({
-                                                             accounts,
-                                                             selectedAccountIndex,
-                                                             setSelectedAccountIndex,
-                                                          onBack,
-                                                          }) => {
+                                                              accounts,
+                                                              selectedAccountIndex,
+                                                              setSelectedAccountIndex,
+                                                           onBack,
+                                                            }) => {
     const queryClient = useQueryClient();
+    const selectedAccount = accounts[selectedAccountIndex];
+    const senderTaxIdMessage = selectedAccount
+        ? selectedAccount.accountType === 'FOP'
+            ? `Ви відправляєте як ФОП. Ваш ЄДРПОУ: ${selectedAccount.edrpou}`
+            : `Ваш ІПН: ${selectedAccount.edrpou}`
+        : null;
     const [recipientName, setRecipientName] = useState('');
     const [recipientIban, setRecipientIban] = useState('');
     const [taxNumber, setTaxNumber] = useState('');
@@ -25,9 +35,22 @@ const IBANPaymentForm: React.FC<IBANPaymentFormProps> = ({
     const [amount, setAmount] = useState('');
     const [isLoading, setIsLoading] = useState(false);
     const [error, setError] = useState<string | null>(null);
+    const ibanError =
+        recipientIban.length === 0
+            ? null
+            : !UKRAINIAN_IBAN_REGEX.test(recipientIban)
+                ? UKRAINIAN_IBAN_ERROR
+                : null;
+    const isSubmitDisabled = isLoading || Boolean(ibanError);
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
+
+        if (ibanError) {
+            setError(ibanError);
+            return;
+        }
+
         setError(null);
         setIsLoading(true);
 
@@ -97,6 +120,11 @@ const IBANPaymentForm: React.FC<IBANPaymentFormProps> = ({
                             <option disabled>Немає доступних карток</option>
                         )}
                     </select>
+                    {senderTaxIdMessage && (
+                        <div className="account-info-note">
+                            {senderTaxIdMessage}
+                        </div>
+                    )}
 
                     <label className="input-label mt-4">Назва отримувача (ПІБ або Компанія)</label>
                     <input
@@ -112,11 +140,16 @@ const IBANPaymentForm: React.FC<IBANPaymentFormProps> = ({
                     <input
                         type="text"
                         value={recipientIban}
-                        onChange={(e) => setRecipientIban(e.target.value)}
+                        onChange={(e) => setRecipientIban(e.target.value.toUpperCase().slice(0, 34))}
                         placeholder="UA000000000000000000000000000"
                         required
                         className="form-input"
+                        maxLength={34}
+                        autoCapitalize="characters"
+                        spellCheck={false}
+                        aria-invalid={Boolean(ibanError)}
                     />
+                    {ibanError && <div className="field-error-message">{ibanError}</div>}
 
                     <label className="input-label mt-4">ЄДРПОУ / ІПН</label>
                     <input
@@ -152,7 +185,7 @@ const IBANPaymentForm: React.FC<IBANPaymentFormProps> = ({
                 </div>
 
                 <div className="form-submit-container">
-                    <button type="submit" className="submit-button-primary" disabled={isLoading}>
+                    <button type="submit" className="submit-button-primary" disabled={isSubmitDisabled}>
                         {isLoading ? 'Обробка...' : 'Сплатити'}
                     </button>
                 </div>
