@@ -8,27 +8,14 @@
     margin: 0;
     align-items: stretch;
     scroll-snap-type: x mandatory;
-    scrollbar-width: thin;
-    scrollbar-color: rgba(102, 126, 234, 0.32) transparent;
+    scrollbar-width: none; /* Hide scrollbar Firefox */
+    -ms-overflow-style: none; /* Hide scrollbar IE/Edge */
     -webkit-overflow-scrolling: touch;
 }
 
+/* Hide scrollbar Webkit */
 .accounts-list::-webkit-scrollbar {
-    height: 8px;
-}
-
-.accounts-list::-webkit-scrollbar-track {
-    background: rgba(226, 232, 240, 0.7);
-    border-radius: 999px;
-}
-
-.accounts-list::-webkit-scrollbar-thumb {
-    background: rgba(102, 126, 234, 0.35);
-    border-radius: 999px;
-}
-
-.accounts-list:hover::-webkit-scrollbar-thumb {
-    background: rgba(102, 126, 234, 0.5);
+    display: none;
 }
 
 .account-wrapper {
