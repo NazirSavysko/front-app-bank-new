@@ -70,6 +70,10 @@ const dashboardNavItems: Array<{ to: string; label: string; icon: DashboardNavIc
     { to: '/dashboard/analytics', label: 'Аналітика', icon: 'analytics' },
 ];
 
+type DashboardTabsStyle = React.CSSProperties & {
+    '--dashboard-tab-count': string;
+};
+
 const UserDashboard: React.FC = () => {
     const location = useLocation();
     const navigate = useNavigate();
@@ -147,6 +151,10 @@ const UserDashboard: React.FC = () => {
         }
     }, [accounts, selectedAnalyticsAccount]);
 
+    const dashboardTabsStyle: DashboardTabsStyle = {
+        '--dashboard-tab-count': `${dashboardNavItems.length}`,
+    };
+
     return (
         <div className="user-dashboard">
             {copyMessage && <div className={`toast show`}>{copyMessage}</div>}
@@ -169,9 +177,18 @@ const UserDashboard: React.FC = () => {
                         </div>
                     </div>
                 </div>
-                <div className="dashboard-tabs">
+                <div
+                    className="dashboard-tabs"
+                    style={dashboardTabsStyle}
+                >
                     {dashboardNavItems.map((item) => (
-                        <NavLink key={item.to} to={item.to} className={({ isActive }) => `tab-button ${isActive ? 'active' : ''}`}>
+                        <NavLink
+                            key={item.to}
+                            to={item.to}
+                            title={item.label}
+                            aria-label={item.label}
+                            className={({ isActive }) => `tab-button ${isActive ? 'active' : ''}`}
+                        >
                             {item.label}
                         </NavLink>
                     ))}

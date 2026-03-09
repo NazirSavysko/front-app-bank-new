@@ -121,38 +121,37 @@
    TABS (HORIZONTAL SCROLL)
    ========================================= */
 .dashboard-tabs {
-    display: flex;
-    gap: 0.5rem;
+    display: grid;
+    grid-template-columns: repeat(var(--dashboard-tab-count, 5), minmax(0, 1fr));
+    gap: 0.65rem;
     background: rgba(255, 255, 255, 0.9);
     border-radius: 20px;
-    padding: 0.45rem;
-    overflow-x: auto;
+    padding: 0.55rem;
+    width: 100%;
     box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
-
-    /* Hide scrollbar for Firefox */
-    scrollbar-width: none;
-    -ms-overflow-style: none; /* IE and Edge */
-}
-
-/* Hide scrollbar for Chrome, Safari and Opera */
-.dashboard-tabs::-webkit-scrollbar {
-    display: none;
 }
 
 .tab-button {
-    flex: 1 1 0;
-    min-height: 44px;
-    padding: 0.7rem 1rem;
+    min-width: 0;
+    min-height: 52px;
+    padding: 0.85rem 1rem;
     border: 0;
     background: transparent;
     border-radius: 999px;
-    font-size: 0.9rem;
+    font-size: 0.98rem;
     font-weight: 600;
+    line-height: 1.2;
     color: #718096;
     cursor: pointer;
     text-align: center;
     transition: all 0.2s ease-in-out;
     text-decoration: none;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    display: flex;
+    align-items: center;
+    justify-content: center;
 }
 
 .tab-button:hover {
@@ -544,9 +543,8 @@
 
 @media (min-width: 769px) {
     .dashboard-tabs {
-        display: flex;
-        width: 100%;
-        flex-wrap: nowrap;
+        display: grid;
+        grid-template-columns: repeat(var(--dashboard-tab-count, 5), minmax(0, 1fr));
     }
 }
 
