@@ -211,4 +211,4 @@ const TransactionCard: React.FC<TransactionCardProps> = ({ transaction }) => {
     );
 };
 
-export default TransactionCard;
+export default React.memo(TransactionCard);

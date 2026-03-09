@@ -1,9 +1,11 @@
 import React, {useEffect, useState, lazy, Suspense} from 'react';
-import { Routes, Route, Navigate, NavLink, useNavigate } from 'react-router-dom';
-import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import type {AccountCurrency, AccountType, CustomerData} from './types';
+import { Routes, Route, Navigate, NavLink, useLocation, useNavigate } from 'react-router-dom';
+import { useMutation, useQueryClient } from '@tanstack/react-query';
+import type {AccountCurrency, AccountType} from './types';
 import './UserDashboard.css';
 import {createAccount} from "./api.ts";
+import SectionErrorBoundary from './components/SectionErrorBoundary';
+import { useAccounts } from './hooks/useAccounts';
 
 const AccountsSection = lazy(() => import('./selections/account/AccountsSection.tsx'));
 const TransactionsSection = lazy(() => import('./selections/transation/TransactionsSection.tsx'));
@@ -69,37 +71,18 @@ const dashboardNavItems: Array<{ to: string; label: string; icon: DashboardNavIc
 ];
 
 const UserDashboard: React.FC = () => {
+    const location = useLocation();
     const navigate = useNavigate();
     const queryClient = useQueryClient();
 
-    // React Query for Customer Data
-    const { data: customer, isLoading: loading, isError, error, refetch: refetchCustomer } = useQuery<CustomerData>({
-        queryKey: ['customer'],
-        queryFn: async () => {
-            const token = sessionStorage.getItem('accessToken') || localStorage.getItem('accessToken');
-            const res = await fetch('/api/customers/customer', {
-                method: 'GET',
-                headers: {
-                    'Content-Type': 'application/json',
-                    Authorization: token ? `Bearer ${token}` : ''
-                }
-            });
-            if (!res.ok) {
-                 if (res.status === 401 || res.status === 403) {
-                    sessionStorage.removeItem('accessToken');
-                    localStorage.removeItem('accessToken');
-                    localStorage.removeItem('customerData');
-                    navigate('/login');
-                    throw new Error('Unauthorized');
-                }
-                const body = await res.json().catch(() => ({} as { message?: string }));
-                throw new Error(body.message || 'Не вдалося отримати дані користувача');
-            }
-            return res.json();
-        },
-        staleTime: 60000, // 1 minute stale time
-        refetchInterval: 30000, // Auto refresh every 30 seconds
-    });
+    const {
+        customer,
+        accounts,
+        isLoading: loading,
+        error,
+        refetch: refetchCustomer,
+    } = useAccounts();
+    const isError = Boolean(error);
 
     const [selectedAccountIndex, setSelectedAccountIndex] = useState(0);
     const [showAddModal, setShowAddModal] = useState(false);
@@ -159,10 +142,10 @@ const UserDashboard: React.FC = () => {
 
     // Initialize analytics account remains same
     useEffect(() => {
-        if (customer?.accounts.length && !selectedAnalyticsAccount) {
-            setSelectedAnalyticsAccount(customer.accounts[0].accountNumber);
+        if (accounts.length && !selectedAnalyticsAccount) {
+            setSelectedAnalyticsAccount(accounts[0].accountNumber);
         }
-    }, [customer, selectedAnalyticsAccount]);
+    }, [accounts, selectedAnalyticsAccount]);
 
     return (
         <div className="user-dashboard">
@@ -210,72 +193,83 @@ const UserDashboard: React.FC = () => {
                     <div className="dashboard-grid">
                         <div className="dashboard-section">
                             {/* Section Title Logic - replicating previous behavior */}
-                            <Suspense fallback={<div className="loading-section">Loading section...</div>}>
-                            <Routes>
-                                <Route path="accounts" element={<h2 className="section-title">Мої рахунки</h2>} />
-                                <Route path="payments/*" element={<h2 className="section-title">Платежі</h2>} />
-                                <Route path="transfers" element={<h2 className="section-title">Перекази</h2>} />
-                                <Route path="analytics" element={<h2 className="section-title">Аналітика</h2>} />
-                                <Route path="*" element={null} />
-                            </Routes>
+                            <SectionErrorBoundary
+                                resetKey={location.pathname}
+                                onRetry={() => {
+                                    void refetchCustomer();
+                                }}
+                            >
+                                <Suspense fallback={<div className="loading-section">Loading section...</div>}>
+                                    <Routes>
+                                        <Route path="accounts" element={<h2 className="section-title">Мої рахунки</h2>} />
+                                        <Route path="payments/*" element={<h2 className="section-title">Платежі</h2>} />
+                                        <Route path="transfers" element={<h2 className="section-title">Перекази</h2>} />
+                                        <Route path="analytics" element={<h2 className="section-title">Аналітика</h2>} />
+                                        <Route path="*" element={null} />
+                                    </Routes>
 
-                            <Routes>
-                                <Route path="accounts" element={
-                                    <AccountsSection
-                                        accounts={customer.accounts}
-                                        selectedIndex={selectedAccountIndex}
-                                        onSelect={setSelectedAccountIndex}
-                                        onAddAccount={() => setShowAddModal(true)}
-                                        onCopy={(msg: string) => setCopyMessage(msg)}
-                                    />
-                                } />
-                                <Route path="transactions" element={
-                                    <TransactionsSection
-                                        accounts={customer.accounts}
-                                        selectedAccountIndex={selectedAccountIndex}
-                                        setSelectedAccountIndex={setSelectedAccountIndex}
-                                        filterStartDate={filterStartDate}
-                                        setFilterStartDate={setFilterStartDate}
-                                        filterEndDate={filterEndDate}
-                                        setFilterEndDate={setFilterEndDate}
-                                        filterType={filterType}
-                                        setFilterType={setFilterType}
-                                        onAnalytics={() => navigate('/dashboard/analytics')}
-                                    />
-                                } />
-                                <Route path="payments/*" element={
-                                    <PaymentsSection
-                                        accounts={customer.accounts}
-                                        selectedAccountIndex={selectedAccountIndex}
-                                        setSelectedAccountIndex={setSelectedAccountIndex}
-                                    />
-                                } />
-                                <Route path="transfers" element={
-                                    <TransfersSection
-                                        customer={customer}
-                                        onTransferComplete={async () => {
-                                             await refetchCustomer();
-                                        }}
-                                        onCopy={(msg: string) => setCopyMessage(msg)}
-                                        selectedAccountIndex={selectedAccountIndex}
-                                        setSelectedAccountIndex={setSelectedAccountIndex}
-                                    />
-                                } />
-                                <Route path="analytics" element={
-                                    <AnalyticsSection
-                                        customer={customer}
-                                        selectedAnalyticsAccount={selectedAnalyticsAccount}
-                                        setSelectedAnalyticsAccount={setSelectedAnalyticsAccount}
-                                        selectedMonth={selectedMonth}
-                                        setSelectedMonth={setSelectedMonth}
-                                        selectedYear={selectedYear}
-                                        setSelectedYear={setSelectedYear}
-                                        onBack={() => navigate('/dashboard/accounts')}
-                                     />
-                                } />
-                                <Route path="*" element={<Navigate to="accounts" replace />} />
-                            </Routes>
-                            </Suspense>
+                                    <Routes>
+                                        <Route path="accounts" element={
+                                            <AccountsSection
+                                                accounts={accounts}
+                                                selectedIndex={selectedAccountIndex}
+                                                onSelect={setSelectedAccountIndex}
+                                                onAddAccount={() => setShowAddModal(true)}
+                                                onCopy={(msg: string) => setCopyMessage(msg)}
+                                            />
+                                        } />
+                                        <Route path="transactions" element={
+                                            <TransactionsSection
+                                                accounts={accounts}
+                                                selectedAccountIndex={selectedAccountIndex}
+                                                setSelectedAccountIndex={setSelectedAccountIndex}
+                                                filterStartDate={filterStartDate}
+                                                setFilterStartDate={setFilterStartDate}
+                                                filterEndDate={filterEndDate}
+                                                setFilterEndDate={setFilterEndDate}
+                                                filterType={filterType}
+                                                setFilterType={setFilterType}
+                                                onAnalytics={() => navigate('/dashboard/analytics')}
+                                            />
+                                        } />
+                                        <Route path="payments/*" element={
+                                            <PaymentsSection
+                                                accounts={accounts}
+                                                selectedAccountIndex={selectedAccountIndex}
+                                                setSelectedAccountIndex={setSelectedAccountIndex}
+                                            />
+                                        } />
+                                        <Route path="transfers" element={
+                                            customer ? (
+                                                <TransfersSection
+                                                    customer={customer}
+                                                    onTransferComplete={async () => {
+                                                        await refetchCustomer();
+                                                    }}
+                                                    onCopy={(msg: string) => setCopyMessage(msg)}
+                                                    selectedAccountIndex={selectedAccountIndex}
+                                                    setSelectedAccountIndex={setSelectedAccountIndex}
+                                                />
+                                            ) : null
+                                        } />
+                                        <Route path="analytics" element={
+                                            customer ? (
+                                                <AnalyticsSection
+                                                    customer={customer}
+                                                    selectedAnalyticsAccount={selectedAnalyticsAccount}
+                                                    setSelectedAnalyticsAccount={setSelectedAnalyticsAccount}
+                                                    selectedMonth={selectedMonth}
+                                                    setSelectedMonth={setSelectedMonth}
+                                                    selectedYear={selectedYear}
+                                                    setSelectedYear={setSelectedYear}
+                                                    onBack={() => navigate('/dashboard/accounts')}
+                                                 />
+                                            ) : null
+                                        } />
+                                        <Route path="*" element={<Navigate to="accounts" replace />} />
+                                    </Routes>
+                                </Suspense>
+                            </SectionErrorBoundary>
                         </div>
                     </div>
             )}
