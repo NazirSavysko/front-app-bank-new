@@ -122,7 +122,7 @@
    ========================================= */
 .dashboard-tabs {
     display: grid;
-    grid-template-columns: repeat(5, minmax(0, 1fr));
+    grid-template-columns: repeat(var(--dashboard-tab-count, 5), minmax(0, 1fr));
     gap: 0.65rem;
     background: rgba(255, 255, 255, 0.9);
     border-radius: 20px;
@@ -147,6 +147,8 @@
     transition: all 0.2s ease-in-out;
     text-decoration: none;
     white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
     display: flex;
     align-items: center;
     justify-content: center;
@@ -542,7 +544,7 @@
 @media (min-width: 769px) {
     .dashboard-tabs {
         display: grid;
-        grid-template-columns: repeat(5, minmax(0, 1fr));
+        grid-template-columns: repeat(var(--dashboard-tab-count, 5), minmax(0, 1fr));
     }
 }
 
