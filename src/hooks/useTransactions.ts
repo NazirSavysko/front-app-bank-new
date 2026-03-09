@@ -8,7 +8,13 @@ const PAGE_SIZE = 10;
 export const useTransactions = (accountNumber?: string) => {
     const query = useInfiniteQuery<Page<Transaction>, Error>({
         queryKey: ['transactions', accountNumber],
-        queryFn: ({ pageParam = 0 }) => fetchTransactions(accountNumber!, pageParam as number, PAGE_SIZE),
+        queryFn: ({ pageParam = 0 }) => {
+            if (!accountNumber) {
+                throw new Error('Account number is required');
+            }
+
+            return fetchTransactions(accountNumber, pageParam as number, PAGE_SIZE);
+        },
         enabled: Boolean(accountNumber),
         initialPageParam: 0,
         getNextPageParam: lastPage => (
