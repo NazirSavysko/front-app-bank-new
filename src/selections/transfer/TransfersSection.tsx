@@ -9,6 +9,7 @@ export interface TransfersSectionProps {
     onCopy?: (msg: string) => void;
     selectedAccountIndex?: number;
     setSelectedAccountIndex?: (index: number) => void;
+    onTransferFlowStateChange?: (state: 'idle' | 'sending-code' | 'awaiting-code' | 'verifying-code') => void;
 }
 
 const TransfersSection: React.FC<TransfersSectionProps> = ({
@@ -16,7 +17,8 @@ const TransfersSection: React.FC<TransfersSectionProps> = ({
                                                                onTransferComplete,
                                                                onCopy,
                                                                selectedAccountIndex,
-                                                               setSelectedAccountIndex
+                                                               setSelectedAccountIndex,
+                                                               onTransferFlowStateChange
                                                            }) => {
     const queryClient = useQueryClient();
     const [transferData, setTransferData] = useState({
@@ -255,6 +257,23 @@ const TransfersSection: React.FC<TransfersSectionProps> = ({
 
     const selectedAccount = customer?.accounts.find(a => a.card.cardNumber === transferData.senderCardNumber);
     const validationErrors = validateTransferForm();
+    const transferFlowState = codeVerifying
+        ? 'verifying-code'
+        : emailSending
+            ? 'sending-code'
+            : showEmailVerification
+                ? 'awaiting-code'
+                : 'idle';
+
+    useEffect(() => {
+        onTransferFlowStateChange?.(transferFlowState);
+    }, [onTransferFlowStateChange, transferFlowState]);
+
+    useEffect(() => {
+        return () => {
+            onTransferFlowStateChange?.('idle');
+        };
+    }, [onTransferFlowStateChange]);
 
     useEffect(() => {
         const el = senderCardsRef.current;

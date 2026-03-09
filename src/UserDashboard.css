@@ -102,6 +102,11 @@
     transform: scale(0.95);
 }
 
+.profile-button:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+}
+
 .profile-avatar {
     width: 40px;
     height: 40px;
@@ -163,6 +168,12 @@
     background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
     color: #fff;
     box-shadow: 0 6px 18px rgba(102, 126, 234, 0.28);
+}
+
+.tab-button.is-disabled,
+.dashboard-bottom-nav__link.is-disabled {
+    cursor: not-allowed;
+    opacity: 0.7;
 }
 
 /* =========================================
@@ -613,10 +624,8 @@
         background: rgba(102, 126, 234, 0.12);
     }
 
-    .dashboard-bottom-nav__label {
-        font-size: 0.68rem;
-        font-weight: 600;
-        line-height: 1.1;
+    .dashboard-bottom-nav__link.is-disabled {
+        pointer-events: none;
     }
 }
 
@@ -645,4 +654,8 @@
 @keyframes fadeIn {
     from { opacity: 0; transform: translateY(-5px); }
     to { opacity: 1; transform: translateY(0); }
+}
+
+.dashboard-navigation-locked .dashboard-content {
+    position: relative;
 }

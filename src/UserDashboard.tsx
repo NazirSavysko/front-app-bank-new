@@ -105,6 +105,7 @@ const UserDashboard: React.FC = () => {
     const [selectedAnalyticsAccount, setSelectedAnalyticsAccount] = useState<string>('');
     const [selectedMonth, setSelectedMonth] = useState<number>(new Date().getMonth());
     const [selectedYear, setSelectedYear] = useState<number>(new Date().getFullYear());
+    const [transferFlowState, setTransferFlowState] = useState<'idle' | 'sending-code' | 'awaiting-code' | 'verifying-code'>('idle');
 
 
     // Mutation for adding account
@@ -154,9 +155,59 @@ const UserDashboard: React.FC = () => {
     const dashboardTabsStyle: DashboardTabsStyle = {
         '--dashboard-tab-count': `${dashboardNavItems.length}`,
     };
+    const isTransferNavigationLocked = transferFlowState !== 'idle';
+
+    const handleLockedNavigationAttempt = (event: React.MouseEvent<HTMLElement>) => {
+        if (!isTransferNavigationLocked) {
+            return;
+        }
+
+        event.preventDefault();
+        event.stopPropagation();
+    };
+
+    useEffect(() => {
+        if (!copyMessage) return;
+
+        const timeoutId = window.setTimeout(() => {
+            setCopyMessage('');
+        }, 2800);
+
+        return () => window.clearTimeout(timeoutId);
+    }, [copyMessage]);
+
+    useEffect(() => {
+        if (!isTransferNavigationLocked || location.pathname.startsWith('/dashboard/transfers')) {
+            return;
+        }
+
+        navigate('/dashboard/transfers', { replace: true });
+    }, [isTransferNavigationLocked, location.pathname, navigate]);
+
+    useEffect(() => {
+        if (!isTransferNavigationLocked) {
+            return;
+        }
+
+        setShowProfile(false);
+    }, [isTransferNavigationLocked]);
+
+    useEffect(() => {
+        if (!isTransferNavigationLocked) {
+            return;
+        }
+
+        const handleBeforeUnload = (event: BeforeUnloadEvent) => {
+            event.preventDefault();
+            event.returnValue = '';
+        };
+
+        window.addEventListener('beforeunload', handleBeforeUnload);
+        return () => window.removeEventListener('beforeunload', handleBeforeUnload);
+    }, [isTransferNavigationLocked]);
 
     return (
-        <div className="user-dashboard">
+        <div className={`user-dashboard ${isTransferNavigationLocked ? 'dashboard-navigation-locked' : ''}`}>
             {copyMessage && <div className={`toast show`}>{copyMessage}</div>}
             <div className="dashboard-content">
                 <div className="dashboard-header">
@@ -169,7 +220,7 @@ const UserDashboard: React.FC = () => {
                         </div>
                         <div className="dashboard-actions">
                             <button className="profile-button" onClick={() => setShowProfile(!showProfile)}
-                                    aria-label="Відкрити профіль">
+                                    aria-label="Відкрити профіль" disabled={isTransferNavigationLocked}>
                                 <div className="profile-avatar">
                                     {customer ? `${customer.firstName.charAt(0)}${customer.lastName.charAt(0)}`.toUpperCase() : 'U'}
                                 </div>
@@ -187,7 +238,9 @@ const UserDashboard: React.FC = () => {
                             to={item.to}
                             title={item.label}
                             aria-label={item.label}
-                            className={({ isActive }) => `tab-button ${isActive ? 'active' : ''}`}
+                            aria-disabled={isTransferNavigationLocked}
+                            onClick={handleLockedNavigationAttempt}
+                            className={({ isActive }) => `tab-button ${isActive ? 'active' : ''} ${isTransferNavigationLocked ? 'is-disabled' : ''}`}
                         >
                             {item.label}
                         </NavLink>
@@ -266,6 +319,7 @@ const UserDashboard: React.FC = () => {
                                                     onCopy={(msg: string) => setCopyMessage(msg)}
                                                     selectedAccountIndex={selectedAccountIndex}
                                                     setSelectedAccountIndex={setSelectedAccountIndex}
+                                                    onTransferFlowStateChange={setTransferFlowState}
                                                 />
                                             ) : null
                                         } />
@@ -296,7 +350,9 @@ const UserDashboard: React.FC = () => {
                     <NavLink
                         key={item.to}
                         to={item.to}
-                        className={({ isActive }) => `dashboard-bottom-nav__link ${isActive ? 'active' : ''}`}
+                        aria-disabled={isTransferNavigationLocked}
+                        onClick={handleLockedNavigationAttempt}
+                        className={({ isActive }) => `dashboard-bottom-nav__link ${isActive ? 'active' : ''} ${isTransferNavigationLocked ? 'is-disabled' : ''}`}
                     >
                         <span className="dashboard-bottom-nav__icon">
                             <DashboardNavIcon name={item.icon} />
