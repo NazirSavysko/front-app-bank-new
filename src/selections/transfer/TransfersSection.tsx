@@ -279,9 +279,21 @@ const TransfersSection: React.FC<TransfersSectionProps> = ({
         ));
     }, [customer, selectedAccountIndex]);
 
+    useEffect(() => {
+        const dashboard = document.querySelector('.user-dashboard');
+        if (dashboard) {
+            dashboard.classList.add('transfers-mode-active');
+        }
+        return () => {
+            if (dashboard) {
+                dashboard.classList.remove('transfers-mode-active');
+            }
+        };
+    }, []);
+
     if (transferSuccess) {
         return (
-            <>
+            <div className="transfers-wrapper">
                 <div className="transfer-success-card">
                     <div className="success-icon">✅</div>
                     <h3>Переказ виконано успішно!</h3>
@@ -323,12 +335,12 @@ const TransfersSection: React.FC<TransfersSectionProps> = ({
                         Зробити новий переказ
                     </button>
                 </div>
-            </>
+            </div>
         );
     }
 
     return (
-        <>
+        <div className="transfers-wrapper">
             <div className="transfer-header">
                 <h3>Переказ коштів між картками</h3>
                 <p>Швидкий і безпечний переказ коштів з картки на картку</p>
@@ -544,29 +556,22 @@ const TransfersSection: React.FC<TransfersSectionProps> = ({
                             </ul>
                         </div>
                     )}
-                </div>
-            </div>
 
-            <div className="transfer-buttons">
-                <button className="btn-clear" onClick={resetTransferForm} disabled={emailSending} type="button">
-                    <span className="btn-icon">♻</span>Очистити форму
-                </button>
-                <button
-                    className="btn-send"
-                    onClick={sendEmailVerification}
-                    disabled={
-                        emailSending ||
-                        validationErrors.length > 0 ||
-                        !transferData.senderCardNumber ||
-                        !transferData.recipientCardNumber ||
-                        !transferData.amount ||
-                        parseFloat(transferData.amount) <= 0
-                    }
-                    type="button"
-                >
-                    <span className="btn-icon">{emailSending ? '⏳' : '🚀'}</span>
-                    <span>{emailSending ? 'Відправлення коду...' : 'Відправити переказ'}</span>
-                </button>
+                    <div className="transfer-buttons">
+                        <button className="btn-clear" onClick={resetTransferForm} disabled={emailSending} type="button">
+                            <span className="btn-icon">♻</span>Очистити форму
+                        </button>
+                        <button
+                            className="btn-send"
+                            onClick={sendEmailVerification}
+                            disabled={emailSending}
+                            type="button"
+                        >
+                            <span className="btn-icon">{emailSending ? '⏳' : '🚀'}</span>
+                            <span>{emailSending ? 'Відправлення коду...' : 'Відправити переказ'}</span>
+                        </button>
+                    </div>
+                </div>
             </div>
 
             {showEmailVerification && (
@@ -662,7 +667,7 @@ const TransfersSection: React.FC<TransfersSectionProps> = ({
                     </div>
                 </div>
             )}
-        </>
+        </div>
     );
 };
 

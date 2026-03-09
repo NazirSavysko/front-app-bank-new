@@ -11,6 +11,63 @@ const PaymentsSection = lazy(() => import('./selections/payment/PaymentsSection.
 const TransfersSection = lazy(() => import('./selections/transfer/TransfersSection.tsx'));
 const AnalyticsSection = lazy(() => import('./selections/analytic/AnalyticsSection.tsx'));
 
+type DashboardNavIconName = 'accounts' | 'transfers' | 'payments' | 'history' | 'analytics';
+
+const DashboardNavIcon: React.FC<{ name: DashboardNavIconName }> = ({ name }) => {
+    switch (name) {
+        case 'accounts':
+            return (
+                <svg viewBox="0 0 24 24" aria-hidden="true">
+                    <rect x="3" y="5" width="18" height="14" rx="3"></rect>
+                    <path d="M3 10h18"></path>
+                    <path d="M7 15h4"></path>
+                </svg>
+            );
+        case 'transfers':
+            return (
+                <svg viewBox="0 0 24 24" aria-hidden="true">
+                    <path d="M7 7h11"></path>
+                    <path d="M14 4l4 3-4 3"></path>
+                    <path d="M17 17H6"></path>
+                    <path d="M10 14l-4 3 4 3"></path>
+                </svg>
+            );
+        case 'payments':
+            return (
+                <svg viewBox="0 0 24 24" aria-hidden="true">
+                    <path d="M12 3v18"></path>
+                    <path d="M17 7.5c0-1.9-2.2-3.5-5-3.5S7 5.6 7 7.5 9.2 11 12 11s5 1.6 5 3.5S14.8 18 12 18s-5-1.6-5-3.5"></path>
+                </svg>
+            );
+        case 'history':
+            return (
+                <svg viewBox="0 0 24 24" aria-hidden="true">
+                    <path d="M3 12a9 9 0 1 0 3-6.7"></path>
+                    <path d="M3 4v5h5"></path>
+                    <path d="M12 7v5l3 2"></path>
+                </svg>
+            );
+        case 'analytics':
+            return (
+                <svg viewBox="0 0 24 24" aria-hidden="true">
+                    <path d="M5 19V9"></path>
+                    <path d="M12 19V5"></path>
+                    <path d="M19 19v-7"></path>
+                </svg>
+            );
+        default:
+            return null;
+    }
+};
+
+const dashboardNavItems: Array<{ to: string; label: string; icon: DashboardNavIconName }> = [
+    { to: '/dashboard/accounts', label: 'Рахунки', icon: 'accounts' },
+    { to: '/dashboard/transfers', label: 'Перекази', icon: 'transfers' },
+    { to: '/dashboard/payments', label: 'Платежі', icon: 'payments' },
+    { to: '/dashboard/transactions', label: 'Історія', icon: 'history' },
+    { to: '/dashboard/analytics', label: 'Аналітика', icon: 'analytics' },
+];
+
 const UserDashboard: React.FC = () => {
     const navigate = useNavigate();
     const queryClient = useQueryClient();
@@ -130,18 +187,11 @@ const UserDashboard: React.FC = () => {
                     </div>
                 </div>
                 <div className="dashboard-tabs">
-                     <NavLink to="/dashboard/accounts" className={({ isActive }) => `tab-button ${isActive ? 'active' : ''}`}>
-                        Рахунки
-                    </NavLink>
-                    <NavLink to="/dashboard/transactions" className={({ isActive }) => `tab-button ${isActive ? 'active' : ''}`}>
-                        Транзакції
-                    </NavLink>
-                    <NavLink to="/dashboard/payments" className={({ isActive }) => `tab-button ${isActive ? 'active' : ''}`}>
-                        Платежі
-                    </NavLink>
-                    <NavLink to="/dashboard/transfers" className={({ isActive }) => `tab-button ${isActive ? 'active' : ''}`}>
-                        Перекази
-                    </NavLink>
+                    {dashboardNavItems.map((item) => (
+                        <NavLink key={item.to} to={item.to} className={({ isActive }) => `tab-button ${isActive ? 'active' : ''}`}>
+                            {item.label}
+                        </NavLink>
+                    ))}
                 </div>
                 {loading && (
                     <div className="loading">
@@ -228,7 +278,22 @@ const UserDashboard: React.FC = () => {
                             </Suspense>
                         </div>
                     </div>
-                )}
+            )}
+
+            <nav className="dashboard-bottom-nav" aria-label="Основна навігація">
+                {dashboardNavItems.map((item) => (
+                    <NavLink
+                        key={item.to}
+                        to={item.to}
+                        className={({ isActive }) => `dashboard-bottom-nav__link ${isActive ? 'active' : ''}`}
+                    >
+                        <span className="dashboard-bottom-nav__icon">
+                            <DashboardNavIcon name={item.icon} />
+                        </span>
+                        <span className="dashboard-bottom-nav__label">{item.label}</span>
+                    </NavLink>
+                ))}
+            </nav>
             </div>
 
             {/* Profile Sidebar */}

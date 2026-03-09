@@ -5,6 +5,9 @@ import './PaymentsSection.css';
 import InternetPaymentForm from './InternetPaymentForm';
 import IBANPaymentForm from './IBANPaymentForm';
 
+// Import CSS
+import './PaymentForms.css';
+
 export interface PaymentsSectionProps {
     /** List of user accounts */
     accounts: Account[];
@@ -18,12 +21,12 @@ const PaymentsHome: React.FC = () => {
     const navigate = useNavigate();
 
     const categories = [
-        { id: 'travel', title: 'Подорожі', desc: 'Купуйте авіаквитки та бронюйте номер в готелі', icon: '✈️', color: 'bg-purple', size: 'tall' },
-        { id: 'internet', title: 'Інтернет', desc: 'Переглянути послуги', icon: 'mn', color: 'bg-blue', size: 'short' },
-        { id: 'electronics', title: 'Електроніка', desc: 'Купуйте смартфони, ноутбуки, електроніку для дому та саду', icon: '💻', color: 'bg-indigo', size: 'tall' },
-        { id: 'utilities', title: 'Комунальні послуги', desc: 'Перевірте рахунки', icon: '🏠', color: 'bg-indigo', size: 'short' },
-        { id: 'mobile', title: 'Мобільний', desc: 'Поповніть баланс', icon: '📱', color: 'bg-indigo', size: 'short' },
-        { id: 'taxes', title: 'Податки', desc: 'Сплатіть податки', icon: 'Tk', color: 'bg-indigo', size: 'short' },
+        { id: 'travel', title: 'Подорожі', desc: 'Купуйте авіаквитки та бронюйте номер в готелі', color: 'bg-purple', size: 'tall' },
+        { id: 'internet', title: 'Інтернет', desc: 'Переглянути послуги', color: 'bg-blue', size: 'short' },
+        { id: 'electronics', title: 'Електроніка', desc: 'Купуйте смартфони, ноутбуки, електроніку для дому та саду', color: 'bg-indigo', size: 'tall' },
+        { id: 'mobile', title: 'Мобільний', desc: 'Поповніть баланс', color: 'bg-indigo', size: 'short' },
+        { id: 'utilities', title: 'Комунальні послуги', desc: 'Перевірте рахунки', color: 'bg-indigo', size: 'short' },
+        { id: 'taxes', title: 'Податки', desc: 'Сплатіть податки', color: 'bg-indigo', size: 'short' },
     ];
 
     const getIcon = (id: string) => {
@@ -74,13 +77,18 @@ const PaymentsHome: React.FC = () => {
                 <h2>Категорії платежів</h2>
                 <div className="categories-grid">
                     {categories.map(cat => (
-                        <div key={cat.id} className={`category-card ${cat.color} ${cat.size}`} onClick={() => handleCategoryClick(cat.id)}>
+                        <button
+                            key={cat.id}
+                            type="button"
+                            className={`category-card ${cat.color} ${cat.size}`}
+                            onClick={() => handleCategoryClick(cat.id)}
+                        >
                             <div className="category-icon">{getIcon(cat.id)}</div>
                             <div className="category-content">
                                 <h3>{cat.title}</h3>
                                 <p>{cat.desc}</p>
                             </div>
-                        </div>
+                        </button>
                     ))}
                 </div>
             </section>
@@ -92,7 +100,8 @@ const PaymentsSection: React.FC<PaymentsSectionProps> = (props) => {
     const navigate = useNavigate();
 
     return (
-        <Routes>
+        <div className="payments-wrapper">
+             <Routes>
             <Route index element={<PaymentsHome />} />
             <Route path="internet" element={
                 <InternetPaymentForm
@@ -112,6 +121,7 @@ const PaymentsSection: React.FC<PaymentsSectionProps> = (props) => {
             } />
             <Route path="*" element={<PaymentsHome />} />
         </Routes>
+        </div>
     );
 };
 

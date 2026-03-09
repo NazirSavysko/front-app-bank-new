@@ -70,7 +70,7 @@ const TransactionsSection: React.FC<TransactionsSectionProps> = ({
                 }
             },
             {
-                root: null,
+                root: transactionsContainerRef.current,
                 rootMargin: '0px 0px 120px 0px',
             }
         );

@@ -110,10 +110,10 @@ const InternetPaymentForm: React.FC<InternetPaymentFormProps> = ({
             </div>
 
             <form onSubmit={handleSubmit} className="payment-form">
-                {error && <div className="error-message" style={{ color: 'red', marginBottom: '1rem' }}>{error}</div>}
+                {error && <div className="payment-error-message">{error}</div>}
                 <div className="form-group-card">
                     <label className="input-label">Оберіть провайдера</label>
-                    <div className="input-wrapper search-wrapper" style={{ position: 'relative' }}>
+                    <div className="input-wrapper search-wrapper">
                         <input
                             type="text"
                             value={providerName}
@@ -167,7 +167,7 @@ const InternetPaymentForm: React.FC<InternetPaymentFormProps> = ({
                                 const originalIndex = accounts.findIndex(a => a.accountNumber === acc.accountNumber);
                                 return (
                                     <option key={acc.accountNumber} value={originalIndex}>
-                                        {acc.card.cardNumber} • {acc.balance.toFixed(2)} {acc.currency}
+                                        **** {acc.card.cardNumber.slice(-4)} • {acc.balance.toFixed(2)} {acc.currency}
                                     </option>
                                 );
                             })
@@ -190,9 +190,11 @@ const InternetPaymentForm: React.FC<InternetPaymentFormProps> = ({
                     />
                 </div>
 
-                <button type="submit" className="submit-button-primary" disabled={isLoading}>
-                    {isLoading ? 'Обробка...' : 'Сплатити'}
-                </button>
+                <div className="form-submit-container">
+                    <button type="submit" className="submit-payment-btn" disabled={isLoading}>
+                        {isLoading ? 'Обробка...' : 'Сплатити'}
+                    </button>
+                </div>
             </form>
         </div>
     );
