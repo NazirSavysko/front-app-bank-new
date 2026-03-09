@@ -171,7 +171,7 @@
 /* Sticky submit button at bottom on mobile */
 .submit-payment-btn {
     margin-top: 1rem;
-    background: #6366f1; /* Indigo color from screenshot */
+    background: #8476FF; /* Purple color matching categories */
     color: white;
     border: none;
     border-radius: 12px;
@@ -180,15 +180,15 @@
     padding: 1rem;
     cursor: pointer;
     transition: background-color 0.2s;
-    box-shadow: 0 4px 12px rgba(99, 102, 241, 0.3);
+    box-shadow: 0 4px 12px rgba(132, 118, 255, 0.3);
 }
 
 .submit-payment-btn:hover {
-    background-color: #4f46e5;
+    background-color: #715EF0; /* Darker purple on hover */
 }
 
 .submit-payment-btn:disabled {
-    background-color: #a5b4fc;
+    background-color: #C0BDFA;
     cursor: not-allowed;
     box-shadow: none;
 }
@@ -201,7 +201,7 @@
         position: fixed; /* Lock to screen */
         top: 0;
         left: 0;
-        z-index: 9999; /* Ensure it's on top */
+        z-index: 10001; /* Ensure it's on top of bottom nav (usually 10000) */
         overflow-y: auto; /* Internal scroll */
         -webkit-overflow-scrolling: touch;
         align-items: flex-start;
@@ -218,7 +218,7 @@
         position: sticky;
         top: 0;
         background: #fff;
-        z-index: 10;
+        z-index: 10002; /* Ensure header is on top of content */
         padding: 1rem 0;
         margin-bottom: 1rem;
         /* Add shadow on scroll if needed, but simple is okay */
@@ -242,13 +242,7 @@
     }
 
     .submit-payment-btn {
-        position: fixed;
-        bottom: calc(85px + env(safe-area-inset-bottom)); /* Position above nav bar */
-        left: 50%;
-        transform: translateX(-50%);
-        width: 90%;
-        max-width: 400px;
-        z-index: 20;
-        margin-top: 0;
+        width: 100%;
+        margin-top: 1.5rem;
     }
 }

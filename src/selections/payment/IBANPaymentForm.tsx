@@ -114,7 +114,7 @@ const IBANPaymentForm: React.FC<IBANPaymentFormProps> = ({
                             >
                                 {accounts.map((acc, idx) => (
                                     <option key={acc.id || idx} value={idx}>
-                                        {acc.card.cardNumber} • {acc.balance.toFixed(2)} {acc.currency}
+                                        **** {acc.card.cardNumber.slice(-4)} • {acc.balance.toFixed(2)} {acc.currency}
                                     </option>
                                 ))}
                             </select>

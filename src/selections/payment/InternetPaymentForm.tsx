@@ -167,7 +167,7 @@ const InternetPaymentForm: React.FC<InternetPaymentFormProps> = ({
                                 const originalIndex = accounts.findIndex(a => a.accountNumber === acc.accountNumber);
                                 return (
                                     <option key={acc.accountNumber} value={originalIndex}>
-                                        {acc.card.cardNumber} • {acc.balance.toFixed(2)} {acc.currency}
+                                        **** {acc.card.cardNumber.slice(-4)} • {acc.balance.toFixed(2)} {acc.currency}
                                     </option>
                                 );
                             })
@@ -191,7 +191,7 @@ const InternetPaymentForm: React.FC<InternetPaymentFormProps> = ({
                 </div>
 
                 <div className="form-submit-container">
-                    <button type="submit" className="submit-button-primary" disabled={isLoading}>
+                    <button type="submit" className="submit-payment-btn" disabled={isLoading}>
                         {isLoading ? 'Обробка...' : 'Сплатити'}
                     </button>
                 </div>
