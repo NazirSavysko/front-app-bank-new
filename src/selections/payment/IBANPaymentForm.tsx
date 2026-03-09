@@ -102,7 +102,7 @@ const IBANPaymentForm: React.FC<IBANPaymentFormProps> = ({
             </div>
 
             <form onSubmit={handleSubmit} className="payment-form">
-                {error && <div className="error-message" style={{ color: 'red', marginBottom: '1rem' }}>{error}</div>}
+                {error && <div className="payment-error-message">{error}</div>}
                 <div className="form-group-card">
                     <label className="input-label">IBAN платника</label>
                      <select
