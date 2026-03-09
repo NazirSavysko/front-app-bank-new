@@ -46,7 +46,6 @@ const AnalyticsSection: React.FC<AnalyticsSectionProps> = ({
                                                                setSelectedMonth,
                                                                selectedYear,
                                                                setSelectedYear,
-                                                               onBack,
                                                            }) => {
     const [summaryData, setSummaryData] = useState<AnalyticsSummary | null>(null);
     const [isLoading, setIsLoading] = useState(false);

@@ -222,7 +222,6 @@
 .card-status {
     width: fit-content;
     min-height: 32px;
-    display: inline-flex;
     align-items: center;
     font-size: 0.72rem;
     font-weight: 700;
