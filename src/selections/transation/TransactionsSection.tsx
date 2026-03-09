@@ -25,8 +25,7 @@ const PAGE_SIZE = 10;
 const TransactionsSection: React.FC<TransactionsSectionProps> = ({
                                                                      accounts,
                                                                      selectedAccountIndex,
-                                                                     setSelectedAccountIndex,
-                                                                     onAnalytics
+                                                                     setSelectedAccountIndex
                                                                  }) => {
     const transactionsContainerRef = useRef<HTMLDivElement | null>(null);
     const loadMoreTriggerRef = useRef<HTMLDivElement | null>(null);
