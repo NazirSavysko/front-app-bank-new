@@ -120,4 +120,4 @@ const AccountCard: React.FC<AccountCardProps> = ({ account, onCopy }) => {
     );
 };
 
-export default AccountCard;
+export default React.memo(AccountCard);
