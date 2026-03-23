@@ -6,6 +6,7 @@ import InternetPaymentForm from './InternetPaymentForm';
 import IBANPaymentForm from './IBANPaymentForm';
 import MobilePaymentForm from './MobilePaymentForm';
 import TaxesPaymentForm from './TaxesPaymentForm';
+import ElectronicsShopForm from './ElectronicsShopForm';
 
 // Import CSS
 import './PaymentForms.css';
@@ -43,6 +44,8 @@ const PaymentsHome: React.FC = () => {
     const handleCategoryClick = (id: string) => {
         if (id === 'internet') {
             navigate('internet');
+        } else if (id === 'electronics') {
+            navigate('electronics');
         } else if (id === 'mobile') {
             navigate('mobile');
         } else if (id === 'taxes') {
@@ -124,6 +127,7 @@ const PaymentsSection: React.FC<PaymentsSectionProps> = (props) => {
             } />
             <Route path="taxes" element={<TaxesPaymentForm />} />
             <Route path="mobile" element={<MobilePaymentForm />} />
+            <Route path="electronics" element={<ElectronicsShopForm />} />
             <Route path="*" element={<PaymentsHome />} />
         </Routes>
         </div>
