@@ -187,7 +187,7 @@ const TransactionCard: React.FC<TransactionCardProps> = ({ transaction }) => {
                             <div>{transaction.description || '—'}</div>
                         </div>
                     </>
-                ) : transaction.transactionType === 'INTERNET_PAYMENT' ? (
+                ) : (transaction.transactionType === 'INTERNET_PAYMENT' || isMobileTopUp) ? (
                     <div style={{ flexBasis: '100%' }}>
                         <strong>Опис:</strong>
                         <div>{transaction.description || '—'}</div>
