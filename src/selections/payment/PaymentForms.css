@@ -488,6 +488,8 @@
     gap: 0.75rem;
     overflow-x: auto;
     padding-bottom: 0.25rem;
+    overscroll-behavior-x: contain;
+    overscroll-behavior-y: contain;
 }
 
 .communal-option-card {

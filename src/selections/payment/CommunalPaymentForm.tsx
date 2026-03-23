@@ -53,6 +53,21 @@ const CommunalPaymentForm: React.FC<CommunalPaymentFormProps> = ({ onBack, onPay
         !Number.isFinite(parsedAmount) ||
         parsedAmount <= 0;
 
+    const handleHorizontalWheel = (event: React.WheelEvent<HTMLDivElement>) => {
+        const row = event.currentTarget;
+        const hasHorizontalOverflow = row.scrollWidth > row.clientWidth;
+        if (!hasHorizontalOverflow) {
+            return;
+        }
+
+        const dominantDelta = Math.abs(event.deltaX) > Math.abs(event.deltaY) ? event.deltaX : event.deltaY;
+        const scrollDelta = event.deltaMode === WheelEvent.DOM_DELTA_LINE ? dominantDelta * 16 : dominantDelta;
+
+        event.preventDefault();
+        event.stopPropagation();
+        row.scrollBy({ left: scrollDelta });
+    };
+
     const handleSubmit = async (event: React.FormEvent) => {
         event.preventDefault();
         setError('');
@@ -95,7 +110,7 @@ const CommunalPaymentForm: React.FC<CommunalPaymentFormProps> = ({ onBack, onPay
                 <form className="payment-form" onSubmit={handleSubmit}>
                     <section className="communal-card">
                         <h3>Оберіть рахунок для оплати (ФОП або картка UAH)</h3>
-                        <div className="communal-scroll-row">
+                        <div className="communal-scroll-row" onWheel={handleHorizontalWheel}>
                             {communalUahAccounts.length > 0 ? (
                                 communalUahAccounts.map((account) => (
                                     <button
@@ -118,7 +133,7 @@ const CommunalPaymentForm: React.FC<CommunalPaymentFormProps> = ({ onBack, onPay
 
                     <section className="communal-card">
                         <h3>Оберіть постачальника</h3>
-                        <div className="communal-scroll-row">
+                        <div className="communal-scroll-row" onWheel={handleHorizontalWheel}>
                             {utilityProviders.map((provider) => (
                                 <button
                                     key={provider.name}
