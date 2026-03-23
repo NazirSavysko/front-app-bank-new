@@ -797,6 +797,16 @@
     margin-top: 0.25rem;
 }
 
+.profile-settings-message {
+    color: #166534;
+    background: #dcfce7;
+    border: 1px solid #86efac;
+    border-radius: 10px;
+    padding: 0.6rem 0.75rem;
+    font-size: 0.875rem;
+    font-weight: 500;
+}
+
 .profile-settings-footer {
     padding: 0.8rem 1rem 1rem;
     display: flex;

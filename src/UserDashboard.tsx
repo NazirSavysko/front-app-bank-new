@@ -222,7 +222,7 @@ const UserDashboard: React.FC = () => {
                         </div>
                         <div className="dashboard-actions">
                             <button className="profile-button" onClick={() => setShowSettingsModal(true)}
-                                     aria-label="Відкрити профіль" disabled={isTransferNavigationLocked}>
+                                     aria-label="Відкрити налаштування" disabled={isTransferNavigationLocked}>
                                 <div className="profile-avatar">
                                     {customer ? `${customer.firstName.charAt(0)}${customer.lastName.charAt(0)}`.toUpperCase() : 'U'}
                                 </div>

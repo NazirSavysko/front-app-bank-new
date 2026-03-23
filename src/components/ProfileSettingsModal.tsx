@@ -5,7 +5,8 @@ import type { CustomerData } from '../types';
 
 type SettingsStep = 'idle' | 'password-code' | 'password-new' | 'email-code' | 'email-new';
 
-const OTP_LENGTH = 5;
+const VERIFICATION_CODE_LENGTH = 5;
+const EMAIL_PATTERN = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
 interface ProfileSettingsModalProps {
     isOpen: boolean;
@@ -14,8 +15,8 @@ interface ProfileSettingsModalProps {
 }
 
 const getCodeError = (value: string) => {
-    if (value.length !== OTP_LENGTH || !/^\d+$/.test(value)) {
-        return `Код має містити ${OTP_LENGTH} цифр`;
+    if (value.length !== VERIFICATION_CODE_LENGTH || !/^\d+$/.test(value)) {
+        return `Код має містити ${VERIFICATION_CODE_LENGTH} цифр`;
     }
     return '';
 };
@@ -30,6 +31,7 @@ const ProfileSettingsModal: React.FC<ProfileSettingsModalProps> = ({ isOpen, onC
     const [showPassword, setShowPassword] = useState(false);
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState('');
+    const [message, setMessage] = useState('');
 
     const title = useMemo(() => {
         if (step === 'idle') return 'Налаштування профілю';
@@ -50,6 +52,7 @@ const ProfileSettingsModal: React.FC<ProfileSettingsModalProps> = ({ isOpen, onC
         setShowPassword(false);
         setLoading(false);
         setError('');
+        setMessage('');
         onClose();
     };
 
@@ -63,13 +66,14 @@ const ProfileSettingsModal: React.FC<ProfileSettingsModalProps> = ({ isOpen, onC
 
     const handleRequestCode = async (type: 'password' | 'email') => {
         setError('');
+        setMessage('');
         setLoading(true);
         try {
             await requestSettingsCode(type);
             setCodeInput('');
             setStoredCode('');
             setStep(type === 'password' ? 'password-code' : 'email-code');
-            alert('Код верифікації надіслано на вашу пошту');
+            setMessage('Код верифікації надіслано на вашу пошту');
         } catch (err) {
             setError((err as Error).message || 'Не вдалося надіслати код');
         } finally {
@@ -97,11 +101,16 @@ const ProfileSettingsModal: React.FC<ProfileSettingsModalProps> = ({ isOpen, onC
             setError('Введіть новий пароль');
             return;
         }
+        if (newPassword.trim().length < 8) {
+            setError('Пароль має містити щонайменше 8 символів');
+            return;
+        }
         setError('');
+        setMessage('');
         setLoading(true);
         try {
             await submitSettingsChange('password', { verificationCode: storedCode, newPassword: newPassword.trim() });
-            alert('Пароль успішно змінено');
+            setMessage('Пароль успішно змінено');
             setStep('idle');
             setCodeInput('');
             setStoredCode('');
@@ -119,7 +128,12 @@ const ProfileSettingsModal: React.FC<ProfileSettingsModalProps> = ({ isOpen, onC
             setError('Введіть нову пошту');
             return;
         }
+        if (!EMAIL_PATTERN.test(normalizedEmail)) {
+            setError('Введіть коректну пошту');
+            return;
+        }
         setError('');
+        setMessage('');
         setLoading(true);
         try {
             await submitSettingsChange('email', { verificationCode: storedCode, newEmail: normalizedEmail });
@@ -183,10 +197,10 @@ const ProfileSettingsModal: React.FC<ProfileSettingsModalProps> = ({ isOpen, onC
                                 id="settings-otp-code"
                                 type="text"
                                 inputMode="numeric"
-                                maxLength={OTP_LENGTH}
+                                maxLength={VERIFICATION_CODE_LENGTH}
                                 className="profile-settings-input"
                                 value={codeInput}
-                                onChange={(e) => setCodeInput(e.target.value.replace(/\D/g, '').slice(0, OTP_LENGTH))}
+                                onChange={(e) => setCodeInput(e.target.value.replace(/\D/g, '').slice(0, VERIFICATION_CODE_LENGTH))}
                                 placeholder="Введіть код"
                             />
                             <button
@@ -220,7 +234,7 @@ const ProfileSettingsModal: React.FC<ProfileSettingsModalProps> = ({ isOpen, onC
                                     onClick={() => setShowPassword((prev) => !prev)}
                                     aria-label={showPassword ? 'Приховати пароль' : 'Показати пароль'}
                                 >
-                                    {showPassword ? '🙈' : '👁'}
+                                    {showPassword ? 'Сховати' : 'Показати'}
                                 </button>
                             </div>
                             <button
@@ -259,6 +273,7 @@ const ProfileSettingsModal: React.FC<ProfileSettingsModalProps> = ({ isOpen, onC
                     )}
 
                     {error && <div className="profile-settings-error">{error}</div>}
+                    {message && <div className="profile-settings-message">{message}</div>}
                 </div>
 
                 <div className="profile-settings-footer">
