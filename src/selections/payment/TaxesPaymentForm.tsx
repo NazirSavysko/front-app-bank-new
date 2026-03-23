@@ -17,9 +17,9 @@ const TaxesPaymentForm: React.FC = () => {
     const [isLoading, setIsLoading] = useState(false);
     const [error, setError] = useState('');
 
-    const uahAccounts = useMemo(() => accounts.filter((acc) => acc.currencyCode === 'UAH'), [accounts]);
+    const uahAccounts = useMemo(() => accounts.filter((acc) => acc.currencyCode === 'UAH' && acc.accountType === 'FOP'), [accounts]);
     const visibleUahAccounts = useMemo(
-        () => (uahAccounts.length > 0 ? uahAccounts : accounts.filter((acc) => acc.currency === 'UAH')),
+        () => (uahAccounts.length > 0 ? uahAccounts : accounts.filter((acc) => acc.currency === 'UAH' && acc.accountType === 'FOP')),
         [accounts, uahAccounts]
     );
 
@@ -38,7 +38,7 @@ const TaxesPaymentForm: React.FC = () => {
         setError('');
 
         if (!selectedAccountId) {
-            setError('Оберіть рахунок для оплати');
+            setError('Оберіть ФОП рахунок для оплати');
             return;
         }
 
@@ -83,7 +83,7 @@ const TaxesPaymentForm: React.FC = () => {
                                 <span />
                             </div>
                             <div className="taxes-account-info">
-                                <strong>{selectedAccount?.accountType === 'FOP' ? 'ФОП рахунок' : 'Поточний рахунок'}</strong>
+                                <strong>{selectedAccount?.accountType === 'FOP' ? 'ФОП рахунок' : 'Рахунок'}</strong>
                                 <span>**** **** **** {selectedAccount?.card.cardNumber?.slice(-4) ?? '----'}</span>
                             </div>
                             <div className="taxes-account-balance">
@@ -105,7 +105,7 @@ const TaxesPaymentForm: React.FC = () => {
                                     </option>
                                 ))
                             ) : (
-                                <option value={0}>Немає доступних UAH рахунків</option>
+                                <option value={0}>Немає доступних ФОП рахунків (UAH)</option>
                             )}
                         </select>
                     </section>
@@ -115,9 +115,13 @@ const TaxesPaymentForm: React.FC = () => {
                         <div className="taxes-grid">
                             <div>
                                 <label className="input-label">Тип податку</label>
-                                <select className="form-select" value={TAX_TYPES[0]} disabled>
-                                    <option value={TAX_TYPES[0]}>{TAX_TYPES[0]}</option>
-                                </select>
+                                <input
+                                    className="form-select"
+                                    value={TAX_TYPES[0]}
+                                    readOnly
+                                    disabled
+                                    style={{ appearance: 'none', backgroundImage: 'none', cursor: 'default' }}
+                                />
                             </div>
                             <div>
                                 <label className="input-label">Період оплати</label>

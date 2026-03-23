@@ -26,6 +26,10 @@ const TRANSACTION_TITLES = {
         incoming: 'Поповнення за IBAN',
         outgoing: 'Оплата за IBAN',
     },
+    TAX_PAYMENT: {
+        incoming: 'Повернення податків',
+        outgoing: 'Оплата податків',
+    },
     INTERNET_PAYMENT: {
         incoming: 'Оплата інтернету',
         outgoing: 'Оплата інтернету',
@@ -35,6 +39,7 @@ const TRANSACTION_TITLES = {
 const TRANSACTION_ICON_VARIANTS: Record<string, string> = {
     TRANSFER: 'transfer',
     IBAN_PAYMENT: 'iban-payment',
+    TAX_PAYMENT: 'tax-payment',
     INTERNET_PAYMENT: 'internet-payment',
     MOBILE_PAYMENT: 'mobile-payment',
 };
@@ -84,6 +89,17 @@ const TransactionTypeIcon: React.FC<{ transactionType: string; isMobileTopUp: bo
                     <path d="M12 3l9 5H3l9-5Z"></path>
                 </svg>
             );
+        case 'TAX_PAYMENT':
+            return (
+                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+                    <line x1="3" x2="21" y1="21" y2="21" />
+                    <line x1="6" x2="6" y1="10" y2="18" />
+                    <line x1="10" x2="10" y1="10" y2="18" />
+                    <line x1="14" x2="14" y1="10" y2="18" />
+                    <line x1="18" x2="18" y1="10" y2="18" />
+                    <polygon points="12 2 20 7 4 7" />
+                </svg>
+            );
         case 'INTERNET_PAYMENT':
             return (
                 <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
@@ -126,6 +142,8 @@ const TransactionCard: React.FC<TransactionCardProps> = ({ transaction }) => {
                 return isIncoming ? TRANSACTION_TITLES.TRANSFER.incoming : TRANSACTION_TITLES.TRANSFER.outgoing;
             case 'IBAN_PAYMENT':
                 return isIncoming ? TRANSACTION_TITLES.IBAN_PAYMENT.incoming : TRANSACTION_TITLES.IBAN_PAYMENT.outgoing;
+            case 'TAX_PAYMENT':
+                return isIncoming ? TRANSACTION_TITLES.TAX_PAYMENT.incoming : TRANSACTION_TITLES.TAX_PAYMENT.outgoing;
             case 'INTERNET_PAYMENT':
                 return TRANSACTION_TITLES.INTERNET_PAYMENT.outgoing;
             case 'MOBILE_PAYMENT':
