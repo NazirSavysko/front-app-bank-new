@@ -180,7 +180,7 @@ const InternetPaymentForm: React.FC<InternetPaymentFormProps> = ({
             </div>
 
             <form onSubmit={handleSubmit} className="payment-form">
-                {error && <div className="payment-error-message">{error}</div>}
+                {error && !showEmailVerification && <div className="payment-error-message">{error}</div>}
                 <div className="form-group-card">
                     <label className="input-label">Оберіть провайдера</label>
                     <div className="input-wrapper search-wrapper">

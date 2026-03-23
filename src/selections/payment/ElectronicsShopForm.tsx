@@ -237,7 +237,7 @@ const ElectronicsShopForm: React.FC<ElectronicsShopFormProps> = ({
                         </div>
                     </section>
 
-                    {error && <p className="electronics-error top-error">{error}</p>}
+                    {error && !showEmailVerification && <p className="electronics-error top-error">{error}</p>}
                     {isInsufficientFunds && !error && (
                         <p className="electronics-error top-error">Недостатньо коштів для оплати</p>
                     )}

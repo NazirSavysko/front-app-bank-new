@@ -250,7 +250,7 @@ const IBANPaymentForm: React.FC<IBANPaymentFormProps> = ({
                     </button>
                 </form>
 
-                {error && <div className="error-message">{error}</div>}
+                {error && !showEmailVerification && <div className="error-message">{error}</div>}
             </div>
 
             <PaymentVerificationModal

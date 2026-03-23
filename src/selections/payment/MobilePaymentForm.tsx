@@ -212,7 +212,7 @@ const MobilePaymentForm: React.FC<MobilePaymentFormProps> = ({
                         />
                     </div>
 
-                    {error && <div className="error-message">{error}</div>}
+                    {error && !showEmailVerification && <div className="error-message">{error}</div>}
                     {successMessage && <div className="sender-tax-info">{successMessage}</div>}
 
                     <button type="submit" className="submit-payment-btn" disabled={isLoading || emailSending || uahAccounts.length === 0}>

@@ -271,7 +271,7 @@ const TrainTicketForm: React.FC<TrainTicketFormProps> = ({
                         />
                     </div>
 
-                    {error && <div className="error-message">{error}</div>}
+                    {error && !showEmailVerification && <div className="error-message">{error}</div>}
                     {successMessage && <div className="sender-tax-info">{successMessage}</div>}
 
                     <button

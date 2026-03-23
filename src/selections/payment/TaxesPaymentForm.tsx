@@ -271,7 +271,7 @@ const TaxesPaymentForm: React.FC<TaxesPaymentFormProps> = ({
                         </p>
                     </section>
 
-                    {error && <div className="error-message">{error}</div>}
+                    {error && !showEmailVerification && <div className="error-message">{error}</div>}
 
                     <button
                         type="submit"
