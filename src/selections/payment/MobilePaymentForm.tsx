@@ -5,7 +5,8 @@ import { useAccounts } from '../../hooks/useAccounts';
 import './PaymentForms.css';
 
 const PHONE_REGEX = /^\+380\d{9}$/;
-const SUCCESS_MESSAGE_DISPLAY_DURATION = 700;
+const PHONE_FORMAT_LENGTH = 13;
+const SUCCESS_MESSAGE_DISPLAY_DURATION_MS = 700;
 
 const MobilePaymentForm: React.FC = () => {
     const queryClient = useQueryClient();
@@ -32,7 +33,7 @@ const MobilePaymentForm: React.FC = () => {
             setPhoneNumber('+380');
             return;
         }
-        setPhoneNumber(cleaned.slice(0, 13));
+        setPhoneNumber(cleaned.slice(0, PHONE_FORMAT_LENGTH));
     };
 
     const handleSubmit = async (e: React.FormEvent) => {
@@ -60,7 +61,7 @@ const MobilePaymentForm: React.FC = () => {
             });
             await queryClient.invalidateQueries({ queryKey: ['transactions'] });
             setSuccessMessage('Поповнення мобільного успішне!');
-            setTimeout(() => window.history.back(), SUCCESS_MESSAGE_DISPLAY_DURATION);
+            setTimeout(() => window.history.back(), SUCCESS_MESSAGE_DISPLAY_DURATION_MS);
         } catch (err) {
             const errorMessage = err instanceof Error ? err.message : 'Помилка при поповненні мобільного';
             setError(errorMessage);

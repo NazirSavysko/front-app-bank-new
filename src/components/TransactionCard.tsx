@@ -118,7 +118,7 @@ const TransactionCard: React.FC<TransactionCardProps> = ({ transaction }) => {
     const descriptionLower = (transaction.description || '').toLowerCase();
     const isMobileTopUp =
         descriptionLower.includes('поповнення мобільного') ||
-        descriptionLower.includes('мобільний') ||
+        descriptionLower.includes('поповнення рахунку мобільного') ||
         transaction.transactionType === 'MOBILE_PAYMENT';
     const shortTitle = (() => {
         switch (transaction.transactionType) {
