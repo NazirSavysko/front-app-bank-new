@@ -4,16 +4,14 @@ import type { Account } from '../../types.ts';
 import './PaymentsSection.css';
 import InternetPaymentForm from './InternetPaymentForm';
 import IBANPaymentForm from './IBANPaymentForm';
+import MobilePaymentForm from './MobilePaymentForm';
 
 // Import CSS
 import './PaymentForms.css';
 
 export interface PaymentsSectionProps {
-    /** List of user accounts */
     accounts: Account[];
-    /** Index of the currently selected account */
     selectedAccountIndex: number;
-    /** Callback to update selected account index */
     setSelectedAccountIndex: (index: number) => void;
 }
 
@@ -44,6 +42,8 @@ const PaymentsHome: React.FC = () => {
     const handleCategoryClick = (id: string) => {
         if (id === 'internet') {
             navigate('internet');
+        } else if (id === 'mobile') {
+            navigate('mobile');
         } else if (id === 'travel') {
             // Do nothing as requested
         } else {
@@ -119,6 +119,7 @@ const PaymentsSection: React.FC<PaymentsSectionProps> = (props) => {
                     onBack={() => navigate('/dashboard/payments')}
                 />
             } />
+            <Route path="mobile" element={<MobilePaymentForm />} />
             <Route path="*" element={<PaymentsHome />} />
         </Routes>
         </div>
