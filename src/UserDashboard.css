@@ -627,9 +627,33 @@
     .dashboard-bottom-nav__link.is-disabled {
         pointer-events: none;
     }
+
+    .profile-settings-overlay {
+        z-index: 2002;
+        justify-content: flex-end;
+        align-items: stretch;
+        padding: 0;
+    }
+
+    .profile-settings-modal {
+        width: 100%;
+        max-width: 100%;
+        height: auto;
+        max-height: 92dvh;
+        border-radius: 20px 20px 0 0;
+        animation: profileSettingsSlideUp 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+    }
 }
 
-/* Error Banner styling for modals */
+@keyframes profileSettingsSlideUp {
+    from {
+        transform: translateY(100%);
+    }
+    to {
+        transform: translateY(0);
+    }
+}
+
 .error-banner {
     background: #fef2f2;
     border: 1px solid #fecca3; /* Or red-ish border */
@@ -658,4 +682,269 @@
 
 .dashboard-navigation-locked .dashboard-content {
     position: relative;
+}
+
+.profile-settings-overlay {
+    z-index: 2002;
+    justify-content: flex-end;
+    align-items: stretch;
+    padding: 0;
+}
+
+.profile-settings-modal {
+    width: min(420px, 100%);
+    max-width: min(420px, 100%);
+    height: 100dvh;
+    max-height: 100dvh;
+    border-radius: 20px 0 0 20px;
+    margin: 0;
+    overflow: hidden;
+    animation: profileSettingsSlideIn 0.35s cubic-bezier(0.16, 1, 0.3, 1);
+    box-shadow: -4px 0 24px rgba(0,0,0,0.15);
+}
+
+@keyframes profileSettingsSlideIn {
+    from {
+        transform: translateX(100%);
+    }
+    to {
+        transform: translateX(0);
+    }
+}
+
+.profile-settings-header {
+    padding: 1.25rem 1.25rem;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: #fff;
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+}
+
+.profile-settings-header h3 {
+    margin: 0;
+    font-size: 1.9rem;
+    font-weight: 700;
+}
+
+.profile-settings-back {
+    background: rgba(255, 255, 255, 0.18);
+    border: 1px solid rgba(255, 255, 255, 0.45);
+    color: #fff;
+    width: 2.25rem;
+    height: 2.25rem;
+    border-radius: 50%;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0;
+    transition: background 0.2s;
+}
+
+.profile-settings-back:hover {
+    background: rgba(255, 255, 255, 0.28);
+}
+
+.profile-settings-back svg {
+    width: 1.25rem;
+    height: 1.25rem;
+    fill: none;
+    stroke: currentColor;
+    stroke-width: 2.5;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+}
+
+.profile-settings-body {
+    background: #f8f9fa;
+    padding: 1rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.8rem;
+    min-height: 360px;
+}
+
+.profile-settings-user-card {
+    background: #eef0f3;
+    border: 1px solid #d9dee8;
+    border-radius: 14px;
+    padding: 1rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.3rem;
+}
+
+.profile-settings-user-name {
+    font-weight: 700;
+    color: #1e293b;
+}
+
+.profile-settings-user-phone {
+    color: #64748b;
+}
+
+.profile-settings-user-data {
+    display: flex;
+    flex-direction: column;
+    gap: 0.8rem;
+    margin-bottom: 0.25rem;
+}
+
+.profile-settings-info-item {
+    display: flex;
+    flex-direction: column;
+    background: #eef0f3;
+    border: 1px solid #d9dee8;
+    border-radius: 14px;
+    padding: 0.9rem 1rem;
+}
+
+.profile-settings-info-item label {
+    color: #64748b;
+    font-size: 0.95rem;
+    margin-bottom: 0.2rem;
+}
+
+.profile-settings-info-item span {
+    color: #0f172a;
+    font-size: 1.08rem;
+    font-weight: 500;
+}
+
+.profile-settings-action-card {
+    width: 100%;
+    border: 1px solid #e2e8f0;
+    border-radius: 14px;
+    padding: 1rem;
+    background: #fff;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    cursor: pointer;
+    color: #1f2937;
+    font-size: 1rem;
+    font-weight: 600;
+}
+
+.profile-settings-action-card:disabled {
+    opacity: 0.7;
+    cursor: not-allowed;
+}
+
+.profile-settings-chevron {
+    color: #6b7280;
+    font-size: 1.4rem;
+}
+
+.profile-settings-form {
+    display: flex;
+    flex-direction: column;
+    gap: 0.7rem;
+}
+
+.profile-settings-label {
+    color: #334155;
+    font-weight: 600;
+}
+
+.profile-settings-input {
+    width: 100%;
+    border: 1px solid #d4d9e1;
+    border-radius: 12px;
+    padding: 0.8rem 0.9rem;
+    font-size: 1rem;
+    background: #fff;
+    color: #1f2937;
+}
+
+.profile-settings-input::placeholder {
+    color: #9ca3af;
+}
+
+.profile-settings-password-wrap {
+    position: relative;
+}
+
+.profile-settings-password-wrap .profile-settings-input {
+    padding-right: 4.5rem; /* More space for the toggle button */
+}
+
+.profile-settings-toggle-password {
+    position: absolute;
+    right: 0.75rem;
+    top: 50%;
+    transform: translateY(-50%);
+    border: none;
+    background: transparent;
+    cursor: pointer;
+    color: #6b7280;
+    font-size: 0.85rem;
+    font-weight: 600;
+    padding: 0.25rem;
+    transition: color 0.2s;
+}
+
+.profile-settings-toggle-password:hover {
+    color: #374151;
+}
+
+.profile-settings-submit {
+    width: 100%;
+}
+
+.profile-settings-error {
+    color: #ef4444;
+    font-weight: 500;
+    font-size: 0.875rem;
+    margin-top: 0.25rem;
+}
+
+.profile-settings-message {
+    color: #166534;
+    background: #dcfce7;
+    border: 1px solid #86efac;
+    border-radius: 10px;
+    padding: 0.6rem 0.75rem;
+    font-size: 0.875rem;
+    font-weight: 500;
+}
+
+.profile-settings-footer {
+    padding: 0.8rem 1rem 1rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.6rem;
+    background: #f8f9fa;
+}
+
+@media (max-width: 768px) {
+    .profile-settings-overlay {
+        align-items: flex-end;
+    }
+
+    .profile-settings-modal {
+        width: 100%;
+        max-width: 100%;
+        height: auto;
+        max-height: 92dvh;
+        border-radius: 20px 20px 0 0;
+        animation: profileSettingsSlideUp 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+}
+
+@keyframes profileSettingsSlideUp {
+    from {
+        transform: translateY(100%);
+    }
+    to {
+        transform: translateY(0);
+    }
+}
+
+.profile-settings-close-btn,
+.profile-settings-logout-btn {
+    width: 100%;
+    border-radius: 10px;
+    padding: 0.8rem 1rem;
 }
