@@ -269,17 +269,16 @@ const TransactionCard: React.FC<TransactionCardProps> = ({ transaction }) => {
         }
     })();
     const amountColor = isIncoming ? 'var(--green-600)' : 'var(--red-600)';
-    const iconVariant = isTrainTicket
-        ? 'transport-train'
-        : isAirTicket
-            ? 'transport-air'
-            : isBusTicket
-                ? 'transport-bus'
-                : isCityTransportTicket
-                    ? 'transport-city'
-                    : isMobileTopUp
-                        ? 'mobile-payment'
-                        : (isElectronicsPurchase ? 'electronics' : (isTaxPayment ? 'tax-payment' : (TRANSACTION_ICON_VARIANTS[transaction.transactionType] || 'transfer')));
+    const iconVariant = (() => {
+        if (isTrainTicket) return 'transport-train';
+        if (isAirTicket) return 'transport-air';
+        if (isBusTicket) return 'transport-bus';
+        if (isCityTransportTicket) return 'transport-city';
+        if (isMobileTopUp) return 'mobile-payment';
+        if (isElectronicsPurchase) return 'electronics';
+        if (isTaxPayment) return 'tax-payment';
+        return TRANSACTION_ICON_VARIANTS[transaction.transactionType] || 'transfer';
+    })();
 
     const [expanded, setExpanded] = useState(false);
     const toggleExpanded = () => setExpanded(prevExpanded => !prevExpanded);

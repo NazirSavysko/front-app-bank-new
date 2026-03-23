@@ -3,6 +3,7 @@ import { useQueryClient } from '@tanstack/react-query';
 import { createIbanPayment } from '../../api';
 import { useAccounts } from '../../hooks/useAccounts';
 import type { Account } from '../../types';
+import { useNavigate } from 'react-router-dom';
 import './TransportHub.css';
 
 type TransportTab = 'train' | 'airplane' | 'bus' | 'city';
@@ -14,8 +15,26 @@ type PaymentSubmit = {
     recipientName: string;
 };
 
-const TRANSPORT_RECIPIENT_IBAN = 'UA12345678901234567890123456789012';
-const TRANSPORT_RECIPIENT_TAX_NUMBER = '00000000';
+const TRANSPORT_RECIPIENT_IBAN = import.meta.env.VITE_TRANSPORT_RECIPIENT_IBAN || 'UA12345678901234567890123456789012';
+const TRANSPORT_RECIPIENT_TAX_NUMBER = import.meta.env.VITE_TRANSPORT_RECIPIENT_TAX_NUMBER || '00000000';
+const TRAIN_TICKET_PRICES = {
+    intercity: 950,
+    coupe: 760,
+    platzkart: 620,
+} as const;
+const AIRPLANE_PRICES = {
+    economy: 3200,
+    business: 5600,
+    bagExtra: 700,
+} as const;
+const BUS_TICKET_PRICE = 520;
+const CITY_QR_TICKET_PRICE = 20;
+const CITY_PASS_PRICES = {
+    tram: 690,
+    metro: 799,
+} as const;
+const BUS_CARRIERS = ['FlixBus', 'Ecolines', 'Autolux'] as const;
+const CITY_OPTIONS = ['Київ', 'Львів', 'Харків', 'Дніпро'] as const;
 
 const UahAccountSelector: React.FC<{
     accounts: Account[];
@@ -86,6 +105,7 @@ const submitTransportPayment = async ({
 
 const TrainForm: React.FC<{ accounts: Account[] }> = ({ accounts }) => {
     const queryClient = useQueryClient();
+    const navigate = useNavigate();
     const [selectedAccountId, setSelectedAccountId] = useState(accounts[0]?.id ?? 0);
     const [from, setFrom] = useState('Київ');
     const [to, setTo] = useState('Львів');
@@ -94,7 +114,7 @@ const TrainForm: React.FC<{ accounts: Account[] }> = ({ accounts }) => {
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [error, setError] = useState<string | null>(null);
 
-    const amount = ticketType === 'intercity' ? 950 : ticketType === 'coupe' ? 760 : 620;
+    const amount = TRAIN_TICKET_PRICES[ticketType];
 
     const handleSubmit = async (event: React.FormEvent) => {
         event.preventDefault();
@@ -111,8 +131,7 @@ const TrainForm: React.FC<{ accounts: Account[] }> = ({ accounts }) => {
                     recipientName: 'Укрзалізниця',
                 },
             });
-            alert('Квиток на потяг оформлено успішно!');
-            window.history.back();
+            navigate('/dashboard/transactions');
         } catch (err) {
             setError(err instanceof Error ? err.message : 'Не вдалося оформити квиток');
         } finally {
@@ -159,12 +178,12 @@ const TrainForm: React.FC<{ accounts: Account[] }> = ({ accounts }) => {
                             aria-selected={active}
                         >
                             <span>{item.icon}</span>
-                            <strong>{item.title}</strong>
-                            <small>{item.desc}</small>
-                            <em>{item.price}</em>
-                        </button>
-                    );
-                })}
+                    <strong>{item.title}</strong>
+                    <small>{item.desc}</small>
+                    <em>{item.price}</em>
+                </button>
+            );
+        })}
             </div>
 
             {error && <div className="travel-error">{error}</div>}
@@ -179,6 +198,7 @@ const TrainForm: React.FC<{ accounts: Account[] }> = ({ accounts }) => {
 
 const AirplaneForm: React.FC<{ accounts: Account[] }> = ({ accounts }) => {
     const queryClient = useQueryClient();
+    const navigate = useNavigate();
     const [selectedAccountId, setSelectedAccountId] = useState(accounts[0]?.id ?? 0);
     const [from, setFrom] = useState('');
     const [to, setTo] = useState('');
@@ -189,7 +209,7 @@ const AirplaneForm: React.FC<{ accounts: Account[] }> = ({ accounts }) => {
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [error, setError] = useState<string | null>(null);
 
-    const amount = (flightClass === 'business' ? 5600 : 3200) + (hasBag ? 700 : 0);
+    const amount = (flightClass === 'business' ? AIRPLANE_PRICES.business : AIRPLANE_PRICES.economy) + (hasBag ? AIRPLANE_PRICES.bagExtra : 0);
 
     const handleSubmit = async (event: React.FormEvent) => {
         event.preventDefault();
@@ -206,8 +226,7 @@ const AirplaneForm: React.FC<{ accounts: Account[] }> = ({ accounts }) => {
                     recipientName: 'Авіалінії України',
                 },
             });
-            alert('Авіаквиток оформлено успішно!');
-            window.history.back();
+            navigate('/dashboard/transactions');
         } catch (err) {
             setError(err instanceof Error ? err.message : 'Не вдалося оформити авіаквиток');
         } finally {
@@ -254,16 +273,15 @@ const AirplaneForm: React.FC<{ accounts: Account[] }> = ({ accounts }) => {
 
 const BusForm: React.FC<{ accounts: Account[] }> = ({ accounts }) => {
     const queryClient = useQueryClient();
+    const navigate = useNavigate();
     const [selectedAccountId, setSelectedAccountId] = useState(accounts[0]?.id ?? 0);
     const [from, setFrom] = useState('');
     const [to, setTo] = useState('');
     const [date, setDate] = useState('');
     const [carrierOpen, setCarrierOpen] = useState(false);
-    const [carrier, setCarrier] = useState('FlixBus');
+    const [carrier, setCarrier] = useState<(typeof BUS_CARRIERS)[number]>(BUS_CARRIERS[0]);
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [error, setError] = useState<string | null>(null);
-
-    const carriers = ['FlixBus', 'Ecolines', 'Autolux'] as const;
 
     const handleSubmit = async (event: React.FormEvent) => {
         event.preventDefault();
@@ -275,13 +293,12 @@ const BusForm: React.FC<{ accounts: Account[] }> = ({ accounts }) => {
                 queryClient,
                 payload: {
                     accountId: selectedAccountId,
-                    amount: 520,
+                    amount: BUS_TICKET_PRICE,
                     purpose: 'Квиток на автобус',
                     recipientName: carrier,
                 },
             });
-            alert('Квиток на автобус оформлено успішно!');
-            window.history.back();
+            navigate('/dashboard/transactions');
         } catch (err) {
             setError(err instanceof Error ? err.message : 'Не вдалося оформити квиток');
         } finally {
@@ -304,7 +321,7 @@ const BusForm: React.FC<{ accounts: Account[] }> = ({ accounts }) => {
                 </button>
                 {carrierOpen && (
                     <ul className="travel-dropdown-list">
-                        {carriers.map((item) => (
+                        {BUS_CARRIERS.map((item) => (
                             <li key={item}>
                                 <button
                                     type="button"
@@ -334,6 +351,7 @@ const BusForm: React.FC<{ accounts: Account[] }> = ({ accounts }) => {
 
 const CityTransportForm: React.FC<{ accounts: Account[] }> = ({ accounts }) => {
     const queryClient = useQueryClient();
+    const navigate = useNavigate();
     const [selectedAccountId, setSelectedAccountId] = useState(accounts[0]?.id ?? 0);
     const [cityOpen, setCityOpen] = useState(false);
     const [city, setCity] = useState('Київ');
@@ -352,13 +370,12 @@ const CityTransportForm: React.FC<{ accounts: Account[] }> = ({ accounts }) => {
                 queryClient,
                 payload: {
                     accountId: selectedAccountId,
-                    amount: 20 * ticketsCount,
+                    amount: CITY_QR_TICKET_PRICE * ticketsCount,
                     purpose: 'Квиток на міський транспорт',
                     recipientName: `${city} транспорт`,
                 },
             });
-            alert('QR-квиток оформлено успішно!');
-            window.history.back();
+            navigate('/dashboard/transactions');
         } catch (err) {
             setError(err instanceof Error ? err.message : 'Не вдалося оформити QR-квиток');
         } finally {
@@ -375,13 +392,12 @@ const CityTransportForm: React.FC<{ accounts: Account[] }> = ({ accounts }) => {
                 queryClient,
                 payload: {
                     accountId: selectedAccountId,
-                    amount: passType === 'tram' ? 690 : 799,
+                    amount: CITY_PASS_PRICES[passType],
                     purpose: 'Проїзний на міський транспорт',
                     recipientName: `${city} транспорт`,
                 },
             });
-            alert('Проїзний оформлено успішно!');
-            window.history.back();
+            navigate('/dashboard/transactions');
         } catch (err) {
             setError(err instanceof Error ? err.message : 'Не вдалося оформити проїзний');
         } finally {
@@ -401,7 +417,7 @@ const CityTransportForm: React.FC<{ accounts: Account[] }> = ({ accounts }) => {
                 </button>
                 {cityOpen && (
                     <ul className="travel-dropdown-list">
-                        {['Київ', 'Львів', 'Харків', 'Дніпро'].map((item) => (
+                        {CITY_OPTIONS.map((item) => (
                             <li key={item}>
                                 <button
                                     type="button"
