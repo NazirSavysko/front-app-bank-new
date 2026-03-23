@@ -330,15 +330,12 @@ export const createCommunalPayment = async (data: CommunalPaymentRequest): Promi
         throw new Error(error.message || 'Помилка при оплаті комунальних послуг');
     }
 
-    if (typeof res.text === 'function') {
-        const text = await res.text();
-        try {
-            return JSON.parse(text);
-        } catch {
-            return text;
-        }
+    const text = await res.text();
+    try {
+        return JSON.parse(text);
+    } catch {
+        return text;
     }
-    return res;
 };
 
 // Profile settings: Password

@@ -105,7 +105,7 @@ const CommunalPaymentForm: React.FC<CommunalPaymentFormProps> = ({ onBack, onPay
                                         onClick={() => setSelectedAccountId(account.id)}
                                         disabled={isLoading}
                                     >
-                                        <strong>**** {account.card.cardNumber.slice(-4)}</strong>
+                                        <strong>{account.card?.cardNumber ? `**** ${account.card.cardNumber.slice(-4)}` : 'Номер картки недоступний'}</strong>
                                         <span>{account.balance.toLocaleString('uk-UA', { minimumFractionDigits: 2 })} UAH</span>
                                         <small>{account.accountNumber}</small>
                                     </button>
