@@ -286,6 +286,11 @@
     color: #0284c7;
 }
 
+.transaction-icon--train-ticket {
+    background: #fef3c7;
+    color: #d97706;
+}
+
 .transaction-summary {
     display: flex;
     justify-content: space-between;

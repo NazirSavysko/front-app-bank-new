@@ -56,7 +56,19 @@ const maskCardNumber = (cardNumber?: string) => (
     cardNumber ? (cardNumber.length > 4 ? `**** ${cardNumber.slice(-4)}` : '****') : '—'
 );
 
-const TransactionTypeIcon: React.FC<{ transactionType: string; isMobileTopUp: boolean; isTaxPayment: boolean; isElectronicsPurchase: boolean }> = ({ transactionType, isMobileTopUp, isTaxPayment, isElectronicsPurchase }) => {
+const TransactionTypeIcon: React.FC<{ transactionType: string; isMobileTopUp: boolean; isTaxPayment: boolean; isElectronicsPurchase: boolean; isTrainTicket: boolean }> = ({ transactionType, isMobileTopUp, isTaxPayment, isElectronicsPurchase, isTrainTicket }) => {
+    if (isTrainTicket) {
+        return (
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+                <rect x="4" y="3" width="16" height="15" rx="2" />
+                <path d="M4 11h16" />
+                <path d="M12 3v8" />
+                <path d="m8 19-2 3" />
+                <path d="m16 19 2 3" />
+                <circle cx="12" cy="15" r="1.5" />
+            </svg>
+        );
+    }
     if (isMobileTopUp) {
         return (
             <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
@@ -165,8 +177,15 @@ const TransactionCard: React.FC<TransactionCardProps> = ({ transaction }) => {
     const isElectronicsPurchase =
         descriptionLower.includes('купівля електроніки') ||
         transaction.transactionType === 'ELECTRONICS_PAYMENT';
+    const isTrainTicket =
+        descriptionLower.includes('квиток на потяг') ||
+        descriptionLower.includes('укрзалізниця') ||
+        transaction.transactionType === 'TRAIN_PAYMENT';
 
     const shortTitle = (() => {
+        if (isTrainTicket) {
+            return 'Квиток на потяг';
+        }
         if (isTaxPayment) {
             return isIncoming ? TRANSACTION_TITLES.TAX_PAYMENT.incoming : TRANSACTION_TITLES.TAX_PAYMENT.outgoing;
         }
@@ -191,7 +210,7 @@ const TransactionCard: React.FC<TransactionCardProps> = ({ transaction }) => {
         }
     })();
     const amountColor = isIncoming ? 'var(--green-600)' : 'var(--red-600)';
-    const iconVariant = isMobileTopUp ? 'mobile-payment' : (isElectronicsPurchase ? 'electronics' : (isTaxPayment ? 'tax-payment' : (TRANSACTION_ICON_VARIANTS[transaction.transactionType] || 'transfer')));
+    const iconVariant = isMobileTopUp ? 'mobile-payment' : (isElectronicsPurchase ? 'electronics' : (isTaxPayment ? 'tax-payment' : (isTrainTicket ? 'train-ticket' : (TRANSACTION_ICON_VARIANTS[transaction.transactionType] || 'transfer'))));
 
     const [expanded, setExpanded] = useState(false);
     const toggleExpanded = () => setExpanded(prevExpanded => !prevExpanded);
@@ -223,6 +242,7 @@ const TransactionCard: React.FC<TransactionCardProps> = ({ transaction }) => {
                         isMobileTopUp={isMobileTopUp}
                         isTaxPayment={isTaxPayment}
                         isElectronicsPurchase={isElectronicsPurchase}
+                        isTrainTicket={isTrainTicket}
                     />
                 </div>
                 <div className="transaction-summary">
@@ -248,7 +268,7 @@ const TransactionCard: React.FC<TransactionCardProps> = ({ transaction }) => {
                             <div>{transaction.description || '—'}</div>
                         </div>
                     </>
-                ) : (transaction.transactionType === 'INTERNET_PAYMENT' || isMobileTopUp || isTaxPayment || isElectronicsPurchase) ? (
+                ) : (transaction.transactionType === 'INTERNET_PAYMENT' || isMobileTopUp || isTaxPayment || isElectronicsPurchase || isTrainTicket) ? (
                     <div style={{ flexBasis: '100%' }}>
                         <strong>Опис:</strong>
                         <div>{transaction.description || '—'}</div>
