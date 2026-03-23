@@ -8,6 +8,7 @@ const VerifyEmailForm = lazy(() => import('./VerifyEmailForm').then(module => ({
 const ForgotPasswordForm = lazy(() => import('./ForgotPasswordForm').then(module => ({ default: module.ForgotPasswordForm })));
 const UserDashboard = lazy(() => import('./UserDashboard'));
 const TransportHub = lazy(() => import('./selections/travel/TransportHub'));
+const TrainTicketForm = lazy(() => import('./selections/travel/TrainTicketForm'));
 
 function App() {
     const navigate = useNavigate();
@@ -118,6 +119,11 @@ function App() {
                 <Route path="/travel" element={
                     <ProtectedRoute>
                         <TransportHub />
+                    </ProtectedRoute>
+                } />
+                <Route path="/travel/train" element={
+                    <ProtectedRoute>
+                        <TrainTicketForm />
                     </ProtectedRoute>
                 } />
 
