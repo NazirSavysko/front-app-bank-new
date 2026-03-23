@@ -26,6 +26,10 @@ const TRANSACTION_TITLES = {
         incoming: 'Поповнення за IBAN',
         outgoing: 'Оплата за IBAN',
     },
+    TAX_PAYMENT: {
+        incoming: 'Повернення податків',
+        outgoing: 'Оплата податків',
+    },
     INTERNET_PAYMENT: {
         incoming: 'Оплата інтернету',
         outgoing: 'Оплата інтернету',
@@ -35,7 +39,9 @@ const TRANSACTION_TITLES = {
 const TRANSACTION_ICON_VARIANTS: Record<string, string> = {
     TRANSFER: 'transfer',
     IBAN_PAYMENT: 'iban-payment',
+    TAX_PAYMENT: 'tax-payment',
     INTERNET_PAYMENT: 'internet-payment',
+    MOBILE_PAYMENT: 'mobile-payment',
 };
 
 const formatPersonName = (person?: { firstName: string; lastName: string }) => {
@@ -50,7 +56,39 @@ const maskCardNumber = (cardNumber?: string) => (
     cardNumber ? (cardNumber.length > 4 ? `**** ${cardNumber.slice(-4)}` : '****') : '—'
 );
 
-const TransactionTypeIcon: React.FC<{ transactionType: string }> = ({ transactionType }) => {
+const TransactionTypeIcon: React.FC<{ transactionType: string; isMobileTopUp: boolean; isTaxPayment: boolean; isElectronicsPurchase: boolean }> = ({ transactionType, isMobileTopUp, isTaxPayment, isElectronicsPurchase }) => {
+    if (isMobileTopUp) {
+        return (
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+                <rect x="5" y="2" width="14" height="20" rx="2" ry="2"></rect>
+                <line x1="12" y1="18" x2="12.01" y2="18"></line>
+            </svg>
+        );
+    }
+
+    if (isElectronicsPurchase) {
+        return (
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+                <path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"></path>
+                <line x1="3" y1="6" x2="21" y2="6"></line>
+                <path d="M16 10a4 4 0 0 1-8 0"></path>
+            </svg>
+        );
+    }
+
+    if (isTaxPayment) {
+        return (
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+                <line x1="3" x2="21" y1="21" y2="21" />
+                <line x1="6" x2="6" y1="10" y2="18" />
+                <line x1="10" x2="10" y1="10" y2="18" />
+                <line x1="14" x2="14" y1="10" y2="18" />
+                <line x1="18" x2="18" y1="10" y2="18" />
+                <polygon points="12 2 20 7 4 7" />
+            </svg>
+        );
+    }
+
     switch (transactionType) {
         case 'TRANSFER':
             return (
@@ -72,6 +110,17 @@ const TransactionTypeIcon: React.FC<{ transactionType: string }> = ({ transactio
                     <path d="M20 10v8"></path>
                     <path d="M2 18h20"></path>
                     <path d="M12 3l9 5H3l9-5Z"></path>
+                </svg>
+            );
+        case 'TAX_PAYMENT':
+            return (
+                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+                    <line x1="3" x2="21" y1="21" y2="21" />
+                    <line x1="6" x2="6" y1="10" y2="18" />
+                    <line x1="10" x2="10" y1="10" y2="18" />
+                    <line x1="14" x2="14" y1="10" y2="18" />
+                    <line x1="18" x2="18" y1="10" y2="18" />
+                    <polygon points="12 2 20 7 4 7" />
                 </svg>
             );
         case 'INTERNET_PAYMENT':
@@ -105,20 +154,44 @@ const TransactionCard: React.FC<TransactionCardProps> = ({ transaction }) => {
     const mainAmount = `${amountPrefix}${formatAmount(transaction.amount)} ${transaction.currencyCode}`;
     const senderName = formatPersonName(transaction.sender);
     const receiverName = formatPersonName(transaction.receiver);
+    const descriptionLower = (transaction.description || '').toLowerCase();
+    const isMobileTopUp =
+        descriptionLower.includes('поповнення мобільного') ||
+        descriptionLower.includes('поповнення рахунку мобільного') ||
+        transaction.transactionType === 'MOBILE_PAYMENT';
+    const isTaxPayment =
+        descriptionLower.includes('оплата податків') ||
+        transaction.transactionType === 'TAX_PAYMENT';
+    const isElectronicsPurchase =
+        descriptionLower.includes('купівля електроніки') ||
+        transaction.transactionType === 'ELECTRONICS_PAYMENT';
+
     const shortTitle = (() => {
+        if (isTaxPayment) {
+            return isIncoming ? TRANSACTION_TITLES.TAX_PAYMENT.incoming : TRANSACTION_TITLES.TAX_PAYMENT.outgoing;
+        }
+
+        if (isElectronicsPurchase) {
+            return 'Купівля електроніки';
+        }
+
         switch (transaction.transactionType) {
             case 'TRANSFER':
                 return isIncoming ? TRANSACTION_TITLES.TRANSFER.incoming : TRANSACTION_TITLES.TRANSFER.outgoing;
             case 'IBAN_PAYMENT':
                 return isIncoming ? TRANSACTION_TITLES.IBAN_PAYMENT.incoming : TRANSACTION_TITLES.IBAN_PAYMENT.outgoing;
+            case 'TAX_PAYMENT':
+                return isIncoming ? TRANSACTION_TITLES.TAX_PAYMENT.incoming : TRANSACTION_TITLES.TAX_PAYMENT.outgoing;
             case 'INTERNET_PAYMENT':
                 return TRANSACTION_TITLES.INTERNET_PAYMENT.outgoing;
+            case 'MOBILE_PAYMENT':
+                return 'Поповнення мобільного';
             default:
-                return 'Транзакція';
+                return isMobileTopUp ? 'Поповнення мобільного' : 'Транзакція';
         }
     })();
     const amountColor = isIncoming ? 'var(--green-600)' : 'var(--red-600)';
-    const iconVariant = TRANSACTION_ICON_VARIANTS[transaction.transactionType] || 'transfer';
+    const iconVariant = isMobileTopUp ? 'mobile-payment' : (isElectronicsPurchase ? 'electronics' : (isTaxPayment ? 'tax-payment' : (TRANSACTION_ICON_VARIANTS[transaction.transactionType] || 'transfer')));
 
     const [expanded, setExpanded] = useState(false);
     const toggleExpanded = () => setExpanded(prevExpanded => !prevExpanded);
@@ -145,7 +218,12 @@ const TransactionCard: React.FC<TransactionCardProps> = ({ transaction }) => {
         >
             <div className="transaction-header">
                 <div className={`transaction-icon transaction-icon--${iconVariant}`}>
-                    <TransactionTypeIcon transactionType={transaction.transactionType} />
+                    <TransactionTypeIcon
+                        transactionType={transaction.transactionType}
+                        isMobileTopUp={isMobileTopUp}
+                        isTaxPayment={isTaxPayment}
+                        isElectronicsPurchase={isElectronicsPurchase}
+                    />
                 </div>
                 <div className="transaction-summary">
                     <div className="transaction-summary-main">
@@ -170,7 +248,7 @@ const TransactionCard: React.FC<TransactionCardProps> = ({ transaction }) => {
                             <div>{transaction.description || '—'}</div>
                         </div>
                     </>
-                ) : transaction.transactionType === 'INTERNET_PAYMENT' ? (
+                ) : (transaction.transactionType === 'INTERNET_PAYMENT' || isMobileTopUp || isTaxPayment || isElectronicsPurchase) ? (
                     <div style={{ flexBasis: '100%' }}>
                         <strong>Опис:</strong>
                         <div>{transaction.description || '—'}</div>

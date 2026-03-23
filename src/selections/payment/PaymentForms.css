@@ -15,40 +15,46 @@
 }
 
 .payment-header {
+    position: relative;
     display: flex;
     align-items: center;
-    gap: 0.75rem;
-    margin-bottom: 1.25rem;
+    min-height: 48px;
+    margin-bottom: 1.5rem;
 }
 
 .back-button {
     background: none;
     border: none;
     cursor: pointer;
-    width: 44px;
+    width: auto;
+    min-width: 44px;
     height: 44px;
     margin-right: 0;
-    padding: 0;
+    padding: 0 8px;
     color: #666;
     display: flex;
     align-items: center;
     justify-content: center;
     border-radius: 12px;
     transition: all 0.2s ease-in-out;
+    font-weight: 500;
 }
 
 .back-button:hover {
     background-color: rgba(99, 102, 241, 0.08);
+    color: #4f46e5;
 }
 
 .payment-header h2 {
-    font-size: 1.45rem;
-    font-weight: 600;
+    font-size: 1.25rem;
+    font-weight: 700;
+    color: #111827;
+    position: absolute;
+    left: 50%;
+    transform: translateX(-50%);
     margin: 0;
-    color: #000000;
-    flex: 1;
-    text-align: center;
-    margin-right: 44px; /* Balance back button width to center text */
+    white-space: nowrap;
+    pointer-events: none; /* Let clicks pass through if it overlaps slightly, though unlikely */
 }
 
 .payment-form {
@@ -77,6 +83,13 @@
     border-radius: 8px;
     margin-top: 0.5rem;
     border: 1px solid #bfdbfe;
+}
+
+.error-message,
+.payment-error-message,
+.field-error-message {
+    color: #ef4444 !important;
+    font-weight: 500;
 }
 
 .input-label {
@@ -193,6 +206,261 @@
     box-shadow: none;
 }
 
+.taxes-payment-root {
+    background: #f1eefb;
+    border-radius: 4px;
+    padding: 1rem;
+}
+
+.taxes-payment-shell {
+    gap: 0.75rem;
+    padding-bottom: 0;
+}
+
+.taxes-section {
+    background: #e7e4f5;
+    border-radius: 4px;
+    padding: 0.5rem;
+}
+
+.taxes-section-title {
+    font-size: 1.05rem;
+    font-weight: 500;
+    color: #1f1f1f;
+    margin: 0 0 0.35rem;
+}
+
+.taxes-account-card {
+    border: 1px solid rgba(99, 102, 241, 0.45);
+    border-radius: 12px;
+    background: #cac5e7;
+    padding: 0.85rem 1rem;
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+}
+
+.taxes-account-icon {
+    width: 44px;
+    height: 44px;
+    border-radius: 10px;
+    background: linear-gradient(150deg, #8476FF, #715EF0);
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.taxes-account-icon span {
+    width: 18px;
+    height: 4px;
+    border-radius: 999px;
+    background: rgba(255, 255, 255, 0.9);
+}
+
+.taxes-account-info {
+    display: flex;
+    flex-direction: column;
+    line-height: 1.25;
+}
+
+.taxes-account-info strong {
+    font-size: 1rem;
+    color: #1f1f1f;
+    font-weight: 500;
+}
+
+.taxes-account-info span {
+    font-size: 0.95rem;
+    color: #2f2f2f;
+}
+
+.taxes-account-balance {
+    margin-left: auto;
+    font-size: 1.75rem;
+    color: #2a2a2a;
+}
+
+.taxes-grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 0.75rem;
+    margin-bottom: 0.75rem;
+}
+
+.taxes-amount-field {
+    position: relative;
+    margin-top: 0.25rem;
+}
+
+.taxes-amount-field .form-input {
+    padding-right: 2.25rem;
+}
+
+.taxes-amount-field span {
+    position: absolute;
+    right: 0.75rem;
+    top: 50%;
+    transform: translateY(-50%);
+    color: #334155;
+}
+
+.taxes-hint {
+    margin: 0.35rem 0 0;
+    color: #6b7280;
+    font-size: 0.82rem;
+}
+
+.taxes-hidden-select {
+    margin-top: 0.5rem;
+}
+
+.sr-only {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    padding: 0;
+    margin: -1px;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+    white-space: nowrap;
+    border: 0;
+}
+
+.train-ticket-root {
+    background: #eeeaf5;
+    border-radius: 16px;
+    padding: 1rem;
+}
+
+.train-card {
+    background: #eeeaf5;
+    border-radius: 14px;
+    display: grid;
+    gap: 0.65rem;
+}
+
+.train-section-title {
+    margin: 0;
+    font-size: 1rem;
+    font-weight: 600;
+    color: #1f2937;
+}
+
+.train-scroll-row {
+    display: flex;
+    gap: 1rem;
+    overflow-x: auto;
+    padding: 0.5rem 0.25rem 1.5rem 0.25rem; /* More bottom padding for shadows */
+    margin: -0.25rem; /* compensate */
+    scroll-behavior: smooth;
+    -webkit-overflow-scrolling: touch;
+}
+
+.train-account-card,
+.train-ticket-card {
+    background: #fff;
+    border: 1px solid transparent; /* default border */
+    border-radius: 16px;
+    padding: 1.25rem;
+    cursor: pointer;
+    color: #1f2937;
+    min-width: 160px;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.25rem;
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -1px rgba(0, 0, 0, 0.03);
+    transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+    position: relative;
+    overflow: hidden;
+}
+
+.train-account-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.08), 0 4px 6px -2px rgba(0, 0, 0, 0.04);
+}
+
+.train-account-card.is-active {
+    border-color: #8b5cf6;
+    background-color: #f5f3ff;
+    box-shadow: 0 0 0 2px #8b5cf6; /* solid ring using shadow to avoid layout shift */
+}
+
+.train-ticket-card {
+    min-width: 110px;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    font-weight: 600;
+    padding: 1rem;
+}
+
+.train-ticket-card.is-active {
+    background-color: #7c3aed;
+    color: #fff;
+    box-shadow: 0 10px 15px -3px rgba(124, 58, 237, 0.3), 0 4px 6px -2px rgba(124, 58, 237, 0.1);
+    transform: translateY(-1px);
+    border-color: transparent;
+}
+
+.train-white-input {
+    background: #fff;
+    border: 1px solid #e5e7eb;
+    box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+}
+
+.train-white-input:focus {
+    border-color: #8b5cf6;
+    box-shadow: 0 0 0 3px rgba(139, 92, 246, 0.15);
+}
+
+.train-empty {
+    margin: 0;
+    color: #6b7280;
+}
+
+.train-submit-btn {
+    background: linear-gradient(135deg, #7c3aed 0%, #6d28d9 100%);
+    box-shadow: 0 4px 6px -1px rgba(124, 58, 237, 0.3);
+    font-weight: 600;
+    letter-spacing: 0.025em;
+    padding: 1.125rem;
+}
+
+.train-submit-btn:hover {
+    background: linear-gradient(135deg, #6d28d9 0%, #5b21b6 100%);
+    box-shadow: 0 10px 15px -3px rgba(124, 58, 237, 0.4);
+    transform: translateY(-1px);
+}
+
+.train-submit-btn:active {
+    transform: translateY(0);
+}
+
+.train-account-name {
+    font-size: 0.75rem;
+    font-weight: 700;
+    color: #6b7280;
+    margin-bottom: 0.25rem;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+}
+
+.train-account-balance {
+    font-size: 1.25rem;
+    font-weight: 800;
+    color: #111827;
+    margin: 0;
+    letter-spacing: -0.025em;
+}
+
+.train-account-number {
+    font-size: 0.8rem;
+    color: #9ca3af;
+    font-family: monospace;
+    margin-top: auto; /* Push to bottom if height varies */
+}
+
 @media (max-width: 768px) {
     .payment-form-wrapper {
         background-color: #fff; /* White background for the whole form area on mobile */
@@ -247,5 +515,17 @@
         width: 100%;
         margin-top: 1.5rem;
         margin-bottom: 2rem;
+    }
+
+    .taxes-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .taxes-account-balance {
+        font-size: 1.3rem;
+    }
+
+    .train-ticket-root {
+        border-radius: 12px;
     }
 }

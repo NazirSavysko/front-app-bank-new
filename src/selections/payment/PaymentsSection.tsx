@@ -4,16 +4,17 @@ import type { Account } from '../../types.ts';
 import './PaymentsSection.css';
 import InternetPaymentForm from './InternetPaymentForm';
 import IBANPaymentForm from './IBANPaymentForm';
+import MobilePaymentForm from './MobilePaymentForm';
+import TaxesPaymentForm from './TaxesPaymentForm';
+import ElectronicsShopForm from './ElectronicsShopForm';
+import TrainTicketForm from './TrainTicketForm';
 
 // Import CSS
 import './PaymentForms.css';
 
 export interface PaymentsSectionProps {
-    /** List of user accounts */
     accounts: Account[];
-    /** Index of the currently selected account */
     selectedAccountIndex: number;
-    /** Callback to update selected account index */
     setSelectedAccountIndex: (index: number) => void;
 }
 
@@ -44,8 +45,14 @@ const PaymentsHome: React.FC = () => {
     const handleCategoryClick = (id: string) => {
         if (id === 'internet') {
             navigate('internet');
+        } else if (id === 'electronics') {
+            navigate('electronics');
+        } else if (id === 'mobile') {
+            navigate('mobile');
+        } else if (id === 'taxes') {
+            navigate('taxes');
         } else if (id === 'travel') {
-            // Do nothing as requested
+            navigate('train');
         } else {
              // Redirect to IBAN form as a generic recipient for now
              navigate('iban');
@@ -119,6 +126,10 @@ const PaymentsSection: React.FC<PaymentsSectionProps> = (props) => {
                     onBack={() => navigate('/dashboard/payments')}
                 />
             } />
+            <Route path="taxes" element={<TaxesPaymentForm />} />
+            <Route path="mobile" element={<MobilePaymentForm />} />
+            <Route path="electronics" element={<ElectronicsShopForm />} />
+            <Route path="train" element={<TrainTicketForm />} />
             <Route path="*" element={<PaymentsHome />} />
         </Routes>
         </div>

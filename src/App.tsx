@@ -124,6 +124,8 @@ function App() {
                     </ProtectedRoute>
                 } />
 
+                <Route path="/payments/train" element={<Navigate to="/dashboard/payments/train" replace />} />
+
                 <Route path="/" element={<Navigate to="/dashboard/accounts" replace />} />
                 <Route path="*" element={<Navigate to="/login" replace />} />
             </Routes>

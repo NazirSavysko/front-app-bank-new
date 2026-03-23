@@ -45,6 +45,12 @@ export interface AnalyticsSummary {
     totalExpense: number;
     operationsCount: number;
     currency: string;
+    totalMobileExpenses?: number;
+    totalInternetExpenses?: number;
+    totalIbanExpenses?: number;
+    totalTaxExpenses?: number;
+    totalElectronicsExpenses?: number;
+    totalCardToCardExpenses?: number;
 }
 
 export type AccountType = 'CURRENT' | 'FOP';
@@ -57,6 +63,7 @@ export interface Account {
     accountType: AccountType;
     balance: number;
     currency: AccountCurrency;
+    currencyCode?: string;
     edrpou: string;
     status: string;
     card: {
@@ -103,4 +110,49 @@ export interface InternetPaymentRequest {
     amount: number;         // Сумма платежа
     providerName: string;   // Название провайдера (например, "Lanet")
     contractNumber: string; // Номер договора / лицевой счет
+}
+
+export interface MobilePaymentRequest {
+    accountId: number;
+    amount: number;
+    phoneNumber: string; // Must format as +380XXXXXXXXX
+}
+
+export interface TaxPaymentRequest {
+    accountId: number;
+    amount: number;
+    taxType: string;
+    period: string;
+    receiverName: string;
+}
+
+export interface CartItemDTO {
+    productName: string;
+    quantity: number;
+    price: number;
+}
+
+export interface ElectronicsPaymentRequest {
+    accountId: number;
+    totalAmount: number;
+    items: CartItemDTO[];
+}
+
+export interface TrainPaymentRequest {
+    accountId: number;
+    amount: number;
+    fromCity: string;
+    toCity: string;
+    departureDate: string;
+    ticketType: string;
+}
+
+export interface ChangePasswordRequest {
+    verificationCode: string;
+    newPassword: string;
+}
+
+export interface ChangeEmailRequest {
+    verificationCode: string;
+    newEmail: string;
 }
