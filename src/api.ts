@@ -12,6 +12,9 @@ import type {
     MobilePaymentRequest,
     TaxPaymentRequest,
     ElectronicsPaymentRequest,
+    TrainPaymentRequest,
+    ChangePasswordRequest,
+    ChangeEmailRequest,
 } from './types';
 
 const getAuthHeaders = () => {
@@ -266,4 +269,84 @@ export const createElectronicsPayment = async (data: ElectronicsPaymentRequest):
         }
     }
     return res;
+};
+
+export const createTrainPayment = async (data: TrainPaymentRequest): Promise<unknown> => {
+    const res = await fetch('/api/v1/payments/train', {
+        method: 'POST',
+        headers: getAuthHeaders(),
+        body: JSON.stringify(data),
+    });
+
+    if (!res.ok) {
+        const error = await res.json().catch(() => ({}));
+        throw new Error(error.message || 'Помилка при оплаті квитків на потяг');
+    }
+
+    const text = await res.text();
+    try {
+        return JSON.parse(text);
+    } catch {
+        return text;
+    }
+};
+
+// Profile settings: Password
+export const requestPasswordChangeCode = async (): Promise<unknown> => {
+    return requestSettingsCode('password');
+};
+
+export const changePassword = async (verificationCode: string, newPassword: string): Promise<unknown> => {
+    return submitSettingsChange('password', { verificationCode, newPassword });
+};
+
+// Profile settings: Email
+export const requestEmailChangeCode = async (): Promise<unknown> => {
+    return requestSettingsCode('email');
+};
+
+export const changeEmail = async (verificationCode: string, newEmail: string): Promise<unknown> => {
+    return submitSettingsChange('email', { verificationCode, newEmail });
+};
+
+export const requestSettingsCode = async (type: 'password' | 'email'): Promise<unknown> => {
+    const res = await fetch(`/api/v1/customers/me/settings/${type}/init`, {
+        method: 'POST',
+        headers: getAuthHeaders(),
+    });
+
+    if (!res.ok) {
+        const body = await res.json().catch(() => ({}));
+        throw new Error(body.message || 'Failed to request verification code');
+    }
+
+    const text = await res.text();
+    try {
+        return JSON.parse(text);
+    } catch {
+        return text;
+    }
+};
+
+export const submitSettingsChange = async (
+    type: 'password' | 'email',
+    data: ChangePasswordRequest | ChangeEmailRequest
+): Promise<unknown> => {
+    const res = await fetch(`/api/v1/customers/me/settings/${type}/change`, {
+        method: 'POST',
+        headers: getAuthHeaders(),
+        body: JSON.stringify(data),
+    });
+
+    if (!res.ok) {
+        const body = await res.json().catch(() => ({}));
+        throw new Error(body.message || 'Failed to submit settings change');
+    }
+
+    const text = await res.text();
+    try {
+        return JSON.parse(text);
+    } catch {
+        return text;
+    }
 };

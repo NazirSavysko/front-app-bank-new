@@ -173,6 +173,21 @@
     background: linear-gradient(150deg, #8476FF, #715EF0);
 }
 
+.category-card.bg-train {
+    background: #ffffff;
+    color: #111827;
+    border: 1px solid #e5e7eb;
+}
+
+.category-card.bg-train .category-content h3,
+.category-card.bg-train .category-content p {
+    color: #111827;
+}
+
+.category-card.bg-train .category-icon svg {
+    stroke: #7c3aed;
+}
+
 .page-title, .search-section h2, .categories-section h2, .category-content h3 {
     color: #000;
 }

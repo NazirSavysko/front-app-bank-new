@@ -7,6 +7,7 @@ import IBANPaymentForm from './IBANPaymentForm';
 import MobilePaymentForm from './MobilePaymentForm';
 import TaxesPaymentForm from './TaxesPaymentForm';
 import ElectronicsShopForm from './ElectronicsShopForm';
+import TrainTicketForm from './TrainTicketForm';
 
 // Import CSS
 import './PaymentForms.css';
@@ -51,7 +52,7 @@ const PaymentsHome: React.FC = () => {
         } else if (id === 'taxes') {
             navigate('taxes');
         } else if (id === 'travel') {
-            // Do nothing as requested
+            navigate('train');
         } else {
              // Redirect to IBAN form as a generic recipient for now
              navigate('iban');
@@ -128,6 +129,7 @@ const PaymentsSection: React.FC<PaymentsSectionProps> = (props) => {
             <Route path="taxes" element={<TaxesPaymentForm />} />
             <Route path="mobile" element={<MobilePaymentForm />} />
             <Route path="electronics" element={<ElectronicsShopForm />} />
+            <Route path="train" element={<TrainTicketForm />} />
             <Route path="*" element={<PaymentsHome />} />
         </Routes>
         </div>
