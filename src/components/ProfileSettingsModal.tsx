@@ -195,7 +195,7 @@ const ProfileSettingsModal: React.FC<ProfileSettingsModalProps> = ({ isOpen, onC
     };
 
     return (
-        <div className="modal-overlay profile-settings-overlay" onClick={resetAndClose}>
+        <div className="modal-overlay profile-settings-overlay">
             <div className="modal-content profile-settings-modal" onClick={(e) => e.stopPropagation()}>
                 <div className="profile-settings-header">
                     <button className="profile-settings-back" onClick={resetAndClose} aria-label="Закрити налаштування">
