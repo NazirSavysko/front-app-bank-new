@@ -1,0 +1,225 @@
+.electronics-shop-page {
+    min-height: 100%;
+    position: relative;
+}
+
+.electronics-shop-container {
+    max-width: 760px;
+    margin: 0 auto;
+    padding: 1rem 0 8rem;
+}
+
+.electronics-shop-header {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    margin-bottom: 1.25rem;
+}
+
+.electronics-shop-header h2 {
+    flex: 1;
+    margin: 0;
+    font-size: 1.45rem;
+    font-weight: 600;
+    color: #000;
+    text-align: center;
+}
+
+.electronics-cart-badge {
+    min-width: 44px;
+    text-align: right;
+    color: #4c1d95;
+    font-weight: 600;
+}
+
+.electronics-account-section {
+    margin-bottom: 1rem;
+}
+
+.electronics-account-section h3 {
+    margin: 0 0 0.5rem;
+    font-size: 0.95rem;
+    color: #374151;
+    font-weight: 600;
+}
+
+.electronics-accounts-scroll {
+    display: flex;
+    gap: 0.75rem;
+    overflow-x: auto;
+    padding-bottom: 0.25rem;
+}
+
+.electronics-account-card {
+    border: 1px solid #c4b5fd;
+    background: transparent;
+    border-radius: 12px;
+    min-width: 180px;
+    text-align: left;
+    color: #1f2937;
+    padding: 0.75rem 0.9rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.2rem;
+}
+
+.electronics-account-card.is-active {
+    border-color: #7c3aed;
+    background: #fff;
+}
+
+.electronics-account-card strong {
+    font-size: 0.95rem;
+}
+
+.electronics-account-card span {
+    font-size: 0.84rem;
+    color: #6b7280;
+}
+
+.electronics-empty-accounts {
+    color: #6b7280;
+    margin: 0;
+    font-size: 0.9rem;
+}
+
+.electronics-products-list {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+}
+
+.electronics-product-card {
+    background: #fff;
+    border-radius: 14px;
+    padding: 1rem;
+    border: 1px solid #e5e7eb;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 1rem;
+}
+
+.electronics-product-card h4 {
+    margin: 0 0 0.25rem;
+    font-size: 1rem;
+    font-weight: 700;
+    color: #111827;
+}
+
+.electronics-product-card p {
+    margin: 0;
+    font-size: 0.86rem;
+    color: #6b7280;
+}
+
+.electronics-product-actions {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    gap: 0.5rem;
+}
+
+.electronics-price {
+    font-size: 1rem;
+    font-weight: 700;
+    color: #111827;
+    white-space: nowrap;
+}
+
+.electronics-buy-btn {
+    border: none;
+    background: #7c3aed;
+    color: #fff;
+    border-radius: 10px;
+    padding: 0.5rem 1rem;
+    font-weight: 600;
+}
+
+.electronics-quantity-control {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    background: #f3f4f6;
+    border-radius: 10px;
+    padding: 0.2rem;
+}
+
+.electronics-quantity-control button {
+    border: none;
+    background: #7c3aed;
+    color: #fff;
+    width: 28px;
+    height: 28px;
+    border-radius: 8px;
+    padding: 0;
+}
+
+.electronics-quantity-control span {
+    min-width: 24px;
+    text-align: center;
+    font-weight: 600;
+}
+
+.electronics-error {
+    margin-top: 0.75rem;
+    color: #ef4444;
+    font-weight: 500;
+}
+
+.electronics-sticky-bar-wrap {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    display: flex;
+    justify-content: center;
+    z-index: 50;
+}
+
+.electronics-sticky-bar {
+    position: sticky;
+    bottom: 0;
+    width: 100%;
+    max-width: 760px;
+    background: #fff;
+    padding: 1rem;
+    box-shadow: 0 -4px 6px -1px rgba(0, 0, 0, 0.1);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 1rem;
+}
+
+.electronics-total {
+    font-weight: 700;
+    color: #111827;
+}
+
+.electronics-checkout-btn {
+    border: none;
+    background: #7c3aed;
+    color: #fff;
+    border-radius: 12px;
+    padding: 0.75rem 1.5rem;
+    font-weight: 700;
+}
+
+.electronics-checkout-btn:disabled {
+    background: #c4b5fd;
+    cursor: not-allowed;
+}
+
+@media (max-width: 768px) {
+    .electronics-shop-container {
+        padding: 0 1rem 7.5rem;
+    }
+
+    .electronics-shop-header {
+        position: sticky;
+        top: 0;
+        background: #fff;
+        z-index: 20;
+        padding: 0.8rem 0 0.6rem;
+    }
+}
