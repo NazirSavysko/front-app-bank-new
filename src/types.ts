@@ -63,6 +63,7 @@ export interface Account {
     accountType: AccountType;
     balance: number;
     currency: AccountCurrency;
+    currencyCode?: string;
     edrpou: string;
     status: string;
     card: {
@@ -115,4 +116,12 @@ export interface MobilePaymentRequest {
     accountId: number;
     amount: number;
     phoneNumber: string; // Must format as +380XXXXXXXXX
+}
+
+export interface TaxPaymentRequest {
+    accountId: number;
+    amount: number;
+    taxType: string;
+    period: string;
+    receiverName: string;
 }
