@@ -97,7 +97,7 @@ export const PaymentVerificationModal: React.FC<PaymentVerificationModalProps> =
     const digits = Array.from({ length: CODE_LENGTH }, (_, i) => code[i] ?? '');
 
     return (
-        <div className="payment-verification-overlay" onClick={onClose}>
+        <div className="payment-verification-overlay">
             <div
                 className="payment-verification-modal"
                 role="dialog"
