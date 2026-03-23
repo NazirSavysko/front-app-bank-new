@@ -51,6 +51,7 @@ export interface AnalyticsSummary {
     totalTaxExpenses?: number;
     totalElectronicsExpenses?: number;
     totalCardToCardExpenses?: number;
+    totalUtilityExpenses?: number;
 }
 
 export type AccountType = 'CURRENT' | 'FOP';
@@ -124,6 +125,13 @@ export interface TaxPaymentRequest {
     taxType: string;
     period: string;
     receiverName: string;
+}
+
+export interface CommunalPaymentRequest {
+    accountId: number;
+    amount: number;
+    utilityProvider: string;
+    personalAccount: string;
 }
 
 export interface CartItemDTO {

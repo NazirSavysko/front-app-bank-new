@@ -461,6 +461,95 @@
     margin-top: auto; /* Push to bottom if height varies */
 }
 
+.communal-root {
+    background: #eeeaf5;
+    border-radius: 16px;
+    padding: 1rem;
+}
+
+.communal-card {
+    background: #fff;
+    border-radius: 16px;
+    border: 1px solid #e5e7eb;
+    padding: 1rem;
+    display: grid;
+    gap: 0.75rem;
+}
+
+.communal-card h3 {
+    margin: 0;
+    color: #111827;
+    font-size: 1rem;
+    font-weight: 600;
+}
+
+.communal-scroll-row {
+    display: flex;
+    gap: 0.75rem;
+    overflow-x: auto;
+    padding-bottom: 0.25rem;
+    overscroll-behavior-x: contain;
+    overscroll-behavior-y: contain;
+}
+
+.communal-option-card {
+    border: 1px solid #d1d5db;
+    background: #fff;
+    border-radius: 14px;
+    min-width: 210px;
+    padding: 0.9rem;
+    text-align: left;
+    display: grid;
+    gap: 0.3rem;
+    color: #111827;
+    cursor: pointer;
+}
+
+.communal-option-card.is-active {
+    border: 2px solid #7c3aed;
+}
+
+.communal-option-card strong {
+    font-size: 0.94rem;
+}
+
+.communal-option-card span {
+    font-size: 0.9rem;
+    color: #374151;
+}
+
+.communal-option-card small {
+    font-size: 0.78rem;
+    color: #6b7280;
+}
+
+.communal-provider-card {
+    min-width: 230px;
+}
+
+.communal-provider-icon {
+    font-size: 1.25rem;
+    line-height: 1;
+}
+
+.communal-empty-state {
+    margin: 0;
+    color: #6b7280;
+}
+
+.communal-white-input {
+    background: #fff;
+}
+
+.communal-submit-btn {
+    background: #7c3aed;
+    box-shadow: 0 4px 12px rgba(124, 58, 237, 0.3);
+}
+
+.communal-submit-btn:hover {
+    background: #6d28d9;
+}
+
 .payment-verification-overlay {
     position: fixed;
     inset: 0;
