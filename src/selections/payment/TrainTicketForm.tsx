@@ -10,6 +10,7 @@ const TICKET_TYPES = [
     { value: 'KUPE', label: '🛏️ Купе' },
     { value: 'PLATSKART', label: '🚞 Плацкарт' },
 ];
+const SUCCESS_DELAY_MS = 700;
 
 const TrainTicketForm: React.FC = () => {
     const navigate = useNavigate();
@@ -24,6 +25,7 @@ const TrainTicketForm: React.FC = () => {
     const [amount, setAmount] = useState('');
     const [isLoading, setIsLoading] = useState(false);
     const [error, setError] = useState('');
+    const [successMessage, setSuccessMessage] = useState('');
 
     const minDate = useMemo(() => new Date().toISOString().split('T')[0], []);
     const uahAccounts = useMemo(
@@ -37,11 +39,20 @@ const TrainTicketForm: React.FC = () => {
         }
     }, [selectedAccountId, uahAccounts]);
 
-    const isDateValid = departureDate ? departureDate >= minDate : false;
+    const isValidDepartureDate = departureDate ? departureDate >= minDate : false;
+
+    useEffect(() => {
+        if (!successMessage) {
+            return;
+        }
+        const timeoutId = window.setTimeout(() => navigate('/dashboard/payments'), SUCCESS_DELAY_MS);
+        return () => window.clearTimeout(timeoutId);
+    }, [navigate, successMessage]);
 
     const handleSubmit = async (event: React.FormEvent) => {
         event.preventDefault();
         setError('');
+        setSuccessMessage('');
 
         const parsedAmount = Number(amount);
 
@@ -55,7 +66,7 @@ const TrainTicketForm: React.FC = () => {
             return;
         }
 
-        if (!isDateValid) {
+        if (!isValidDepartureDate) {
             setError('Дата поїздки має бути сьогодні або пізніше');
             return;
         }
@@ -76,8 +87,7 @@ const TrainTicketForm: React.FC = () => {
                 ticketType,
             });
             await queryClient.invalidateQueries({ queryKey: ['transactions'] });
-            alert('Оплату квитків успішно виконано!');
-            navigate('/dashboard/payments');
+            setSuccessMessage('Оплату квитків успішно виконано!');
         } catch (err) {
             setError(err instanceof Error ? err.message : 'Помилка при оплаті квитків');
         } finally {
@@ -187,6 +197,7 @@ const TrainTicketForm: React.FC = () => {
                     </section>
 
                     {error && <div className="error-message">{error}</div>}
+                    {successMessage && <div className="sender-tax-info">{successMessage}</div>}
 
                     <button
                         type="submit"

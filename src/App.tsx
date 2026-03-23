@@ -7,7 +7,6 @@ const RegisterForm = lazy(() => import('./RegisterForm').then(module => ({ defau
 const VerifyEmailForm = lazy(() => import('./VerifyEmailForm').then(module => ({ default: module.VerifyEmailForm })));
 const ForgotPasswordForm = lazy(() => import('./ForgotPasswordForm').then(module => ({ default: module.ForgotPasswordForm })));
 const UserDashboard = lazy(() => import('./UserDashboard'));
-const TrainTicketForm = lazy(() => import('./selections/payment/TrainTicketForm'));
 
 function App() {
     const navigate = useNavigate();
@@ -125,11 +124,7 @@ function App() {
                     </ProtectedRoute>
                 } />
 
-                <Route path="/payments/train" element={
-                    <ProtectedRoute>
-                        <TrainTicketForm />
-                    </ProtectedRoute>
-                } />
+                <Route path="/payments/train" element={<Navigate to="/dashboard/payments/train" replace />} />
 
                 <Route path="/" element={<Navigate to="/dashboard/accounts" replace />} />
                 <Route path="*" element={<Navigate to="/login" replace />} />
