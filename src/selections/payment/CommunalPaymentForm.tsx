@@ -122,7 +122,7 @@ const CommunalPaymentForm: React.FC<CommunalPaymentFormProps> = ({ onBack, onPay
                                     >
                                         <strong>{account.card?.cardNumber ? `**** ${account.card.cardNumber.slice(-4)}` : 'Номер картки недоступний'}</strong>
                                         <span>{account.balance.toLocaleString('uk-UA', { minimumFractionDigits: 2 })} UAH</span>
-                                        <small>{account.accountNumber}</small>
+                                        <small>**** {account.accountNumber.slice(-4)}</small>
                                     </button>
                                 ))
                             ) : (
