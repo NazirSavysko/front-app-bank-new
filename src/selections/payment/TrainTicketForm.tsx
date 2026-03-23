@@ -28,16 +28,16 @@ const TrainTicketForm: React.FC = () => {
     const [successMessage, setSuccessMessage] = useState('');
 
     const minDate = useMemo(() => new Date().toISOString().split('T')[0], []);
-    const uahAccounts = useMemo(
-        () => accounts.filter((account) => account.currencyCode === 'UAH'),
+    const accountsList = useMemo(
+        () => accounts.filter((account) => account.currency === 'UAH'),
         [accounts]
     );
 
     useEffect(() => {
-        if (uahAccounts.length > 0 && !uahAccounts.some((acc) => acc.id === selectedAccountId)) {
-            setSelectedAccountId(uahAccounts[0].id);
+        if (accountsList.length > 0 && !accountsList.some((acc) => acc.id === selectedAccountId)) {
+            setSelectedAccountId(accountsList[0].id);
         }
-    }, [selectedAccountId, uahAccounts]);
+    }, [selectedAccountId, accountsList]);
 
     const isValidDepartureDate = departureDate ? departureDate >= minDate : false;
 
@@ -57,7 +57,7 @@ const TrainTicketForm: React.FC = () => {
         const parsedAmount = Number(amount);
 
         if (!selectedAccountId) {
-            setError('Оберіть UAH рахунок для оплати');
+            setError('Оберіть рахунок для оплати');
             return;
         }
 
@@ -99,38 +99,40 @@ const TrainTicketForm: React.FC = () => {
         <div className="payment-form-wrapper">
             <div className="payment-form-container train-ticket-root">
                 <div className="payment-header">
-                    <button type="button" className="back-button" onClick={() => navigate('/dashboard/payments')}>
-                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><line x1="19" y1="12" x2="5" y2="12"></line><polyline points="12 19 5 12 12 5"></polyline></svg>
+                    <button className="back-button" onClick={() => navigate('/dashboard/payments')}>
+                        ← Назад
                     </button>
                     <h2>Квитки на потяг</h2>
                 </div>
 
-                <form className="payment-form" onSubmit={handleSubmit}>
-                    <section className="train-card">
-                        <h3 className="train-section-title">Звідки списуємо</h3>
-                        <div className="train-scroll-row">
-                            {uahAccounts.length > 0 ? (
-                                uahAccounts.map((account) => (
-                                    <button
-                                        key={account.id}
-                                        type="button"
-                                        className={`train-account-card ${selectedAccountId === account.id ? 'is-active' : ''}`}
-                                        onClick={() => setSelectedAccountId(account.id)}
-                                        disabled={isLoading}
+                <form className="payment-form train-form" onSubmit={handleSubmit}>
+                    {accountsList.length === 0 ? (
+                        <div className="error-message">У вас немає рахунків у гривні (UAH) або ФОП для оплати</div>
+                    ) : (
+                        <div className="form-group">
+                            <label className="input-label">Звідки списати</label>
+                            <div className="train-scroll-row">
+                                {accountsList.map((acc) => (
+                                    <div
+                                        key={acc.id}
+                                        className={`train-account-card ${selectedAccountId === acc.id ? 'is-active' : ''}`}
+                                        onClick={() => setSelectedAccountId(acc.id)}
                                     >
-                                        <strong>**** {account.card.cardNumber.slice(-4)}</strong>
-                                        <span>{account.balance.toLocaleString('uk-UA')} UAH</span>
-                                    </button>
-                                ))
-                            ) : (
-                                <p className="train-empty">Немає доступних UAH рахунків</p>
-                            )}
+                                        <div className="train-account-name">
+                                            {acc.accountType === 'FOP' ? 'ФОП Рахунок' : 'Поточний рахунок'}
+                                        </div>
+                                        <div className="train-account-balance">
+                                            {acc.balance.toLocaleString('uk-UA', { minimumFractionDigits: 2 })} {acc.currencyCode || acc.currency}
+                                        </div>
+                                        <div className="train-account-number">*{acc.accountNumber.slice(-4)}</div>
+                                    </div>
+                                ))}
+                            </div>
                         </div>
-                    </section>
+                    )}
 
-                    <section className="train-card">
-                        <h3 className="train-section-title">Маршрут та дата</h3>
-                        <label className="input-label">Звідки</label>
+                    <div className="form-group">
+                        <label className="input-label">Маршрут</label>
                         <input
                             type="text"
                             className="form-input train-white-input"
@@ -140,8 +142,6 @@ const TrainTicketForm: React.FC = () => {
                             required
                             disabled={isLoading}
                         />
-
-                        <label className="input-label">Куди</label>
                         <input
                             type="text"
                             className="form-input train-white-input"
@@ -151,8 +151,6 @@ const TrainTicketForm: React.FC = () => {
                             required
                             disabled={isLoading}
                         />
-
-                        <label className="input-label">Дата поїздки</label>
                         <input
                             type="date"
                             className="form-input train-white-input"
@@ -162,10 +160,10 @@ const TrainTicketForm: React.FC = () => {
                             required
                             disabled={isLoading}
                         />
-                    </section>
+                    </div>
 
-                    <section className="train-card">
-                        <h3 className="train-section-title">Тип квитка</h3>
+                    <div className="form-group">
+                        <label className="input-label">Тип квитка</label>
                         <div className="train-scroll-row">
                             {TICKET_TYPES.map((type) => (
                                 <button
@@ -179,10 +177,10 @@ const TrainTicketForm: React.FC = () => {
                                 </button>
                             ))}
                         </div>
-                    </section>
+                    </div>
 
-                    <section className="train-card">
-                        <h3 className="train-section-title">Вартість квитка</h3>
+                    <div className="form-group">
+                        <label className="input-label">Вартість квитка</label>
                         <input
                             type="number"
                             className="form-input train-white-input"
@@ -192,9 +190,9 @@ const TrainTicketForm: React.FC = () => {
                             min="0.01"
                             step="0.01"
                             required
-                            disabled={isLoading || uahAccounts.length === 0}
+                            disabled={isLoading || accountsList.length === 0}
                         />
-                    </section>
+                    </div>
 
                     {error && <div className="error-message">{error}</div>}
                     {successMessage && <div className="sender-tax-info">{successMessage}</div>}
@@ -202,7 +200,7 @@ const TrainTicketForm: React.FC = () => {
                     <button
                         type="submit"
                         className="submit-payment-btn train-submit-btn"
-                        disabled={isLoading || uahAccounts.length === 0}
+                        disabled={isLoading || accountsList.length === 0}
                     >
                         {isLoading ? 'Обробка...' : 'Оплатити'}
                     </button>

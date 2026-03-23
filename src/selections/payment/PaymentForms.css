@@ -388,6 +388,22 @@
     background: #6d28d9;
 }
 
+.train-account-name {
+    font-weight: 600;
+    font-size: 0.9rem;
+}
+
+.train-account-balance {
+    font-size: 1.1rem;
+    font-weight: 700;
+    margin: 2px 0;
+}
+
+.train-account-number {
+    font-size: 0.8rem;
+    color: #6b7280;
+}
+
 @media (max-width: 768px) {
     .payment-form-wrapper {
         background-color: #fff; /* White background for the whole form area on mobile */
