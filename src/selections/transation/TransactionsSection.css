@@ -292,27 +292,27 @@
 }
 
 .transaction-icon--communal-electricity {
-    background: #fffbeb;
+    background: #fef3c7;
     color: #d97706;
 }
 
 .transaction-icon--communal-water {
-    background: #eff6ff;
+    background: #dbeafe;
     color: #2563eb;
 }
 
 .transaction-icon--communal-gas {
-    background: #fff7ed;
+    background: #ffedd5;
     color: #ea580c;
 }
 
 .transaction-icon--communal-heating {
-    background: #fef2f2;
+    background: #fee2e2;
     color: #dc2626;
 }
 
 .transaction-icon--communal-general {
-    background: #ecfeff;
+    background: #cffafe;
     color: #0891b2;
 }
 
