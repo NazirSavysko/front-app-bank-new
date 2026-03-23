@@ -8,6 +8,7 @@ import MobilePaymentForm from './MobilePaymentForm';
 import TaxesPaymentForm from './TaxesPaymentForm';
 import ElectronicsShopForm from './ElectronicsShopForm';
 import TrainTicketForm from './TrainTicketForm';
+import CommunalPaymentForm from './CommunalPaymentForm';
 
 // Import CSS
 import './PaymentForms.css';
@@ -57,6 +58,8 @@ const PaymentsHome: React.FC = () => {
             navigate('taxes');
         } else if (id === 'travel') {
             navigate('train');
+        } else if (id === 'utilities') {
+            navigate('communal');
         } else {
              // Redirect to IBAN form as a generic recipient for now
              navigate('iban');
@@ -173,6 +176,13 @@ const PaymentsSection: React.FC<PaymentsSectionProps> = (props) => {
                     accounts={props.accounts}
                     customer={props.customer}
                     onPaymentFlowStateChange={props.onPaymentFlowStateChange}
+                    onPaymentComplete={props.onPaymentComplete}
+                    onCopy={props.onCopy}
+                    onBack={() => navigate('/dashboard/payments')}
+                />
+            } />
+            <Route path="communal" element={
+                <CommunalPaymentForm
                     onPaymentComplete={props.onPaymentComplete}
                     onCopy={props.onCopy}
                     onBack={() => navigate('/dashboard/payments')}

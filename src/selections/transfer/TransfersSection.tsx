@@ -40,6 +40,20 @@ const TransfersSection: React.FC<TransfersSectionProps> = ({
     const otpRefs = useRef<Array<HTMLInputElement | null>>([]);
     const senderCardsRef = useRef<HTMLDivElement | null>(null);
 
+    const handleHorizontalWheel = (event: React.WheelEvent<HTMLDivElement>) => {
+        const row = event.currentTarget;
+        const hasHorizontalOverflow = row.scrollWidth > row.clientWidth;
+        if (!hasHorizontalOverflow) {
+            return;
+        }
+
+        const dominantDelta = Math.abs(event.deltaX) > Math.abs(event.deltaY) ? event.deltaX : event.deltaY;
+        const scrollDelta = event.deltaMode === WheelEvent.DOM_DELTA_LINE ? dominantDelta * 100 : dominantDelta;
+
+        event.preventDefault();
+        event.stopPropagation();
+        row.scrollBy({ left: scrollDelta });
+    };
 
     const setCodeAt = (code: string, index: number, value: string) => {
         const chars = Array.from({length: CODE_LENGTH}, (_, i) => code[i] ?? '');
@@ -370,7 +384,7 @@ const TransfersSection: React.FC<TransfersSectionProps> = ({
                 {/* Вибір картки відправника */}
                 <div className="sender-section">
                     <h4>Виберіть картку для списання коштів:</h4>
-                    <div className="sender-cards" ref={senderCardsRef}>
+                    <div className="sender-cards" ref={senderCardsRef} onWheel={handleHorizontalWheel}>
                         {customer?.accounts.map(account => (
                             <div
                                 key={account.card.cardNumber}

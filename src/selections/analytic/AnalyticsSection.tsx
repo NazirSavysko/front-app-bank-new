@@ -135,6 +135,9 @@ const AnalyticsSection: React.FC<AnalyticsSectionProps> = ({
         if ((summaryData?.totalCardToCardExpenses || 0) > 0) {
             newPieData.push({ name: 'Картка-картка', value: summaryData?.totalCardToCardExpenses || 0, color: '#EF4444' });
         }
+        if ((summaryData?.totalUtilityExpenses || 0) > 0) {
+            newPieData.push({ name: 'Комунальні', value: summaryData?.totalUtilityExpenses || 0, color: '#F97316' });
+        }
 
         if (newPieData.length === 0 && expenseValue > 0) {
             newPieData.push({ name: 'Витрати', value: expenseValue, color: '#EF4444' });

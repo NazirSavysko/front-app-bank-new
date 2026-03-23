@@ -258,37 +258,62 @@
 
 .transaction-icon--transfer {
     background: #dbeafe;
-    color: #1d4ed8;
-}
-
-.transaction-icon--tax-payment {
-    background: #ffedd5;
-    color: #c2410c;
+    color: var(--primary-600);
 }
 
 .transaction-icon--iban-payment {
-    background: #dcfce7;
-    color: #166534;
+    background: #e0e7ff;
+    color: #4f46e5;
+}
+
+.transaction-icon--tax-payment {
+    background: #ecfdf5;
+    color: #059669;
 }
 
 .transaction-icon--internet-payment {
-    background: #ede9fe;
-    color: #6d28d9;
+    background: #fdf2f8;
+    color: #db2777;
 }
 
 .transaction-icon--mobile-payment {
-    background: #ede9fe;
-    color: #7c3aed;
-}
-
-.transaction-icon--electronics {
     background: #e0f2fe;
     color: #0284c7;
 }
 
+.transaction-icon--electronics {
+    background: #f3e8ff;
+    color: #7c3aed;
+}
+
 .transaction-icon--train-ticket {
+    background: #fdf4ff;
+    color: #d946ef;
+}
+
+.transaction-icon--communal-electricity {
     background: #fef3c7;
     color: #d97706;
+}
+
+.transaction-icon--communal-water {
+    background: #dbeafe;
+    color: #2563eb;
+}
+
+.transaction-icon--communal-gas {
+    background: #ffedd5;
+    color: #ea580c;
+}
+
+.transaction-icon--communal-heating {
+    background: #fee2e2;
+    color: #dc2626;
+}
+
+.transaction-icon--communal-general {
+    background: #cffafe;
+    color: #0891b2;
 }
 
 .transaction-summary {
