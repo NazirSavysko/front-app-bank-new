@@ -6,9 +6,9 @@ import { useAccounts } from '../../hooks/useAccounts';
 import './PaymentForms.css';
 
 const TICKET_TYPES = [
-    { value: 'INTERCITY', label: '🚆 Інтерсіті' },
-    { value: 'KUPE', label: '🛏️ Купе' },
-    { value: 'PLATSKART', label: '🚞 Плацкарт' },
+    { value: 'INTERCITY', label: ' Інтерсіті ' },
+    { value: 'KUPE', label: ' Купе' },
+    { value: 'PLATSKART', label: ' Плацкарт' },
 ];
 const SUCCESS_DELAY_MS = 700;
 

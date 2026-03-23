@@ -1,6 +1,7 @@
 import React, {useEffect, useRef, useState} from 'react';
 import { useQueryClient } from '@tanstack/react-query';
 import type {CustomerData, TransferSuccess} from '../../types.ts';
+import { formatUkDateTime } from '../../utils/datetime.ts';
 import './TransfersSection.css';
 
 export interface TransfersSectionProps {
@@ -341,7 +342,7 @@ const TransfersSection: React.FC<TransfersSectionProps> = ({
                         </div>
                         <div className="detail-row">
                             <span>Дата:</span>
-                            <span>{new Date(transferSuccess.transactionDate).toLocaleString('uk-UA')}</span>
+                            <span>{formatUkDateTime(transferSuccess.transactionDate)}</span>
                         </div>
                         <div className="detail-row">
                             <span>Статус:</span>

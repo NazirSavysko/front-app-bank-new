@@ -15,7 +15,13 @@ export function normalizeIso(iso: string): string {
 
 /** Безпечний парсер ISO -> Date (через normalizeIso) */
 export function parseSafeDate(iso: string): Date {
-    return new Date(normalizeIso(iso));
+    let s = normalizeIso(iso);
+    // Додаємо Z, якщо немає інформації про часовий пояс (Z або ±HH:mm),
+    // щоб дата сприймалася як UTC, а не локальна
+    if (!/(Z|[+-]\d{2}:?\d{2})$/.test(s)) {
+        s += 'Z';
+    }
+    return new Date(s);
 }
 
 /** Форматування дати для UI */
