@@ -21,11 +21,11 @@ const CommunalPaymentForm: React.FC<CommunalPaymentFormProps> = ({ onBack, onPay
     const queryClient = useQueryClient();
     const { accounts } = useAccounts();
 
-    const fopUahAccounts = useMemo(
+    const communalUahAccounts = useMemo(
         () =>
             accounts.filter(
                 (account) =>
-                    account.accountType === 'FOP' &&
+                    (account.accountType === 'FOP' || account.accountType === 'CURRENT') &&
                     (account.currencyCode === 'UAH' || account.currency === 'UAH')
             ),
         [accounts]
@@ -39,10 +39,10 @@ const CommunalPaymentForm: React.FC<CommunalPaymentFormProps> = ({ onBack, onPay
     const [isLoading, setIsLoading] = useState(false);
 
     useEffect(() => {
-        if (fopUahAccounts.length > 0 && !fopUahAccounts.some((account) => account.id === selectedAccountId)) {
-            setSelectedAccountId(fopUahAccounts[0].id);
+        if (communalUahAccounts.length > 0 && !communalUahAccounts.some((account) => account.id === selectedAccountId)) {
+            setSelectedAccountId(communalUahAccounts[0].id);
         }
-    }, [fopUahAccounts, selectedAccountId]);
+    }, [communalUahAccounts, selectedAccountId]);
 
     const parsedAmount = Number(amount);
     const isSubmitDisabled =
@@ -94,10 +94,10 @@ const CommunalPaymentForm: React.FC<CommunalPaymentFormProps> = ({ onBack, onPay
 
                 <form className="payment-form" onSubmit={handleSubmit}>
                     <section className="communal-card">
-                        <h3>Оберіть рахунок ФОП (UAH)</h3>
+                        <h3>Оберіть рахунок для оплати (ФОП або картка UAH)</h3>
                         <div className="communal-scroll-row">
-                            {fopUahAccounts.length > 0 ? (
-                                fopUahAccounts.map((account) => (
+                            {communalUahAccounts.length > 0 ? (
+                                communalUahAccounts.map((account) => (
                                     <button
                                         key={account.id}
                                         type="button"
@@ -111,7 +111,7 @@ const CommunalPaymentForm: React.FC<CommunalPaymentFormProps> = ({ onBack, onPay
                                     </button>
                                 ))
                             ) : (
-                                <p className="communal-empty-state">Немає доступних ФОП рахунків у UAH</p>
+                                <p className="communal-empty-state">Немає доступних рахунків або карток у UAH</p>
                             )}
                         </div>
                     </section>
@@ -157,7 +157,7 @@ const CommunalPaymentForm: React.FC<CommunalPaymentFormProps> = ({ onBack, onPay
                             placeholder="0.00"
                             min="0.01"
                             step="0.01"
-                            disabled={isLoading || fopUahAccounts.length === 0}
+                            disabled={isLoading || communalUahAccounts.length === 0}
                         />
                     </section>
 
@@ -166,7 +166,7 @@ const CommunalPaymentForm: React.FC<CommunalPaymentFormProps> = ({ onBack, onPay
                     <button
                         type="submit"
                         className="submit-payment-btn communal-submit-btn"
-                        disabled={isSubmitDisabled || fopUahAccounts.length === 0}
+                        disabled={isSubmitDisabled || communalUahAccounts.length === 0}
                     >
                         {isLoading ? 'Обробка...' : 'Оплатити'}
                     </button>
