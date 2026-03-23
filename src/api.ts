@@ -160,6 +160,12 @@ export const fetchAnalyticsSummary = async (
         totalExpense: Number(data.totalExpense ?? data.totalOutgoing ?? 0),
         operationsCount: Number(data.operationsCount ?? data.totalTransactions ?? 0),
         currency: data.currency ?? '',
+        totalMobileExpenses: Number(data.totalMobileExpenses ?? 0),
+        totalInternetExpenses: Number(data.totalInternetExpenses ?? 0),
+        totalIbanExpenses: Number(data.totalIbanExpenses ?? 0),
+        totalTaxExpenses: Number(data.totalTaxExpenses ?? 0),
+        totalElectronicsExpenses: Number(data.totalElectronicsExpenses ?? 0),
+        totalCardToCardExpenses: Number(data.totalCardToCardExpenses ?? 0),
     };
 };
 
@@ -173,7 +179,12 @@ export const createIbanPayment = async (payload: IbanPaymentRequest) => {
         const error = await res.json().catch(() => ({}));
         throw new Error(error.message || 'Помилка при створенні платежу IBAN');
     }
-    return res.json();
+    const text = await res.text();
+    try {
+        return JSON.parse(text);
+    } catch {
+        return text;
+    }
 };
 
 export const createInternetPayment = async (payload: InternetPaymentRequest) => {
@@ -186,7 +197,12 @@ export const createInternetPayment = async (payload: InternetPaymentRequest) => 
         const error = await res.json().catch(() => ({}));
         throw new Error(error.message || 'Помилка при оплаті Інтернету');
     }
-    return res.json();
+    const text = await res.text();
+    try {
+        return JSON.parse(text);
+    } catch {
+        return text;
+    }
 };
 
 export const createMobilePayment = async (payload: MobilePaymentRequest) => {
@@ -199,5 +215,10 @@ export const createMobilePayment = async (payload: MobilePaymentRequest) => {
         const error = await res.json().catch(() => ({}));
         throw new Error(error.message || 'Помилка при поповненні мобільного');
     }
-    return res.json();
+    const text = await res.text();
+    try {
+        return JSON.parse(text);
+    } catch {
+        return text;
+    }
 };

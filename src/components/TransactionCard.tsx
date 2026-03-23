@@ -36,6 +36,7 @@ const TRANSACTION_ICON_VARIANTS: Record<string, string> = {
     TRANSFER: 'transfer',
     IBAN_PAYMENT: 'iban-payment',
     INTERNET_PAYMENT: 'internet-payment',
+    MOBILE_PAYMENT: 'mobile-payment',
 };
 
 const formatPersonName = (person?: { firstName: string; lastName: string }) => {
@@ -50,7 +51,16 @@ const maskCardNumber = (cardNumber?: string) => (
     cardNumber ? (cardNumber.length > 4 ? `**** ${cardNumber.slice(-4)}` : '****') : '—'
 );
 
-const TransactionTypeIcon: React.FC<{ transactionType: string }> = ({ transactionType }) => {
+const TransactionTypeIcon: React.FC<{ transactionType: string; isMobileTopUp: boolean }> = ({ transactionType, isMobileTopUp }) => {
+    if (isMobileTopUp) {
+        return (
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+                <rect x="7" y="2" width="10" height="20" rx="2"></rect>
+                <line x1="12" y1="18" x2="12.01" y2="18"></line>
+            </svg>
+        );
+    }
+
     switch (transactionType) {
         case 'TRANSFER':
             return (
@@ -105,6 +115,11 @@ const TransactionCard: React.FC<TransactionCardProps> = ({ transaction }) => {
     const mainAmount = `${amountPrefix}${formatAmount(transaction.amount)} ${transaction.currencyCode}`;
     const senderName = formatPersonName(transaction.sender);
     const receiverName = formatPersonName(transaction.receiver);
+    const descriptionLower = (transaction.description || '').toLowerCase();
+    const isMobileTopUp =
+        descriptionLower.includes('поповнення мобільного') ||
+        descriptionLower.includes('мобільний') ||
+        transaction.transactionType === 'MOBILE_PAYMENT';
     const shortTitle = (() => {
         switch (transaction.transactionType) {
             case 'TRANSFER':
@@ -113,12 +128,14 @@ const TransactionCard: React.FC<TransactionCardProps> = ({ transaction }) => {
                 return isIncoming ? TRANSACTION_TITLES.IBAN_PAYMENT.incoming : TRANSACTION_TITLES.IBAN_PAYMENT.outgoing;
             case 'INTERNET_PAYMENT':
                 return TRANSACTION_TITLES.INTERNET_PAYMENT.outgoing;
+            case 'MOBILE_PAYMENT':
+                return 'Поповнення мобільного';
             default:
-                return 'Транзакція';
+                return isMobileTopUp ? 'Поповнення мобільного' : 'Транзакція';
         }
     })();
     const amountColor = isIncoming ? 'var(--green-600)' : 'var(--red-600)';
-    const iconVariant = TRANSACTION_ICON_VARIANTS[transaction.transactionType] || 'transfer';
+    const iconVariant = isMobileTopUp ? 'mobile-payment' : (TRANSACTION_ICON_VARIANTS[transaction.transactionType] || 'transfer');
 
     const [expanded, setExpanded] = useState(false);
     const toggleExpanded = () => setExpanded(prevExpanded => !prevExpanded);
@@ -145,7 +162,7 @@ const TransactionCard: React.FC<TransactionCardProps> = ({ transaction }) => {
         >
             <div className="transaction-header">
                 <div className={`transaction-icon transaction-icon--${iconVariant}`}>
-                    <TransactionTypeIcon transactionType={transaction.transactionType} />
+                    <TransactionTypeIcon transactionType={transaction.transactionType} isMobileTopUp={isMobileTopUp} />
                 </div>
                 <div className="transaction-summary">
                     <div className="transaction-summary-main">

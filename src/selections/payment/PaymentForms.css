@@ -79,6 +79,13 @@
     border: 1px solid #bfdbfe;
 }
 
+.error-message,
+.payment-error-message,
+.field-error-message {
+    color: #ef4444 !important;
+    font-weight: 500;
+}
+
 .input-label {
     display: block;
     font-size: 0.92rem;

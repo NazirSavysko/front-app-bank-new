@@ -45,6 +45,12 @@ export interface AnalyticsSummary {
     totalExpense: number;
     operationsCount: number;
     currency: string;
+    totalMobileExpenses?: number;
+    totalInternetExpenses?: number;
+    totalIbanExpenses?: number;
+    totalTaxExpenses?: number;
+    totalElectronicsExpenses?: number;
+    totalCardToCardExpenses?: number;
 }
 
 export type AccountType = 'CURRENT' | 'FOP';
