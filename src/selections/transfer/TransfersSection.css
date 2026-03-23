@@ -790,7 +790,7 @@
 }
 
 /* ======== МОДАЛЬНОЕ ОКНО / ОВЕРЛЕЙ ======== */
-.modal-overlay {
+.transfer-modal-overlay {
     position: fixed;
     inset: 0;
     width: 100%;

@@ -588,7 +588,7 @@ const TransfersSection: React.FC<TransfersSectionProps> = ({
             </div>
 
             {showEmailVerification && (
-                <div className="modal-overlay verification-overlay" role="dialog" aria-modal="true">
+                <div className="transfer-modal-overlay verification-overlay" role="dialog" aria-modal="true">
                     <div className="verification-modal">
                         <div className="verification-header">
                             <h3>Підтвердження переказу</h3>

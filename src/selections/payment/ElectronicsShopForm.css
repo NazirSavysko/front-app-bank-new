@@ -1,6 +1,6 @@
 .electronics-shop-page {
     min-height: 0;
-    height: calc(100vh - 280px);
+    height: 100%;
     width: 100%;
     position: relative;
     animation: slideInPage 0.3s ease-out;
@@ -134,6 +134,8 @@
 .electronics-products-scroll-area {
     flex: 1;
     overflow-y: auto;
+    overscroll-behavior-y: contain;
+    -webkit-overflow-scrolling: touch;
     padding-bottom: 1rem;
     padding-right: 0.5rem; /* Space for scrollbar */
     min-height: 0; /* Critical for nested flex scrolling */
