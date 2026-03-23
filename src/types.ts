@@ -57,7 +57,6 @@ export interface Account {
     accountType: AccountType;
     balance: number;
     currency: AccountCurrency;
-    currencyCode?: AccountCurrency;
     edrpou: string;
     status: string;
     card: {

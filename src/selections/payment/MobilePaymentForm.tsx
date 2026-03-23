@@ -5,6 +5,7 @@ import { useAccounts } from '../../hooks/useAccounts';
 import './PaymentForms.css';
 
 const PHONE_REGEX = /^\+380\d{9}$/;
+const SUCCESS_MESSAGE_DISPLAY_DURATION = 700;
 
 const MobilePaymentForm: React.FC = () => {
     const queryClient = useQueryClient();
@@ -15,12 +16,9 @@ const MobilePaymentForm: React.FC = () => {
     const [amount, setAmount] = useState('');
     const [isLoading, setIsLoading] = useState(false);
     const [error, setError] = useState<string | null>(null);
+    const [successMessage, setSuccessMessage] = useState<string | null>(null);
 
-    const accountsWithCurrencyCode = useMemo(
-        () => accounts.map((acc) => ({ ...acc, currencyCode: acc.currencyCode ?? acc.currency })),
-        [accounts]
-    );
-    const uahAccounts = accountsWithCurrencyCode.filter((acc) => acc.currencyCode === 'UAH');
+    const uahAccounts = useMemo(() => accounts.filter((acc) => acc.currency === 'UAH'), [accounts]);
 
     useEffect(() => {
         if (uahAccounts.length > 0 && !uahAccounts.some((acc) => acc.id === selectedAccountId)) {
@@ -40,6 +38,7 @@ const MobilePaymentForm: React.FC = () => {
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
         setError(null);
+        setSuccessMessage(null);
 
         if (!PHONE_REGEX.test(phoneNumber)) {
             setError('Номер телефону має бути у форматі +380XXXXXXXXX');
@@ -60,8 +59,8 @@ const MobilePaymentForm: React.FC = () => {
                 phoneNumber,
             });
             await queryClient.invalidateQueries({ queryKey: ['transactions'] });
-            alert('Поповнення мобільного успішне!');
-            window.history.back();
+            setSuccessMessage('Поповнення мобільного успішне!');
+            setTimeout(() => window.history.back(), SUCCESS_MESSAGE_DISPLAY_DURATION);
         } catch (err) {
             const errorMessage = err instanceof Error ? err.message : 'Помилка при поповненні мобільного';
             setError(errorMessage);
@@ -128,6 +127,7 @@ const MobilePaymentForm: React.FC = () => {
                     </div>
 
                     {error && <div className="error-message">{error}</div>}
+                    {successMessage && <div className="sender-tax-info">{successMessage}</div>}
 
                     <button type="submit" className="submit-payment-btn" disabled={isLoading || uahAccounts.length === 0}>
                         {isLoading ? 'Обробка...' : 'Поповнити'}
