@@ -10,6 +10,7 @@ import type {
     IbanPaymentRequest,
     InternetPaymentRequest,
     MobilePaymentRequest,
+    TaxPaymentRequest,
 } from './types';
 
 const getAuthHeaders = () => {
@@ -215,6 +216,26 @@ export const createMobilePayment = async (payload: MobilePaymentRequest) => {
         const error = await res.json().catch(() => ({}));
         throw new Error(error.message || 'Помилка при поповненні мобільного');
     }
+    const text = await res.text();
+    try {
+        return JSON.parse(text);
+    } catch {
+        return text;
+    }
+};
+
+export const createTaxPayment = async (data: TaxPaymentRequest): Promise<unknown> => {
+    const res = await fetch('/api/v1/payments/taxes', {
+        method: 'POST',
+        headers: getAuthHeaders(),
+        body: JSON.stringify(data),
+    });
+
+    if (!res.ok) {
+        const error = await res.json().catch(() => ({}));
+        throw new Error(error.message || 'Помилка при оплаті податків');
+    }
+
     const text = await res.text();
     try {
         return JSON.parse(text);

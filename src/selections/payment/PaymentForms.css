@@ -200,6 +200,126 @@
     box-shadow: none;
 }
 
+.taxes-payment-root {
+    background: #f1eefb;
+    border-radius: 4px;
+    padding: 1rem;
+}
+
+.taxes-payment-shell {
+    gap: 0.75rem;
+    padding-bottom: 0;
+}
+
+.taxes-section {
+    background: #e7e4f5;
+    border-radius: 4px;
+    padding: 0.5rem;
+}
+
+.taxes-section-title {
+    font-size: 1.05rem;
+    font-weight: 500;
+    color: #1f1f1f;
+    margin: 0 0 0.35rem;
+}
+
+.taxes-account-card {
+    border: 1px solid rgba(99, 102, 241, 0.45);
+    border-radius: 12px;
+    background: #cac5e7;
+    padding: 0.85rem 1rem;
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+}
+
+.taxes-account-icon {
+    width: 44px;
+    height: 44px;
+    border-radius: 10px;
+    background: linear-gradient(150deg, #8476FF, #715EF0);
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.taxes-account-icon span {
+    width: 18px;
+    height: 4px;
+    border-radius: 999px;
+    background: rgba(255, 255, 255, 0.9);
+}
+
+.taxes-account-info {
+    display: flex;
+    flex-direction: column;
+    line-height: 1.25;
+}
+
+.taxes-account-info strong {
+    font-size: 1rem;
+    color: #1f1f1f;
+    font-weight: 500;
+}
+
+.taxes-account-info span {
+    font-size: 0.95rem;
+    color: #2f2f2f;
+}
+
+.taxes-account-balance {
+    margin-left: auto;
+    font-size: 1.75rem;
+    color: #2a2a2a;
+}
+
+.taxes-grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 0.75rem;
+    margin-bottom: 0.75rem;
+}
+
+.taxes-amount-field {
+    position: relative;
+    margin-top: 0.25rem;
+}
+
+.taxes-amount-field .form-input {
+    padding-right: 2.25rem;
+}
+
+.taxes-amount-field span {
+    position: absolute;
+    right: 0.75rem;
+    top: 50%;
+    transform: translateY(-50%);
+    color: #334155;
+}
+
+.taxes-hint {
+    margin: 0.35rem 0 0;
+    color: #6b7280;
+    font-size: 0.82rem;
+}
+
+.taxes-hidden-select {
+    margin-top: 0.5rem;
+}
+
+.sr-only {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    padding: 0;
+    margin: -1px;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+    white-space: nowrap;
+    border: 0;
+}
+
 @media (max-width: 768px) {
     .payment-form-wrapper {
         background-color: #fff; /* White background for the whole form area on mobile */
@@ -254,5 +374,13 @@
         width: 100%;
         margin-top: 1.5rem;
         margin-bottom: 2rem;
+    }
+
+    .taxes-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .taxes-account-balance {
+        font-size: 1.3rem;
     }
 }
