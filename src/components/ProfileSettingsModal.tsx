@@ -36,6 +36,17 @@ const getEmailError = (value: string) => {
     return '';
 };
 
+const mapToInvalidCodeMessage = (message: string) => {
+    const normalized = message.toLowerCase();
+    if (
+        normalized.includes('код') &&
+        (normalized.includes('невір') || normalized.includes('неправ') || normalized.includes('invalid'))
+    ) {
+        return 'Неправильний код верифікації';
+    }
+    return '';
+};
+
 const ProfileSettingsModal: React.FC<ProfileSettingsModalProps> = ({ isOpen, onClose, customer }) => {
     const navigate = useNavigate();
     const [step, setStep] = useState<SettingsStep>('idle');
@@ -113,6 +124,11 @@ const ProfileSettingsModal: React.FC<ProfileSettingsModalProps> = ({ isOpen, onC
     };
 
     const handleSubmitPassword = async () => {
+        const currentCodeError = getCodeError(storedCode);
+        if (currentCodeError) {
+            setError(currentCodeError);
+            return;
+        }
         if (!newPassword.trim()) {
             setError('Введіть новий пароль');
             return;
@@ -132,7 +148,8 @@ const ProfileSettingsModal: React.FC<ProfileSettingsModalProps> = ({ isOpen, onC
             setStoredCode('');
             setNewPassword('');
         } catch (err) {
-            setError((err as Error).message || 'Не вдалося змінити пароль');
+            const backendMessage = (err as Error).message || 'Не вдалося змінити пароль';
+            setError(mapToInvalidCodeMessage(backendMessage) || backendMessage);
         } finally {
             setLoading(false);
         }
@@ -140,6 +157,11 @@ const ProfileSettingsModal: React.FC<ProfileSettingsModalProps> = ({ isOpen, onC
 
     const handleSubmitEmail = async () => {
         const normalizedEmail = newEmail.trim();
+        const currentCodeError = getCodeError(storedCode);
+        if (currentCodeError) {
+            setError(currentCodeError);
+            return;
+        }
         const currentEmailError = getEmailError(normalizedEmail);
         if (currentEmailError) {
             setError(currentEmailError);
@@ -153,7 +175,8 @@ const ProfileSettingsModal: React.FC<ProfileSettingsModalProps> = ({ isOpen, onC
             alert('Пошту успішно змінено. Будь ласка, увійдіть знову.');
             handleLogout();
         } catch (err) {
-            setError((err as Error).message || 'Не вдалося змінити пошту');
+            const backendMessage = (err as Error).message || 'Не вдалося змінити пошту';
+            setError(mapToInvalidCodeMessage(backendMessage) || backendMessage);
         } finally {
             setLoading(false);
         }
