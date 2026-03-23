@@ -12,6 +12,8 @@ import type {
     MobilePaymentRequest,
     TaxPaymentRequest,
     ElectronicsPaymentRequest,
+    ChangePasswordRequest,
+    ChangeEmailRequest,
 } from './types';
 
 const getAuthHeaders = () => {
@@ -346,4 +348,52 @@ export const changeEmail = async (verificationCode: string, newEmail: string): P
     } catch {
         return text;
     }
+};
+
+export const requestSettingsCode = async (type: 'password' | 'email'): Promise<unknown> => {
+    const res = await fetch(`/api/v1/customers/me/settings/${type}/init`, {
+        method: 'POST',
+        headers: getAuthHeaders(),
+    });
+
+    if (!res.ok) {
+        const body = await res.json().catch(() => ({}));
+        throw new Error(body.message || 'Failed to request verification code');
+    }
+
+    if (typeof res.text === 'function') {
+        const text = await res.text();
+        try {
+            return JSON.parse(text);
+        } catch {
+            return text;
+        }
+    }
+    return res;
+};
+
+export const submitSettingsChange = async (
+    type: 'password' | 'email',
+    data: ChangePasswordRequest | ChangeEmailRequest
+): Promise<unknown> => {
+    const res = await fetch(`/api/v1/customers/me/settings/${type}/change`, {
+        method: 'POST',
+        headers: getAuthHeaders(),
+        body: JSON.stringify(data),
+    });
+
+    if (!res.ok) {
+        const body = await res.json().catch(() => ({}));
+        throw new Error(body.message || 'Failed to submit settings change');
+    }
+
+    if (typeof res.text === 'function') {
+        const text = await res.text();
+        try {
+            return JSON.parse(text);
+        } catch {
+            return text;
+        }
+    }
+    return res;
 };

@@ -137,3 +137,13 @@ export interface ElectronicsPaymentRequest {
     totalAmount: number;
     items: CartItemDTO[];
 }
+
+export interface ChangePasswordRequest {
+    verificationCode: string;
+    newPassword: string;
+}
+
+export interface ChangeEmailRequest {
+    verificationCode: string;
+    newEmail: string;
+}

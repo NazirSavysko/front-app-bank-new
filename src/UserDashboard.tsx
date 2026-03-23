@@ -6,6 +6,7 @@ import './UserDashboard.css';
 import {createAccount} from "./api.ts";
 import SectionErrorBoundary from './components/SectionErrorBoundary';
 import { useAccounts } from './hooks/useAccounts';
+import ProfileSettingsModal from './components/ProfileSettingsModal.tsx';
 
 const AccountsSection = lazy(() => import('./selections/account/AccountsSection.tsx'));
 const TransactionsSection = lazy(() => import('./selections/transation/TransactionsSection.tsx'));
@@ -91,6 +92,7 @@ const UserDashboard: React.FC = () => {
     const [selectedAccountIndex, setSelectedAccountIndex] = useState(0);
     const [showAddModal, setShowAddModal] = useState(false);
     const [showProfile, setShowProfile] = useState(false);
+    const [showSettingsModal, setShowSettingsModal] = useState(false);
     const [newAccountType, setNewAccountType] = useState<AccountType>('CURRENT');
     const [newAccountCurrency, setNewAccountCurrency] = useState<AccountCurrency>('UAH');
     const [accountError, setAccountError] = useState('');
@@ -219,8 +221,8 @@ const UserDashboard: React.FC = () => {
                             <p className="dashboard-subtitle">Керуйте своїми фінансами легко та безпечно</p>
                         </div>
                         <div className="dashboard-actions">
-                            <button className="profile-button" onClick={() => setShowProfile(!showProfile)}
-                                    aria-label="Відкрити профіль" disabled={isTransferNavigationLocked}>
+                            <button className="profile-button" onClick={() => setShowSettingsModal(true)}
+                                     aria-label="Відкрити профіль" disabled={isTransferNavigationLocked}>
                                 <div className="profile-avatar">
                                     {customer ? `${customer.firstName.charAt(0)}${customer.lastName.charAt(0)}`.toUpperCase() : 'U'}
                                 </div>
@@ -395,6 +397,9 @@ const UserDashboard: React.FC = () => {
                     )}
                     <div className="profile-actions">
                         <button className="btn btn-secondary" onClick={() => setShowProfile(false)}>Закрити</button>
+                        <button className="btn btn-primary" onClick={() => setShowSettingsModal(true)}>
+                            Налаштування профілю
+                        </button>
                         <button
                             className="btn btn-danger"
                             onClick={() => {
@@ -410,6 +415,12 @@ const UserDashboard: React.FC = () => {
                     </div>
                 </div>
             </div>
+
+            <ProfileSettingsModal
+                isOpen={showSettingsModal}
+                onClose={() => setShowSettingsModal(false)}
+                customer={customer ?? null}
+            />
 
             {/* Add account modal */}
             {showAddModal && (
