@@ -126,6 +126,13 @@ export interface TaxPaymentRequest {
     receiverName: string;
 }
 
+export interface CommunalPaymentRequest {
+    accountId: number;
+    amount: number;
+    utilityProvider: string;
+    personalAccount: string;
+}
+
 export interface CartItemDTO {
     productName: string;
     quantity: number;

@@ -11,6 +11,7 @@ import type {
     InternetPaymentRequest,
     MobilePaymentRequest,
     TaxPaymentRequest,
+    CommunalPaymentRequest,
     ElectronicsPaymentRequest,
     TrainPaymentRequest,
     ChangePasswordRequest,
@@ -315,6 +316,29 @@ export const createTrainPayment = async (data: TrainPaymentRequest): Promise<unk
     } catch {
         return text;
     }
+};
+
+export const createCommunalPayment = async (data: CommunalPaymentRequest): Promise<unknown> => {
+    const res = await fetch('/api/v1/payments/communal', {
+        method: 'POST',
+        headers: getAuthHeaders(),
+        body: JSON.stringify(data),
+    });
+
+    if (!res.ok) {
+        const error = await res.json().catch(() => ({}));
+        throw new Error(error.message || 'Помилка при оплаті комунальних послуг');
+    }
+
+    if (typeof res.text === 'function') {
+        const text = await res.text();
+        try {
+            return JSON.parse(text);
+        } catch {
+            return text;
+        }
+    }
+    return res;
 };
 
 // Profile settings: Password
