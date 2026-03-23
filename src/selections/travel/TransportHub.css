@@ -1,0 +1,340 @@
+.travel-page {
+    min-height: 100dvh;
+    background: #f8f9fa;
+    color: #1f2937;
+}
+
+.travel-header {
+    display: grid;
+    grid-template-columns: 44px 1fr 44px;
+    align-items: center;
+    gap: 0.75rem;
+    padding: 0.75rem 1rem;
+    background: #f8f9fa;
+}
+
+.travel-header h1 {
+    margin: 0;
+    text-align: center;
+    font-size: 1.1rem;
+    font-weight: 700;
+}
+
+.travel-icon-btn {
+    width: 44px;
+    height: 44px;
+    border: none;
+    border-radius: 12px;
+    background: transparent;
+    cursor: pointer;
+    font-size: 1.35rem;
+    color: #6b7280;
+}
+
+.travel-container {
+    min-height: calc(100dvh - 60px);
+    background: #eeeaf5;
+    border-radius: 1rem 1rem 0 0;
+    padding: 1rem;
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+}
+
+.travel-tabs {
+    display: flex;
+    gap: 0.6rem;
+    overflow-x: auto;
+    padding-bottom: 0.15rem;
+}
+
+.travel-tab-chip {
+    border: 1px solid #c4b5fd;
+    border-radius: 999px;
+    background: transparent;
+    color: #6b7280;
+    padding: 0.6rem 0.9rem;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+    font-weight: 600;
+    white-space: nowrap;
+    cursor: pointer;
+}
+
+.travel-tab-chip.active {
+    background: #fff;
+    color: #7c3aed;
+    border-color: #7c3aed;
+    font-weight: 700;
+}
+
+.travel-content {
+    min-height: 0;
+}
+
+.travel-form {
+    display: flex;
+    flex-direction: column;
+    gap: 0.8rem;
+    padding-bottom: 5.5rem;
+}
+
+.travel-field-card {
+    border: 1px solid #c4b5fd;
+    background: #fff;
+    border-radius: 0.85rem;
+    box-shadow: 0 1px 3px rgba(15, 23, 42, 0.08);
+    padding: 0.75rem;
+    display: flex;
+    align-items: center;
+    gap: 0.7rem;
+}
+
+.travel-field-icon {
+    width: 2rem;
+    height: 2rem;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 0.7rem;
+    background: #f3f4f6;
+}
+
+.travel-field-body {
+    display: flex;
+    flex-direction: column;
+    gap: 0.2rem;
+    flex: 1;
+}
+
+.travel-field-label {
+    font-size: 0.78rem;
+    color: #6b7280;
+}
+
+.travel-field-input {
+    border: none;
+    background: transparent;
+    color: #1f2937;
+    font-size: 0.98rem;
+    outline: none;
+    width: 100%;
+}
+
+.travel-reverse-row {
+    display: grid;
+    grid-template-columns: 1fr auto;
+    gap: 0.6rem;
+}
+
+.travel-reverse-btn {
+    border: 1px solid #c4b5fd;
+    background: #fff;
+    border-radius: 0.85rem;
+    width: 3rem;
+    color: #7c3aed;
+    font-size: 1.15rem;
+    box-shadow: 0 1px 3px rgba(15, 23, 42, 0.08);
+}
+
+.travel-account-scroll,
+.travel-ticket-type-scroll,
+.travel-option-scroll {
+    display: flex;
+    gap: 0.65rem;
+    overflow-x: auto;
+    padding-bottom: 0.15rem;
+}
+
+.travel-account-card,
+.travel-ticket-type-card,
+.travel-option-card {
+    background: #fff;
+    border: 1px solid #c4b5fd;
+    border-radius: 0.85rem;
+    box-shadow: 0 1px 3px rgba(15, 23, 42, 0.08);
+}
+
+.travel-account-card {
+    min-width: 230px;
+    padding: 0.75rem;
+    display: flex;
+    align-items: center;
+    gap: 0.65rem;
+    text-align: left;
+    cursor: pointer;
+}
+
+.travel-account-card.active,
+.travel-ticket-type-card.active,
+.travel-option-card.active,
+.travel-dropdown-item.active {
+    border-color: #7c3aed;
+}
+
+.travel-account-flag {
+    width: 2rem;
+    height: 2rem;
+    border-radius: 0.6rem;
+    background: #f3f4f6;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.travel-account-info {
+    display: flex;
+    flex-direction: column;
+    gap: 0.15rem;
+}
+
+.travel-account-info strong {
+    font-size: 0.95rem;
+    color: #1f2937;
+}
+
+.travel-account-info span {
+    font-size: 0.8rem;
+    color: #6b7280;
+}
+
+.travel-ticket-type-card {
+    min-width: 145px;
+    padding: 0.7rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+    text-align: left;
+    cursor: pointer;
+}
+
+.travel-ticket-type-card strong,
+.travel-option-card {
+    color: #1f2937;
+}
+
+.travel-ticket-type-card small {
+    color: #6b7280;
+}
+
+.travel-ticket-type-card em {
+    color: #7c3aed;
+    font-style: normal;
+}
+
+.travel-option-card {
+    min-width: 110px;
+    padding: 0.7rem 0.85rem;
+    cursor: pointer;
+}
+
+.travel-dropdown {
+    position: relative;
+}
+
+.travel-dropdown-trigger {
+    width: 100%;
+    border: 1px solid #c4b5fd;
+    background: #fff;
+    border-radius: 0.85rem;
+    box-shadow: 0 1px 3px rgba(15, 23, 42, 0.08);
+    padding: 0.75rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    color: #1f2937;
+}
+
+.travel-dropdown-list {
+    list-style: none;
+    margin: 0.4rem 0 0;
+    padding: 0.35rem;
+    border: 1px solid #c4b5fd;
+    border-radius: 0.85rem;
+    background: #fff;
+    box-shadow: 0 10px 20px rgba(15, 23, 42, 0.12);
+    position: absolute;
+    width: 100%;
+    z-index: 20;
+}
+
+.travel-dropdown-item {
+    width: 100%;
+    border: 1px solid transparent;
+    border-radius: 0.65rem;
+    background: #fff;
+    padding: 0.65rem 0.75rem;
+    text-align: left;
+    color: #1f2937;
+}
+
+.travel-counter-card {
+    align-items: stretch;
+}
+
+.travel-counter {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.travel-counter button {
+    width: 2rem;
+    height: 2rem;
+    border: 1px solid #c4b5fd;
+    border-radius: 999px;
+    background: #fff;
+    color: #7c3aed;
+}
+
+.travel-pass-section {
+    display: flex;
+    flex-direction: column;
+    gap: 0.6rem;
+}
+
+.travel-pass-section h3 {
+    margin: 0;
+    font-size: 1rem;
+}
+
+.travel-sticky-bar {
+    position: fixed;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: #eeeaf5;
+    padding: 0.65rem 1rem 0.85rem;
+}
+
+.travel-sticky-bar--inline {
+    position: static;
+    padding: 0;
+}
+
+.travel-submit-btn {
+    width: 100%;
+    border: none;
+    border-radius: 0.85rem;
+    background: #7c3aed;
+    color: #fff;
+    font-size: 0.98rem;
+    font-weight: 700;
+    padding: 0.95rem 1rem;
+    box-shadow: 0 4px 12px rgba(124, 58, 237, 0.3);
+}
+
+.travel-submit-btn:disabled {
+    background: #c4b5fd;
+    box-shadow: none;
+}
+
+.travel-error {
+    color: #b91c1c;
+    background: #fee2e2;
+    border: 1px solid #fecaca;
+    padding: 0.65rem 0.75rem;
+    border-radius: 0.75rem;
+    font-size: 0.87rem;
+}

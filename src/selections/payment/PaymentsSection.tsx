@@ -51,7 +51,7 @@ const PaymentsHome: React.FC = () => {
         } else if (id === 'taxes') {
             navigate('taxes');
         } else if (id === 'travel') {
-            // Do nothing as requested
+            navigate('/travel');
         } else {
              // Redirect to IBAN form as a generic recipient for now
              navigate('iban');

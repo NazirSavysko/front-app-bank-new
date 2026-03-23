@@ -14,7 +14,7 @@ const PaymentsSection = lazy(() => import('./selections/payment/PaymentsSection.
 const TransfersSection = lazy(() => import('./selections/transfer/TransfersSection.tsx'));
 const AnalyticsSection = lazy(() => import('./selections/analytic/AnalyticsSection.tsx'));
 
-type DashboardNavIconName = 'accounts' | 'transfers' | 'payments' | 'history' | 'analytics';
+type DashboardNavIconName = 'accounts' | 'transfers' | 'payments' | 'history' | 'analytics' | 'travel';
 
 const DashboardNavIcon: React.FC<{ name: DashboardNavIconName }> = ({ name }) => {
     switch (name) {
@@ -58,6 +58,12 @@ const DashboardNavIcon: React.FC<{ name: DashboardNavIconName }> = ({ name }) =>
                     <path d="M19 19v-7"></path>
                 </svg>
             );
+        case 'travel':
+            return (
+                <svg viewBox="0 0 24 24" aria-hidden="true">
+                    <path d="M2 13l20-4-8 8-2 5-2-5-8-4z"></path>
+                </svg>
+            );
         default:
             return null;
     }
@@ -67,6 +73,7 @@ const dashboardNavItems: Array<{ to: string; label: string; icon: DashboardNavIc
     { to: '/dashboard/accounts', label: 'Рахунки', icon: 'accounts' },
     { to: '/dashboard/transfers', label: 'Перекази', icon: 'transfers' },
     { to: '/dashboard/payments', label: 'Платежі', icon: 'payments' },
+    { to: '/travel', label: 'Подорожі', icon: 'travel' },
     { to: '/dashboard/transactions', label: 'Історія', icon: 'history' },
     { to: '/dashboard/analytics', label: 'Аналітика', icon: 'analytics' },
 ];
@@ -399,6 +406,9 @@ const UserDashboard: React.FC = () => {
                         <button className="btn btn-secondary" onClick={() => setShowProfile(false)}>Закрити</button>
                         <button className="btn btn-primary" onClick={() => setShowSettingsModal(true)}>
                             Налаштування профілю
+                        </button>
+                        <button className="btn btn-primary" onClick={() => navigate('/travel')}>
+                            Транспорт і подорожі
                         </button>
                         <button
                             className="btn btn-danger"

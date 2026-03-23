@@ -56,7 +56,16 @@ const maskCardNumber = (cardNumber?: string) => (
     cardNumber ? (cardNumber.length > 4 ? `**** ${cardNumber.slice(-4)}` : '****') : '—'
 );
 
-const TransactionTypeIcon: React.FC<{ transactionType: string; isMobileTopUp: boolean; isTaxPayment: boolean; isElectronicsPurchase: boolean }> = ({ transactionType, isMobileTopUp, isTaxPayment, isElectronicsPurchase }) => {
+const TransactionTypeIcon: React.FC<{
+    transactionType: string;
+    isMobileTopUp: boolean;
+    isTaxPayment: boolean;
+    isElectronicsPurchase: boolean;
+    isTrainTicket: boolean;
+    isAirTicket: boolean;
+    isBusTicket: boolean;
+    isCityTransportTicket: boolean;
+}> = ({ transactionType, isMobileTopUp, isTaxPayment, isElectronicsPurchase, isTrainTicket, isAirTicket, isBusTicket, isCityTransportTicket }) => {
     if (isMobileTopUp) {
         return (
             <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
@@ -85,6 +94,49 @@ const TransactionTypeIcon: React.FC<{ transactionType: string; isMobileTopUp: bo
                 <line x1="14" x2="14" y1="10" y2="18" />
                 <line x1="18" x2="18" y1="10" y2="18" />
                 <polygon points="12 2 20 7 4 7" />
+            </svg>
+        );
+    }
+
+    if (isTrainTicket) {
+        return (
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+                <rect x="5" y="3.5" width="14" height="12" rx="3"></rect>
+                <path d="M9 8h.01"></path>
+                <path d="M15 8h.01"></path>
+                <path d="M8 15.5 6 20"></path>
+                <path d="M16 15.5 18 20"></path>
+                <path d="M8 11.5h8"></path>
+            </svg>
+        );
+    }
+
+    if (isAirTicket) {
+        return (
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+                <path d="m2 14 20-4-8 8-2 5-2-5-8-4Z"></path>
+            </svg>
+        );
+    }
+
+    if (isBusTicket) {
+        return (
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+                <rect x="4" y="4" width="16" height="12" rx="3"></rect>
+                <path d="M7 16v3"></path>
+                <path d="M17 16v3"></path>
+                <path d="M8 9h8"></path>
+            </svg>
+        );
+    }
+
+    if (isCityTransportTicket) {
+        return (
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+                <rect x="5" y="4" width="14" height="10" rx="2.5"></rect>
+                <path d="M8 17h8"></path>
+                <path d="M9 14v3"></path>
+                <path d="M15 14v3"></path>
             </svg>
         );
     }
@@ -165,6 +217,20 @@ const TransactionCard: React.FC<TransactionCardProps> = ({ transaction }) => {
     const isElectronicsPurchase =
         descriptionLower.includes('купівля електроніки') ||
         transaction.transactionType === 'ELECTRONICS_PAYMENT';
+    const isTrainTicket =
+        descriptionLower.includes('квиток на потяг') ||
+        descriptionLower.includes('потяг');
+    const isAirTicket =
+        descriptionLower.includes('авіаквиток') ||
+        descriptionLower.includes('авіалінії') ||
+        descriptionLower.includes('літак');
+    const isBusTicket =
+        descriptionLower.includes('квиток на автобус') ||
+        descriptionLower.includes('автобус');
+    const isCityTransportTicket =
+        descriptionLower.includes('квиток на міський транспорт') ||
+        descriptionLower.includes('проїзний на міський транспорт') ||
+        descriptionLower.includes('міський транспорт');
 
     const shortTitle = (() => {
         if (isTaxPayment) {
@@ -173,6 +239,18 @@ const TransactionCard: React.FC<TransactionCardProps> = ({ transaction }) => {
 
         if (isElectronicsPurchase) {
             return 'Купівля електроніки';
+        }
+        if (isTrainTicket) {
+            return 'Потяг';
+        }
+        if (isAirTicket) {
+            return 'Авіалінії';
+        }
+        if (isBusTicket) {
+            return 'Автобус';
+        }
+        if (isCityTransportTicket) {
+            return 'Міський';
         }
 
         switch (transaction.transactionType) {
@@ -191,7 +269,17 @@ const TransactionCard: React.FC<TransactionCardProps> = ({ transaction }) => {
         }
     })();
     const amountColor = isIncoming ? 'var(--green-600)' : 'var(--red-600)';
-    const iconVariant = isMobileTopUp ? 'mobile-payment' : (isElectronicsPurchase ? 'electronics' : (isTaxPayment ? 'tax-payment' : (TRANSACTION_ICON_VARIANTS[transaction.transactionType] || 'transfer')));
+    const iconVariant = isTrainTicket
+        ? 'transport-train'
+        : isAirTicket
+            ? 'transport-air'
+            : isBusTicket
+                ? 'transport-bus'
+                : isCityTransportTicket
+                    ? 'transport-city'
+                    : isMobileTopUp
+                        ? 'mobile-payment'
+                        : (isElectronicsPurchase ? 'electronics' : (isTaxPayment ? 'tax-payment' : (TRANSACTION_ICON_VARIANTS[transaction.transactionType] || 'transfer')));
 
     const [expanded, setExpanded] = useState(false);
     const toggleExpanded = () => setExpanded(prevExpanded => !prevExpanded);
@@ -223,6 +311,10 @@ const TransactionCard: React.FC<TransactionCardProps> = ({ transaction }) => {
                         isMobileTopUp={isMobileTopUp}
                         isTaxPayment={isTaxPayment}
                         isElectronicsPurchase={isElectronicsPurchase}
+                        isTrainTicket={isTrainTicket}
+                        isAirTicket={isAirTicket}
+                        isBusTicket={isBusTicket}
+                        isCityTransportTicket={isCityTransportTicket}
                     />
                 </div>
                 <div className="transaction-summary">
