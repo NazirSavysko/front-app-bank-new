@@ -112,12 +112,36 @@ const AnalyticsSection: React.FC<AnalyticsSectionProps> = ({
     const hasData = totalFlow > 0 || operationsCount > 0;
 
     const pieData = useMemo(() => {
-        if (totalFlow === 0) return [];
-        return [
-            { name: 'Надходження', value: incomeValue, color: '#10B981' },
-            { name: 'Витрати', value: expenseValue, color: '#EF4444' },
-        ];
-    }, [incomeValue, expenseValue, totalFlow]);
+        const newPieData: Array<{ name: string; value: number; color: string }> = [];
+
+        if (incomeValue > 0) {
+            newPieData.push({ name: 'Надходження', value: incomeValue, color: '#10B981' });
+        }
+        if ((summaryData?.totalMobileExpenses || 0) > 0) {
+            newPieData.push({ name: 'Мобільний зв\'язок', value: summaryData?.totalMobileExpenses || 0, color: '#8B5CF6' });
+        }
+        if ((summaryData?.totalInternetExpenses || 0) > 0) {
+            newPieData.push({ name: 'Інтернет', value: summaryData?.totalInternetExpenses || 0, color: '#3B82F6' });
+        }
+        if ((summaryData?.totalTaxExpenses || 0) > 0) {
+            newPieData.push({ name: 'Податки', value: summaryData?.totalTaxExpenses || 0, color: '#F59E0B' });
+        }
+        if ((summaryData?.totalElectronicsExpenses || 0) > 0) {
+            newPieData.push({ name: 'Електроніка', value: summaryData?.totalElectronicsExpenses || 0, color: '#EC4899' });
+        }
+        if ((summaryData?.totalIbanExpenses || 0) > 0) {
+            newPieData.push({ name: 'IBAN', value: summaryData?.totalIbanExpenses || 0, color: '#6366F1' });
+        }
+        if ((summaryData?.totalCardToCardExpenses || 0) > 0) {
+            newPieData.push({ name: 'Картка-картка', value: summaryData?.totalCardToCardExpenses || 0, color: '#EF4444' });
+        }
+
+        if (newPieData.length === 0 && expenseValue > 0) {
+            newPieData.push({ name: 'Витрати', value: expenseValue, color: '#EF4444' });
+        }
+
+        return newPieData;
+    }, [expenseValue, incomeValue, summaryData]);
 
     return (
         <div className="analytics-container">

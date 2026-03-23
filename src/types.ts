@@ -45,6 +45,12 @@ export interface AnalyticsSummary {
     totalExpense: number;
     operationsCount: number;
     currency: string;
+    totalMobileExpenses?: number;
+    totalInternetExpenses?: number;
+    totalIbanExpenses?: number;
+    totalTaxExpenses?: number;
+    totalElectronicsExpenses?: number;
+    totalCardToCardExpenses?: number;
 }
 
 export type AccountType = 'CURRENT' | 'FOP';
@@ -103,4 +109,10 @@ export interface InternetPaymentRequest {
     amount: number;         // Сумма платежа
     providerName: string;   // Название провайдера (например, "Lanet")
     contractNumber: string; // Номер договора / лицевой счет
+}
+
+export interface MobilePaymentRequest {
+    accountId: number;
+    amount: number;
+    phoneNumber: string; // Must format as +380XXXXXXXXX
 }
