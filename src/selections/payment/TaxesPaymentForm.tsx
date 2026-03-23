@@ -13,9 +13,39 @@ const TaxesPaymentForm: React.FC = () => {
 
     const [selectedAccountId, setSelectedAccountId] = useState<number>(0);
     const [amount, setAmount] = useState('');
-    const [period, setPeriod] = useState('I квартал 2026 року');
+
+    const availablePeriods = useMemo(() => {
+        const currentYear = new Date().getFullYear();
+        return [
+            `I квартал ${currentYear} року`,
+            `II квартал ${currentYear} року`,
+            `III квартал ${currentYear} року`,
+            `IV квартал ${currentYear} року`,
+        ];
+    }, []);
+
+    const [period, setPeriod] = useState(availablePeriods[0]);
     const [isLoading, setIsLoading] = useState(false);
     const [error, setError] = useState('');
+
+    const isPeriodValid = useMemo(() => {
+        const now = new Date();
+        const currentYear = now.getFullYear();
+        const currentQuarter = Math.floor(now.getMonth() / 3) + 1;
+
+        const parts = period.split(' '); // "I квартал 2026 року"
+        const roman = parts[0];
+        const year = parseInt(parts[2], 10);
+
+        const romanMap: Record<string, number> = { I: 1, II: 2, III: 3, IV: 4 };
+        const q = romanMap[roman] || 0;
+
+        // Payment allowed only for finished quarters of the current year
+        // We do not support past years here as requested ("don't take 25")
+        if (year !== currentYear) return false;
+        
+        return q < currentQuarter;
+    }, [period]);
 
     const uahAccounts = useMemo(() => accounts.filter((acc) => acc.currencyCode === 'UAH' && acc.accountType === 'FOP'), [accounts]);
     const visibleUahAccounts = useMemo(
@@ -31,7 +61,7 @@ const TaxesPaymentForm: React.FC = () => {
 
     const selectedAccount = visibleUahAccounts.find((acc) => acc.id === selectedAccountId);
     const parsedAmount = Number(amount);
-    const isSubmitDisabled = isLoading || !selectedAccountId || !Number.isFinite(parsedAmount) || parsedAmount <= 0;
+    const isSubmitDisabled = isLoading || !selectedAccountId || !Number.isFinite(parsedAmount) || parsedAmount <= 0 || !isPeriodValid;
 
     const handleSubmit = async (event: React.FormEvent) => {
         event.preventDefault();
@@ -39,6 +69,11 @@ const TaxesPaymentForm: React.FC = () => {
 
         if (!selectedAccountId) {
             setError('Оберіть ФОП рахунок для оплати');
+            return;
+        }
+
+        if (!isPeriodValid) {
+            setError('Сплата податку можлива лише за завершений період');
             return;
         }
 
@@ -131,10 +166,9 @@ const TaxesPaymentForm: React.FC = () => {
                                     onChange={(e) => setPeriod(e.target.value)}
                                     disabled={isLoading}
                                 >
-                                    <option value="I квартал 2026 року">I квартал 2026 року</option>
-                                    <option value="II квартал 2026 року">II квартал 2026 року</option>
-                                    <option value="III квартал 2026 року">III квартал 2026 року</option>
-                                    <option value="IV квартал 2026 року">IV квартал 2026 року</option>
+                                    {availablePeriods.map((p) => (
+                                        <option key={p} value={p}>{p}</option>
+                                    ))}
                                 </select>
                             </div>
                         </div>
@@ -154,7 +188,9 @@ const TaxesPaymentForm: React.FC = () => {
                             />
                             <span>₴</span>
                         </div>
-                        <p className="taxes-hint">5% від вашого обороту за обраний період</p>
+                        <p className="taxes-hint">
+                            {isPeriodValid ? '5% від вашого обороту за обраний період' : 'Сплата можлива тільки після завершення кварталу'}
+                        </p>
                     </section>
 
                     {error && <div className="error-message">{error}</div>}
