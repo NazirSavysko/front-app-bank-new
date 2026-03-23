@@ -2,6 +2,10 @@
     min-height: 100%;
     position: relative;
     animation: slideInPage 0.3s ease-out;
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    overflow: hidden;
 }
 
 @keyframes slideInPage {
@@ -18,7 +22,20 @@
 .electronics-shop-container {
     max-width: 760px;
     margin: 0 auto;
-    padding: 1rem 0 8rem;
+    padding: 1rem 0 0rem;
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    width: 100%;
+    position: relative;
+    overflow: hidden;
+}
+
+.electronics-header-group {
+    flex-shrink: 0;
+    z-index: 10;
+    background: transparent;
+    padding-bottom: 0.5rem;
 }
 
 .electronics-shop-header {
@@ -88,6 +105,14 @@
     border-color: #7c3aed;
     background: #fff;
 }
+.electronics-account-card.is-insufficient {
+    border-color: #fca5a5;
+    background: #fef2f2;
+    opacity: 0.9;
+}
+.electronics-account-card.is-insufficient strong {
+    color: #b91c1c;
+}
 
 .electronics-account-card strong {
     font-size: 0.95rem;
@@ -104,10 +129,18 @@
     font-size: 0.9rem;
 }
 
+.electronics-products-scroll-area {
+    flex: 1;
+    overflow-y: auto;
+    padding-bottom: 1rem;
+    min-height: 0; /* Critical for nested flex scrolling */
+}
+
 .electronics-products-list {
     display: flex;
     flex-direction: column;
     gap: 0.75rem;
+    padding-bottom: 100px; /* Space for sticky bar */
 }
 
 .electronics-product-card {
@@ -216,18 +249,34 @@
     font-weight: 500;
 }
 
+.top-error {
+    margin-top: 0;
+    margin-bottom: 1rem;
+    padding: 0.75rem;
+    background-color: #fef2f2;
+    border: 1px solid #fee2e2;
+    border-radius: 8px;
+    text-align: center;
+}
+
 .electronics-sticky-bar-wrap {
-    position: fixed;
-    bottom: 0;
-    left: 0;
+    /* Removed fixed positioning to be part of flow at bottom */
+    position: relative;
+    margin-top: auto;
     width: 100%;
     display: flex;
     justify-content: center;
-    z-index: 50;
+    z-index: 1300;
+    background: transparent;
+    pointer-events: none; /* Let clicks pass through wrapper */
+    position: absolute;
+    bottom: 0;
+    left: 0;
 }
 
 .electronics-sticky-bar {
-    position: sticky;
+    position: relative;
+    /* Removed sticky */
     bottom: 0;
     width: 100%;
     max-width: 760px;
@@ -239,6 +288,7 @@
     align-items: center;
     gap: 1rem;
     border-radius: 16px 16px 0 0;
+    pointer-events: auto; /* Restore clicks */
 }
 
 .electronics-total {
@@ -373,6 +423,18 @@
     margin-bottom: 1rem;
     font-size: 1.1rem;
     color: #111827;
+}
+
+.cart-error-msg {
+    color: #ef4444;
+    text-align: center;
+    padding: 0.5rem;
+    background: #fef2f2;
+    border-radius: 8px;
+    margin-bottom: 1rem;
+    border: 1px solid #fee2e2;
+    font-size: 0.95rem;
+    font-weight: 500;
 }
 
 .full-width {

@@ -54,6 +54,16 @@ const ElectronicsShopForm: React.FC = () => {
         [cart]
     );
 
+    const checkInsufficientFunds = () => {
+        const account = accounts.find((acc) => acc.id === selectedAccountId);
+        if (account && account.balance < totalAmount) {
+            return true;
+        }
+        return false;
+    };
+
+    const isInsufficientFunds = checkInsufficientFunds();
+
     const updateCartQuantity = (productId: number, nextQuantity: number) => {
         setCart((prev) => {
             if (nextQuantity <= 0) {
@@ -74,6 +84,10 @@ const ElectronicsShopForm: React.FC = () => {
         }
         if (totalAmount <= 0) {
             setError('Додайте товари до кошика');
+            return;
+        }
+        if (isInsufficientFunds) {
+            setError('Недостатньо коштів на обраному рахунку');
             return;
         }
 
@@ -113,87 +127,111 @@ const ElectronicsShopForm: React.FC = () => {
     return (
         <div className="electronics-shop-page">
             <div className="electronics-shop-container">
-                <header className="electronics-shop-header">
-                    <button type="button" className="back-button" onClick={() => navigate('/dashboard/payments')}>
-                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><line x1="19" y1="12" x2="5" y2="12"></line><polyline points="12 19 5 12 12 5"></polyline></svg>
-                    </button>
-                    <h2>Електроніка</h2>
-                    <div 
-                        className="electronics-cart-badge" 
-                        aria-label={`Товарів у кошику: ${totalItemsCount}`}
-                        onClick={() => setIsCartOpen(true)}
-                    >
-                        🛒 {totalItemsCount}
-                    </div>
-                </header>
+                <div className="electronics-header-group">
+                    <header className="electronics-shop-header">
+                        <button type="button" className="back-button" onClick={() => navigate('/dashboard/payments')}>
+                            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><line x1="19" y1="12" x2="5" y2="12"></line><polyline points="12 19 5 12 12 5"></polyline></svg>
+                        </button>
+                        <h2>Електроніка</h2>
+                        <div 
+                            className="electronics-cart-badge" 
+                            aria-label={`Товарів у кошику: ${totalItemsCount}`}
+                            onClick={() => setIsCartOpen(true)}
+                        >
+                            🛒 {totalItemsCount}
+                        </div>
+                    </header>
 
-                <section className="electronics-account-section">
-                    <h3>Оплата з картки (UAH)</h3>
-                    <div className="electronics-accounts-scroll">
-                        {uahAccounts.length > 0 ? (
-                            uahAccounts.map((account) => (
-                                <button
-                                    key={account.id}
-                                    type="button"
-                                    className={`electronics-account-card ${selectedAccountId === account.id ? 'is-active' : ''}`}
-                                    onClick={() => setSelectedAccountId(account.id)}
-                                >
-                                    <strong>**** {account.card.cardNumber.slice(-4)}</strong>
-                                    <span>{account.balance.toLocaleString('uk-UA')} UAH</span>
-                                </button>
-                            ))
-                        ) : (
-                            <p className="electronics-empty-accounts">Немає доступних UAH рахунків</p>
-                        )}
-                    </div>
-                </section>
+                    <section className="electronics-account-section">
+                        <h3>Оплата з картки (UAH)</h3>
+                        <div className="electronics-accounts-scroll">
+                            {uahAccounts.length > 0 ? (
+                                uahAccounts.map((account) => (
+                                    <button
+                                        key={account.id}
+                                        type="button"
+                                        className={`electronics-account-card ${selectedAccountId === account.id ? 'is-active' : ''} ${account.balance < totalAmount && totalAmount > 0 ? 'is-insufficient' : ''}`}
+                                        onClick={() => setSelectedAccountId(account.id)}
+                                    >
+                                        <strong>**** {account.card.cardNumber.slice(-4)}</strong>
+                                        <span>{account.balance.toLocaleString('uk-UA')} UAH</span>
+                                    </button>
+                                ))
+                            ) : (
+                                <p className="electronics-empty-accounts">Немає доступних UAH рахунків</p>
+                            )}
+                        </div>
+                    </section>
 
-                <section className="electronics-products-list">
-                    {products.map((product) => {
-                        const quantity = cart[product.id] ?? 0;
-                        return (
-                            <article key={product.id} className="electronics-product-card">
-                                <div className="product-info">
-                                    <h4>{product.name}</h4>
-                                    <p>{product.description}</p>
-                                    <div className="electronics-price">{product.price.toLocaleString('uk-UA')} UAH</div>
-                                </div>
-                                <div className="electronics-product-actions">
-                                    {quantity > 0 ? (
-                                        <div className="electronics-quantity-control">
+                    {error && <p className="electronics-error top-error">{error}</p>}
+                    {isInsufficientFunds && !error && (
+                       <p className="electronics-error top-error">Недостатньо коштів для оплати</p>
+                    )}
+                </div>
+
+                <div className="electronics-products-scroll-area">
+                    <section className="electronics-products-list">
+                        {products.map((product) => {
+                            const quantity = cart[product.id] ?? 0;
+                            return (
+                                <article key={product.id} className="electronics-product-card">
+                                    <div className="product-info">
+                                        <h4>{product.name}</h4>
+                                        <p>{product.description}</p>
+                                        <div className="electronics-price">{product.price.toLocaleString('uk-UA')} UAH</div>
+                                    </div>
+                                    <div className="electronics-product-actions">
+                                        {quantity > 0 ? (
+                                            <div className="electronics-quantity-control">
+                                                <button
+                                                    type="button"
+                                                    onClick={() => updateCartQuantity(product.id, quantity - 1)}
+                                                    disabled={isLoading}
+                                                >
+                                                    -
+                                                </button>
+                                                <span>{quantity}</span>
+                                                <button
+                                                    type="button"
+                                                    onClick={() => updateCartQuantity(product.id, quantity + 1)}
+                                                    disabled={isLoading}
+                                                >
+                                                    +
+                                                </button>
+                                            </div>
+                                        ) : (
                                             <button
                                                 type="button"
-                                                onClick={() => updateCartQuantity(product.id, quantity - 1)}
+                                                className="electronics-buy-btn"
+                                                onClick={() => updateCartQuantity(product.id, 1)}
                                                 disabled={isLoading}
                                             >
-                                                -
+                                                Купити
                                             </button>
-                                            <span>{quantity}</span>
-                                            <button
-                                                type="button"
-                                                onClick={() => updateCartQuantity(product.id, quantity + 1)}
-                                                disabled={isLoading}
-                                            >
-                                                +
-                                            </button>
-                                        </div>
-                                    ) : (
-                                        <button
-                                            type="button"
-                                            className="electronics-buy-btn"
-                                            onClick={() => updateCartQuantity(product.id, 1)}
-                                            disabled={isLoading}
-                                        >
-                                            Купити
-                                        </button>
-                                    )}
-                                </div>
-                            </article>
-                        );
-                    })}
-                </section>
+                                        )}
+                                    </div>
+                                </article>
+                            );
+                        })}
+                    </section>
+                </div>
 
-                {error && <p className="electronics-error">{error}</p>}
+                {!isCartOpen && totalItemsCount > 0 && (
+                    <div className="electronics-sticky-bar-wrap">
+                        <div className="electronics-sticky-bar" onClick={() => setIsCartOpen(true)}>
+                            <div className="electronics-total">
+                                <span>{totalItemsCount} товарів на суму: </span>
+                                <strong>{totalAmount.toLocaleString('uk-UA')} UAH</strong>
+                            </div>
+                            <button
+                                type="button"
+                                className="electronics-view-cart-btn"
+                            >
+                                 Переглянути кошик
+                            </button>
+                        </div>
+                    </div>
+                )}
             </div>
 
             {/* Cart Modal / Drawer */}
@@ -230,32 +268,18 @@ const ElectronicsShopForm: React.FC = () => {
                                 <span>Разом:</span>
                                 <strong>{totalAmount.toLocaleString('uk-UA')} UAH</strong>
                             </div>
+                            {isInsufficientFunds && (
+                                <div className="cart-error-msg">Недостатньо коштів</div>
+                            )}
                             <button
                                 type="button"
                                 className="electronics-checkout-btn full-width"
                                 onClick={handleSubmit}
-                                disabled={isLoading || totalItemsCount === 0 || uahAccounts.length === 0}
+                                disabled={isLoading || totalItemsCount === 0 || uahAccounts.length === 0 || isInsufficientFunds}
                             >
                                 {isLoading ? 'Обробка...' : 'Оплатити'}
                             </button>
                         </div>
-                    </div>
-                </div>
-            )}
-
-            {!isCartOpen && totalItemsCount > 0 && (
-                <div className="electronics-sticky-bar-wrap">
-                    <div className="electronics-sticky-bar" onClick={() => setIsCartOpen(true)}>
-                        <div className="electronics-total">
-                            <span>{totalItemsCount} товарів на суму: </span>
-                            <strong>{totalAmount.toLocaleString('uk-UA')} UAH</strong>
-                        </div>
-                        <button
-                            type="button"
-                            className="electronics-view-cart-btn"
-                        >
-                             Переглянути кошик
-                        </button>
                     </div>
                 </div>
             )}
