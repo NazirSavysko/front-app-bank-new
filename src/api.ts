@@ -172,6 +172,7 @@ export const fetchAnalyticsSummary = async (
         totalTaxExpenses: Number(data.totalTaxExpenses ?? 0),
         totalElectronicsExpenses: Number(data.totalElectronicsExpenses ?? 0),
         totalCardToCardExpenses: Number(data.totalCardToCardExpenses ?? 0),
+        totalUtilityExpenses: Number(data.totalUtilityExpenses ?? 0),
     };
 };
 

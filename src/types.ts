@@ -51,6 +51,7 @@ export interface AnalyticsSummary {
     totalTaxExpenses?: number;
     totalElectronicsExpenses?: number;
     totalCardToCardExpenses?: number;
+    totalUtilityExpenses?: number;
 }
 
 export type AccountType = 'CURRENT' | 'FOP';
