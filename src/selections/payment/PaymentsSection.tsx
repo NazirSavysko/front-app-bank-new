@@ -1,6 +1,6 @@
 import React from 'react';
 import { Routes, Route, useNavigate } from 'react-router-dom';
-import type { Account } from '../../types.ts';
+import type { Account, CustomerData } from '../../types.ts';
 import './PaymentsSection.css';
 import InternetPaymentForm from './InternetPaymentForm';
 import IBANPaymentForm from './IBANPaymentForm';
@@ -14,8 +14,12 @@ import './PaymentForms.css';
 
 export interface PaymentsSectionProps {
     accounts: Account[];
+    customer: CustomerData | null;
     selectedAccountIndex: number;
     setSelectedAccountIndex: (index: number) => void;
+    onPaymentFlowStateChange?: (state: 'idle' | 'sending-code' | 'awaiting-code' | 'verifying-code') => void;
+    onPaymentComplete?: () => Promise<void>;
+    onCopy?: (msg: string) => void;
 }
 
 const PaymentsHome: React.FC = () => {
@@ -113,23 +117,67 @@ const PaymentsSection: React.FC<PaymentsSectionProps> = (props) => {
             <Route path="internet" element={
                 <InternetPaymentForm
                     accounts={props.accounts}
+                    customer={props.customer}
                     selectedAccountIndex={props.selectedAccountIndex}
                     setSelectedAccountIndex={props.setSelectedAccountIndex}
+                    onPaymentFlowStateChange={props.onPaymentFlowStateChange}
+                    onPaymentComplete={props.onPaymentComplete}
+                    onCopy={props.onCopy}
                     onBack={() => navigate('/dashboard/payments')}
                 />
             } />
             <Route path="iban" element={
                 <IBANPaymentForm
                     accounts={props.accounts}
+                    customer={props.customer}
                     selectedAccountIndex={props.selectedAccountIndex}
                     setSelectedAccountIndex={props.setSelectedAccountIndex}
+                    onPaymentFlowStateChange={props.onPaymentFlowStateChange}
+                    onPaymentComplete={props.onPaymentComplete}
+                    onCopy={props.onCopy}
                     onBack={() => navigate('/dashboard/payments')}
                 />
             } />
-            <Route path="taxes" element={<TaxesPaymentForm />} />
-            <Route path="mobile" element={<MobilePaymentForm />} />
-            <Route path="electronics" element={<ElectronicsShopForm />} />
-            <Route path="train" element={<TrainTicketForm />} />
+            <Route path="taxes" element={
+                <TaxesPaymentForm
+                    accounts={props.accounts}
+                    customer={props.customer}
+                    onPaymentFlowStateChange={props.onPaymentFlowStateChange}
+                    onPaymentComplete={props.onPaymentComplete}
+                    onCopy={props.onCopy}
+                    onBack={() => navigate('/dashboard/payments')}
+                />
+            } />
+            <Route path="mobile" element={
+                <MobilePaymentForm
+                    accounts={props.accounts}
+                    customer={props.customer}
+                    onPaymentFlowStateChange={props.onPaymentFlowStateChange}
+                    onPaymentComplete={props.onPaymentComplete}
+                    onCopy={props.onCopy}
+                    onBack={() => navigate('/dashboard/payments')}
+                />
+            } />
+            <Route path="electronics" element={
+                <ElectronicsShopForm
+                    accounts={props.accounts}
+                    customer={props.customer}
+                    onPaymentFlowStateChange={props.onPaymentFlowStateChange}
+                    onPaymentComplete={props.onPaymentComplete}
+                    onCopy={props.onCopy}
+                    onBack={() => navigate('/dashboard/payments')}
+                />
+            } />
+            <Route path="train" element={
+                <TrainTicketForm
+                    accounts={props.accounts}
+                    customer={props.customer}
+                    onPaymentFlowStateChange={props.onPaymentFlowStateChange}
+                    onPaymentComplete={props.onPaymentComplete}
+                    onCopy={props.onCopy}
+                    onBack={() => navigate('/dashboard/payments')}
+                />
+            } />
             <Route path="*" element={<PaymentsHome />} />
         </Routes>
         </div>

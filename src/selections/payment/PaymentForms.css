@@ -461,6 +461,72 @@
     margin-top: auto; /* Push to bottom if height varies */
 }
 
+.payment-verification-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(15, 23, 42, 0.55);
+    z-index: 12000;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 1rem;
+}
+
+.payment-verification-modal {
+    width: min(460px, 100%);
+    background: #fff;
+    border-radius: 16px;
+    padding: 1.25rem;
+    box-shadow: 0 20px 44px rgba(15, 23, 42, 0.32);
+    display: grid;
+    gap: 0.85rem;
+}
+
+.payment-verification-modal h3 {
+    margin: 0;
+    color: #0f172a;
+}
+
+.payment-verification-modal p {
+    margin: 0;
+    color: #475569;
+}
+
+.payment-otp-row {
+    display: grid;
+    grid-template-columns: repeat(5, minmax(44px, 1fr));
+    gap: 0.5rem;
+}
+
+.payment-otp-input {
+    height: 52px;
+    border: 1px solid rgba(148, 163, 184, 0.55);
+    border-radius: 12px;
+    text-align: center;
+    font-size: 1.25rem;
+    font-weight: 600;
+    color: #0f172a;
+    background: #f8fafc;
+}
+
+.payment-otp-input:focus {
+    outline: none;
+    border-color: #6366f1;
+    box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.16);
+    background: #fff;
+}
+
+.payment-verification-actions {
+    display: flex;
+    gap: 0.75rem;
+    align-items: center;
+    justify-content: flex-end;
+}
+
+.payment-verification-actions .submit-payment-btn {
+    margin-top: 0;
+}
+
 @media (max-width: 768px) {
     .payment-form-wrapper {
         background-color: #fff; /* White background for the whole form area on mobile */
@@ -527,5 +593,9 @@
 
     .train-ticket-root {
         border-radius: 12px;
+    }
+
+    .payment-verification-modal {
+        padding: 1rem;
     }
 }

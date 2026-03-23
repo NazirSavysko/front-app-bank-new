@@ -174,6 +174,32 @@ export const fetchAnalyticsSummary = async (
     };
 };
 
+export const sendEmailVerificationCode = async (email: string): Promise<void> => {
+    const res = await fetch('/api/email/send', {
+        method: 'POST',
+        headers: getAuthHeaders(),
+        body: JSON.stringify({ email }),
+    });
+
+    if (!res.ok) {
+        const error = await res.json().catch(() => ({}));
+        throw new Error(error.message || 'Не вдалося відправити код');
+    }
+};
+
+export const verifyEmailVerificationCode = async (email: string, code: string): Promise<void> => {
+    const res = await fetch('/api/email/check', {
+        method: 'POST',
+        headers: getAuthHeaders(),
+        body: JSON.stringify({ email, code }),
+    });
+
+    if (!res.ok) {
+        const error = await res.json().catch(() => ({}));
+        throw new Error(error.message || 'Невірний код підтвердження');
+    }
+};
+
 export const createIbanPayment = async (payload: IbanPaymentRequest) => {
     const res = await fetch('/api/v1/payments/iban', {
         method: 'POST',

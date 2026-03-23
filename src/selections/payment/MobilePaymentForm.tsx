@@ -1,21 +1,41 @@
 import React, { useEffect, useMemo, useState } from 'react';
 import { useQueryClient } from '@tanstack/react-query';
-import { createMobilePayment } from '../../api';
-import { useAccounts } from '../../hooks/useAccounts';
+import { createMobilePayment, sendEmailVerificationCode, verifyEmailVerificationCode } from '../../api';
+import type { Account, CustomerData } from '../../types';
+import PaymentVerificationModal from './PaymentVerificationModal';
 import './PaymentForms.css';
 
 const PHONE_REGEX = /^\+380\d{9}$/;
 const PHONE_FORMAT_LENGTH = 13;
 const SUCCESS_MESSAGE_DISPLAY_DURATION_MS = 700;
 
-const MobilePaymentForm: React.FC = () => {
+interface MobilePaymentFormProps {
+    accounts: Account[];
+    customer: CustomerData | null;
+    onBack: () => void;
+    onPaymentFlowStateChange?: (state: 'idle' | 'sending-code' | 'awaiting-code' | 'verifying-code') => void;
+    onPaymentComplete?: () => Promise<void>;
+    onCopy?: (msg: string) => void;
+}
+
+const MobilePaymentForm: React.FC<MobilePaymentFormProps> = ({
+    accounts,
+    customer,
+    onBack,
+    onPaymentFlowStateChange,
+    onPaymentComplete,
+    onCopy,
+}) => {
     const queryClient = useQueryClient();
-    const { accounts } = useAccounts();
 
     const [selectedAccountId, setSelectedAccountId] = useState<number>(0);
     const [phoneNumber, setPhoneNumber] = useState('+380');
     const [amount, setAmount] = useState('');
     const [isLoading, setIsLoading] = useState(false);
+    const [emailSending, setEmailSending] = useState(false);
+    const [showEmailVerification, setShowEmailVerification] = useState(false);
+    const [verificationCode, setVerificationCode] = useState('');
+    const [codeVerifying, setCodeVerifying] = useState(false);
     const [error, setError] = useState<string | null>(null);
     const [successMessage, setSuccessMessage] = useState<string | null>(null);
 
@@ -27,6 +47,32 @@ const MobilePaymentForm: React.FC = () => {
         }
     }, [selectedAccountId, uahAccounts]);
 
+    const paymentFlowState = codeVerifying
+        ? 'verifying-code'
+        : emailSending
+            ? 'sending-code'
+            : showEmailVerification
+                ? 'awaiting-code'
+                : 'idle';
+
+    useEffect(() => {
+        onPaymentFlowStateChange?.(paymentFlowState);
+    }, [onPaymentFlowStateChange, paymentFlowState]);
+
+    useEffect(() => {
+        return () => {
+            onPaymentFlowStateChange?.('idle');
+        };
+    }, [onPaymentFlowStateChange]);
+
+    useEffect(() => {
+        if (!successMessage) {
+            return;
+        }
+        const timeoutId = window.setTimeout(() => onBack(), SUCCESS_MESSAGE_DISPLAY_DURATION_MS);
+        return () => window.clearTimeout(timeoutId);
+    }, [onBack, successMessage]);
+
     const handlePhoneChange = (value: string) => {
         const cleaned = value.replace(/[^\d+]/g, '');
         if (!cleaned.startsWith('+380')) {
@@ -36,45 +82,84 @@ const MobilePaymentForm: React.FC = () => {
         setPhoneNumber(cleaned.slice(0, PHONE_FORMAT_LENGTH));
     };
 
-    const handleSubmit = async (e: React.FormEvent) => {
-        e.preventDefault();
-        setError(null);
-        setSuccessMessage(null);
-
+    const validatePayload = () => {
         if (!PHONE_REGEX.test(phoneNumber)) {
-            setError('Номер телефону має бути у форматі +380XXXXXXXXX');
-            return;
+            throw new Error('Номер телефону має бути у форматі +380XXXXXXXXX');
         }
 
         const parsedAmount = Number(amount);
         if (!selectedAccountId || parsedAmount <= 0) {
-            setError('Перевірте рахунок та суму платежу');
+            throw new Error('Перевірте рахунок та суму платежу');
+        }
+
+        return {
+            accountId: selectedAccountId,
+            amount: parsedAmount,
+            phoneNumber,
+        };
+    };
+
+    const handleSubmit = async (event: React.FormEvent) => {
+        event.preventDefault();
+        setError(null);
+        setSuccessMessage(null);
+
+        if (!customer) {
+            setError('Не знайдено дані користувача для підтвердження платежу');
             return;
         }
 
-        setIsLoading(true);
         try {
-            await createMobilePayment({
-                accountId: selectedAccountId,
-                amount: parsedAmount,
-                phoneNumber,
-            });
-            await queryClient.invalidateQueries({ queryKey: ['transactions'] });
-            setSuccessMessage('Поповнення мобільного успішне!');
-            setTimeout(() => window.history.back(), SUCCESS_MESSAGE_DISPLAY_DURATION_MS);
+            validatePayload();
+            setEmailSending(true);
+            await sendEmailVerificationCode(customer.email);
+            setVerificationCode('');
+            setShowEmailVerification(true);
+            onCopy?.('Код підтвердження відправлено на пошту');
         } catch (err) {
             const errorMessage = err instanceof Error ? err.message : 'Помилка при поповненні мобільного';
             setError(errorMessage);
         } finally {
+            setEmailSending(false);
+        }
+    };
+
+    const handleConfirmPayment = async () => {
+        if (!customer) {
+            setError('Не знайдено дані користувача для підтвердження платежу');
+            return;
+        }
+
+        try {
+            const payload = validatePayload();
+            setError(null);
+            setCodeVerifying(true);
+            setIsLoading(true);
+
+            await verifyEmailVerificationCode(customer.email, verificationCode);
+            await createMobilePayment(payload);
+            await queryClient.invalidateQueries({ queryKey: ['transactions'] });
+            await onPaymentComplete?.();
+
+            setShowEmailVerification(false);
+            setVerificationCode('');
+            setSuccessMessage('Поповнення мобільного успішне!');
+        } catch (err) {
+            const errorMessage = err instanceof Error ? err.message : 'Помилка при поповненні мобільного';
+            setError(errorMessage);
+        } finally {
+            setCodeVerifying(false);
             setIsLoading(false);
         }
     };
+
+    const isBlockingAction = isLoading || emailSending || codeVerifying || showEmailVerification;
 
     return (
         <div className="payment-form-wrapper">
             <div className="payment-form-container">
                 <div className="payment-header">
-                    <button type="button" className="back-button" onClick={() => window.history.back()}>
+                    <button type="button" className="back-button" onClick={onBack} disabled={isBlockingAction}>
                         <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><line x1="19" y1="12" x2="5" y2="12"></line><polyline points="12 19 5 12 12 5"></polyline></svg>
                     </button>
                     <h2>Поповнення мобільного</h2>
@@ -87,7 +172,7 @@ const MobilePaymentForm: React.FC = () => {
                             className="form-select"
                             value={selectedAccountId}
                             onChange={(e) => setSelectedAccountId(Number(e.target.value))}
-                            disabled={uahAccounts.length === 0 || isLoading}
+                            disabled={uahAccounts.length === 0 || isBlockingAction}
                         >
                             {uahAccounts.length > 0 ? (
                                 uahAccounts.map((acc) => (
@@ -110,7 +195,7 @@ const MobilePaymentForm: React.FC = () => {
                             onChange={(e) => handlePhoneChange(e.target.value)}
                             placeholder="+380XXXXXXXXX"
                             required
-                            disabled={isLoading}
+                            disabled={isBlockingAction}
                         />
 
                         <label className="input-label mt-4">Сума</label>
@@ -123,18 +208,35 @@ const MobilePaymentForm: React.FC = () => {
                             min="0.01"
                             step="0.01"
                             required
-                            disabled={isLoading}
+                            disabled={isBlockingAction}
                         />
                     </div>
 
                     {error && <div className="error-message">{error}</div>}
                     {successMessage && <div className="sender-tax-info">{successMessage}</div>}
 
-                    <button type="submit" className="submit-payment-btn" disabled={isLoading || uahAccounts.length === 0}>
-                        {isLoading ? 'Обробка...' : 'Поповнити'}
+                    <button type="submit" className="submit-payment-btn" disabled={isLoading || emailSending || uahAccounts.length === 0}>
+                        {emailSending ? 'Відправка коду...' : isLoading ? 'Обробка...' : 'Поповнити'}
                     </button>
                 </form>
             </div>
+
+            <PaymentVerificationModal
+                isOpen={showEmailVerification}
+                code={verificationCode}
+                onCodeChange={setVerificationCode}
+                onSubmit={handleConfirmPayment}
+                onClose={() => {
+                    if (codeVerifying) {
+                        return;
+                    }
+                    setShowEmailVerification(false);
+                    setVerificationCode('');
+                    setError(null);
+                }}
+                isSubmitting={codeVerifying}
+                error={error}
+            />
         </div>
     );
 };

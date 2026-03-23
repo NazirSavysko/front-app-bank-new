@@ -1,14 +1,19 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import { useQueryClient } from '@tanstack/react-query';
-import { createInternetPayment } from '../../api';
-import type { Account } from '../../types';
+import { createInternetPayment, sendEmailVerificationCode, verifyEmailVerificationCode } from '../../api';
+import type { Account, CustomerData } from '../../types';
+import PaymentVerificationModal from './PaymentVerificationModal';
 import './PaymentForms.css';
 
 interface InternetPaymentFormProps {
     accounts: Account[];
+    customer: CustomerData | null;
     selectedAccountIndex: number;
     setSelectedAccountIndex: (index: number) => void;
     onBack: () => void;
+    onPaymentFlowStateChange?: (state: 'idle' | 'sending-code' | 'awaiting-code' | 'verifying-code') => void;
+    onPaymentComplete?: () => Promise<void>;
+    onCopy?: (msg: string) => void;
 }
 
 // Popular ISPs in Ukraine
@@ -36,17 +41,25 @@ const PROVIDERS = [
 ];
 
 const InternetPaymentForm: React.FC<InternetPaymentFormProps> = ({
-                                                                     accounts,
-                                                                     selectedAccountIndex,
-                                                                      setSelectedAccountIndex,
-                                                                      onBack,
-                                                                  }) => {
+    accounts,
+    customer,
+    selectedAccountIndex,
+    setSelectedAccountIndex,
+    onBack,
+    onPaymentFlowStateChange,
+    onPaymentComplete,
+    onCopy,
+}) => {
     const queryClient = useQueryClient();
     const [providerName, setProviderName] = useState('');
     const [contractNumber, setContractNumber] = useState('');
     const [amount, setAmount] = useState('');
     const [showSuggestions, setShowSuggestions] = useState(false);
     const [isLoading, setIsLoading] = useState(false);
+    const [emailSending, setEmailSending] = useState(false);
+    const [showEmailVerification, setShowEmailVerification] = useState(false);
+    const [verificationCode, setVerificationCode] = useState('');
+    const [codeVerifying, setCodeVerifying] = useState(false);
     const [error, setError] = useState<string | null>(null);
 
     const filteredProviders = PROVIDERS.filter(p =>
@@ -69,41 +82,98 @@ const InternetPaymentForm: React.FC<InternetPaymentFormProps> = ({
         }
     }, [accounts, selectedAccountIndex, setSelectedAccountIndex, uahAccounts]);
 
-    const handleSubmit = async (e: React.FormEvent) => {
-        e.preventDefault();
-        setError(null);
-        setIsLoading(true);
+    const paymentFlowState = codeVerifying
+        ? 'verifying-code'
+        : emailSending
+            ? 'sending-code'
+            : showEmailVerification
+                ? 'awaiting-code'
+                : 'idle';
 
+    useEffect(() => {
+        onPaymentFlowStateChange?.(paymentFlowState);
+    }, [onPaymentFlowStateChange, paymentFlowState]);
+
+    useEffect(() => {
+        return () => {
+            onPaymentFlowStateChange?.('idle');
+        };
+    }, [onPaymentFlowStateChange]);
+
+    const buildPayload = () => {
         const currentAccount = accounts[selectedAccountIndex];
-
         if (!currentAccount) {
-            setError('Рахунок не знайдено');
-            setIsLoading(false);
+            throw new Error('Рахунок не знайдено');
+        }
+
+        return {
+            accountId: currentAccount.id,
+            amount: Number(amount),
+            providerName,
+            contractNumber,
+        };
+    };
+
+    const handleSubmit = async (event: React.FormEvent) => {
+        event.preventDefault();
+
+        if (!customer) {
+            setError('Не знайдено дані користувача для підтвердження платежу');
             return;
         }
 
         try {
-            await createInternetPayment({
-                accountId: currentAccount.id,
-                amount: Number(amount),
-                providerName,
-                contractNumber,
-            });
+            buildPayload();
+            setError(null);
+            setEmailSending(true);
+            await sendEmailVerificationCode(customer.email);
+            setVerificationCode('');
+            setShowEmailVerification(true);
+            onCopy?.('Код підтвердження відправлено на пошту');
+        } catch (err) {
+            const errorMessage = err instanceof Error ? err.message : 'Помилка при оплаті Інтернету';
+            setError(errorMessage);
+        } finally {
+            setEmailSending(false);
+        }
+    };
+
+    const handleConfirmPayment = async () => {
+        if (!customer) {
+            setError('Не знайдено дані користувача для підтвердження платежу');
+            return;
+        }
+
+        try {
+            const payload = buildPayload();
+            setError(null);
+            setCodeVerifying(true);
+            setIsLoading(true);
+
+            await verifyEmailVerificationCode(customer.email, verificationCode);
+            await createInternetPayment(payload);
             await queryClient.invalidateQueries({ queryKey: ['transactions'] });
+            await onPaymentComplete?.();
+
+            setShowEmailVerification(false);
+            setVerificationCode('');
             alert('Оплата Інтернету успішна!');
             onBack();
         } catch (err) {
             const errorMessage = err instanceof Error ? err.message : 'Помилка при оплаті Інтернету';
             setError(errorMessage);
         } finally {
+            setCodeVerifying(false);
             setIsLoading(false);
         }
     };
 
+    const isBlockingAction = isLoading || emailSending || codeVerifying || showEmailVerification;
+
     return (
         <div className="payment-form-container">
             <div className="payment-header">
-                <button className="back-button" onClick={onBack}>
+                <button className="back-button" onClick={onBack} disabled={isBlockingAction}>
                     <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><line x1="19" y1="12" x2="5" y2="12"></line><polyline points="12 19 5 12 12 5"></polyline></svg>
                 </button>
                 <h2>Оплата Інтернету</h2>
@@ -126,8 +196,9 @@ const InternetPaymentForm: React.FC<InternetPaymentFormProps> = ({
                             placeholder="Пошук провайдера..."
                             required
                             className="form-input"
+                            disabled={isBlockingAction}
                         />
-                         <span className="search-icon-right">🔍</span>
+                        <span className="search-icon-right">🔍</span>
                         {showSuggestions && (
                             <ul className="provider-suggestions">
                                 {filteredProviders.map(p => (
@@ -153,6 +224,7 @@ const InternetPaymentForm: React.FC<InternetPaymentFormProps> = ({
                         placeholder="Введіть номер договору"
                         required
                         className="form-input"
+                        disabled={isBlockingAction}
                     />
 
                     <label className="input-label mt-4">Номер картки платника</label>
@@ -160,10 +232,10 @@ const InternetPaymentForm: React.FC<InternetPaymentFormProps> = ({
                         value={selectedAccountIndex}
                         onChange={(e) => setSelectedAccountIndex(Number(e.target.value))}
                         className="form-select account-selector"
+                        disabled={isBlockingAction}
                     >
-                         {uahAccounts.length > 0 ? (
+                        {uahAccounts.length > 0 ? (
                             uahAccounts.map((acc) => {
-                                // We need the original index to update state correctly
                                 const originalIndex = accounts.findIndex(a => a.accountNumber === acc.accountNumber);
                                 return (
                                     <option key={acc.accountNumber} value={originalIndex}>
@@ -186,16 +258,33 @@ const InternetPaymentForm: React.FC<InternetPaymentFormProps> = ({
                         step="0.01"
                         required
                         className="form-input"
-                        disabled={isLoading}
+                        disabled={isBlockingAction}
                     />
                 </div>
 
                 <div className="form-submit-container">
-                    <button type="submit" className="submit-payment-btn" disabled={isLoading}>
-                        {isLoading ? 'Обробка...' : 'Сплатити'}
+                    <button type="submit" className="submit-payment-btn" disabled={isLoading || emailSending}>
+                        {emailSending ? 'Відправка коду...' : isLoading ? 'Обробка...' : 'Сплатити'}
                     </button>
                 </div>
             </form>
+
+            <PaymentVerificationModal
+                isOpen={showEmailVerification}
+                code={verificationCode}
+                onCodeChange={setVerificationCode}
+                onSubmit={handleConfirmPayment}
+                onClose={() => {
+                    if (codeVerifying) {
+                        return;
+                    }
+                    setShowEmailVerification(false);
+                    setVerificationCode('');
+                    setError(null);
+                }}
+                isSubmitting={codeVerifying}
+                error={error}
+            />
         </div>
     );
 };

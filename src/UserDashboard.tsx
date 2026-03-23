@@ -108,6 +108,7 @@ const UserDashboard: React.FC = () => {
     const [selectedMonth, setSelectedMonth] = useState<number>(new Date().getMonth());
     const [selectedYear, setSelectedYear] = useState<number>(new Date().getFullYear());
     const [transferFlowState, setTransferFlowState] = useState<'idle' | 'sending-code' | 'awaiting-code' | 'verifying-code'>('idle');
+    const [paymentFlowState, setPaymentFlowState] = useState<'idle' | 'sending-code' | 'awaiting-code' | 'verifying-code'>('idle');
 
 
     // Mutation for adding account
@@ -157,7 +158,8 @@ const UserDashboard: React.FC = () => {
     const dashboardTabsStyle: DashboardTabsStyle = {
         '--dashboard-tab-count': `${dashboardNavItems.length}`,
     };
-    const isTransferNavigationLocked = transferFlowState !== 'idle';
+    const isTransferNavigationLocked = transferFlowState !== 'idle' || paymentFlowState !== 'idle';
+    const lockedNavigationRoot = transferFlowState !== 'idle' ? '/dashboard/transfers' : paymentFlowState !== 'idle' ? '/dashboard/payments' : null;
 
     const handleLockedNavigationAttempt = (event: React.MouseEvent<HTMLElement>) => {
         if (!isTransferNavigationLocked) {
@@ -179,12 +181,12 @@ const UserDashboard: React.FC = () => {
     }, [copyMessage]);
 
     useEffect(() => {
-        if (!isTransferNavigationLocked || location.pathname.startsWith('/dashboard/transfers')) {
+        if (!isTransferNavigationLocked || !lockedNavigationRoot || location.pathname.startsWith(lockedNavigationRoot)) {
             return;
         }
 
-        navigate('/dashboard/transfers', { replace: true });
-    }, [isTransferNavigationLocked, location.pathname, navigate]);
+        navigate(lockedNavigationRoot, { replace: true });
+    }, [isTransferNavigationLocked, location.pathname, lockedNavigationRoot, navigate]);
 
     useEffect(() => {
         if (!isTransferNavigationLocked) {
@@ -306,8 +308,14 @@ const UserDashboard: React.FC = () => {
                                         <Route path="payments/*" element={
                                             <PaymentsSection
                                                 accounts={accounts}
+                                                customer={customer}
                                                 selectedAccountIndex={selectedAccountIndex}
                                                 setSelectedAccountIndex={setSelectedAccountIndex}
+                                                onPaymentFlowStateChange={setPaymentFlowState}
+                                                onPaymentComplete={async () => {
+                                                    await refetchCustomer();
+                                                }}
+                                                onCopy={(msg: string) => setCopyMessage(msg)}
                                             />
                                         } />
                                         <Route path="transfers" element={

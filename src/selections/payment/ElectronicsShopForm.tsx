@@ -1,9 +1,8 @@
 import React, { useEffect, useMemo, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
 import { useQueryClient } from '@tanstack/react-query';
-import { createElectronicsPayment } from '../../api';
-import { useAccounts } from '../../hooks/useAccounts';
-import type { CartItemDTO } from '../../types';
+import { createElectronicsPayment, sendEmailVerificationCode, verifyEmailVerificationCode } from '../../api';
+import type { Account, CartItemDTO, CustomerData } from '../../types';
+import PaymentVerificationModal from './PaymentVerificationModal';
 import './ElectronicsShopForm.css';
 
 const products = [
@@ -21,14 +20,32 @@ const products = [
     { id: 12, name: 'GoPro HERO12', description: 'Black Edition', price: 16999 },
 ];
 
-const ElectronicsShopForm: React.FC = () => {
-    const navigate = useNavigate();
+interface ElectronicsShopFormProps {
+    accounts: Account[];
+    customer: CustomerData | null;
+    onBack: () => void;
+    onPaymentFlowStateChange?: (state: 'idle' | 'sending-code' | 'awaiting-code' | 'verifying-code') => void;
+    onPaymentComplete?: () => Promise<void>;
+    onCopy?: (msg: string) => void;
+}
+
+const ElectronicsShopForm: React.FC<ElectronicsShopFormProps> = ({
+    accounts,
+    customer,
+    onBack,
+    onPaymentFlowStateChange,
+    onPaymentComplete,
+    onCopy,
+}) => {
     const queryClient = useQueryClient();
-    const { accounts } = useAccounts();
 
     const [selectedAccountId, setSelectedAccountId] = useState<number>(0);
     const [cart, setCart] = useState<Record<number, number>>({});
     const [isLoading, setIsLoading] = useState(false);
+    const [emailSending, setEmailSending] = useState(false);
+    const [showEmailVerification, setShowEmailVerification] = useState(false);
+    const [verificationCode, setVerificationCode] = useState('');
+    const [codeVerifying, setCodeVerifying] = useState(false);
     const [isCartOpen, setIsCartOpen] = useState(false);
     const [error, setError] = useState('');
 
@@ -39,6 +56,24 @@ const ElectronicsShopForm: React.FC = () => {
             setSelectedAccountId(uahAccounts[0].id);
         }
     }, [selectedAccountId, uahAccounts]);
+
+    const paymentFlowState = codeVerifying
+        ? 'verifying-code'
+        : emailSending
+            ? 'sending-code'
+            : showEmailVerification
+                ? 'awaiting-code'
+                : 'idle';
+
+    useEffect(() => {
+        onPaymentFlowStateChange?.(paymentFlowState);
+    }, [onPaymentFlowStateChange, paymentFlowState]);
+
+    useEffect(() => {
+        return () => {
+            onPaymentFlowStateChange?.('idle');
+        };
+    }, [onPaymentFlowStateChange]);
 
     const totalItemsCount = useMemo(
         () => Object.values(cart).reduce((sum, quantity) => sum + quantity, 0),
@@ -56,10 +91,7 @@ const ElectronicsShopForm: React.FC = () => {
 
     const checkInsufficientFunds = () => {
         const account = accounts.find((acc) => acc.id === selectedAccountId);
-        if (account && account.balance < totalAmount) {
-            return true;
-        }
-        return false;
+        return Boolean(account && account.balance < totalAmount);
     };
 
     const isInsufficientFunds = checkInsufficientFunds();
@@ -75,20 +107,15 @@ const ElectronicsShopForm: React.FC = () => {
         });
     };
 
-    const handleSubmit = async () => {
-        setError('');
-
+    const buildPayload = () => {
         if (!selectedAccountId) {
-            setError('Оберіть UAH рахунок для оплати');
-            return;
+            throw new Error('Оберіть UAH рахунок для оплати');
         }
         if (totalAmount <= 0) {
-            setError('Додайте товари до кошика');
-            return;
+            throw new Error('Додайте товари до кошика');
         }
         if (isInsufficientFunds) {
-            setError('Недостатньо коштів на обраному рахунку');
-            return;
+            throw new Error('Недостатньо коштів на обраному рахунку');
         }
 
         const items: CartItemDTO[] = products
@@ -99,44 +126,90 @@ const ElectronicsShopForm: React.FC = () => {
                 price: product.price,
             }));
 
-        setIsLoading(true);
+        return {
+            accountId: selectedAccountId,
+            totalAmount,
+            items,
+        };
+    };
+
+    const handleSubmit = async () => {
+        setError('');
+
+        if (!customer) {
+            setError('Не знайдено дані користувача для підтвердження платежу');
+            return;
+        }
+
         try {
-            await createElectronicsPayment({
-                accountId: selectedAccountId,
-                totalAmount,
-                items,
-            });
-            await queryClient.invalidateQueries({ queryKey: ['transactions'] });
-            alert('Покупку електроніки успішно оформлено!');
-            setCart({});
-            navigate('/dashboard/payments');
+            buildPayload();
+            setEmailSending(true);
+            await sendEmailVerificationCode(customer.email);
+            setVerificationCode('');
+            setShowEmailVerification(true);
+            onCopy?.('Код підтвердження відправлено на пошту');
         } catch (err) {
             setError(err instanceof Error ? err.message : 'Помилка при оплаті електроніки');
         } finally {
+            setEmailSending(false);
+        }
+    };
+
+    const handleConfirmPayment = async () => {
+        if (!customer) {
+            setError('Не знайдено дані користувача для підтвердження платежу');
+            return;
+        }
+
+        try {
+            const payload = buildPayload();
+            setError('');
+            setCodeVerifying(true);
+            setIsLoading(true);
+
+            await verifyEmailVerificationCode(customer.email, verificationCode);
+            await createElectronicsPayment(payload);
+            await queryClient.invalidateQueries({ queryKey: ['transactions'] });
+            await onPaymentComplete?.();
+
+            setShowEmailVerification(false);
+            setVerificationCode('');
+            setCart({});
+            onBack();
+        } catch (err) {
+            setError(err instanceof Error ? err.message : 'Помилка при оплаті електроніки');
+        } finally {
+            setCodeVerifying(false);
             setIsLoading(false);
         }
     };
 
     const cartItemsList = useMemo(() => {
-        return products.filter((p) => (cart[p.id] ?? 0) > 0).map(p => ({
-            ...p,
-            quantity: cart[p.id]
+        return products.filter((p) => (cart[p.id] ?? 0) > 0).map((product) => ({
+            ...product,
+            quantity: cart[product.id]
         }));
     }, [cart]);
+
+    const isBlockingAction = isLoading || emailSending || codeVerifying || showEmailVerification;
 
     return (
         <div className="electronics-shop-page">
             <div className="electronics-shop-container">
                 <div className="electronics-header-group">
                     <header className="electronics-shop-header">
-                        <button type="button" className="back-button" onClick={() => navigate('/dashboard/payments')}>
+                        <button type="button" className="back-button" onClick={onBack} disabled={isBlockingAction}>
                             <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><line x1="19" y1="12" x2="5" y2="12"></line><polyline points="12 19 5 12 12 5"></polyline></svg>
                         </button>
                         <h2>Електроніка</h2>
-                        <div 
-                            className="electronics-cart-badge" 
+                        <div
+                            className="electronics-cart-badge"
                             aria-label={`Товарів у кошику: ${totalItemsCount}`}
-                            onClick={() => setIsCartOpen(true)}
+                            onClick={() => {
+                                if (!isBlockingAction) {
+                                    setIsCartOpen(true);
+                                }
+                            }}
                         >
                             🛒 {totalItemsCount}
                         </div>
@@ -152,6 +225,7 @@ const ElectronicsShopForm: React.FC = () => {
                                         type="button"
                                         className={`electronics-account-card ${selectedAccountId === account.id ? 'is-active' : ''} ${account.balance < totalAmount && totalAmount > 0 ? 'is-insufficient' : ''}`}
                                         onClick={() => setSelectedAccountId(account.id)}
+                                        disabled={isBlockingAction}
                                     >
                                         <strong>**** {account.card.cardNumber.slice(-4)}</strong>
                                         <span>{account.balance.toLocaleString('uk-UA')} UAH</span>
@@ -165,7 +239,7 @@ const ElectronicsShopForm: React.FC = () => {
 
                     {error && <p className="electronics-error top-error">{error}</p>}
                     {isInsufficientFunds && !error && (
-                       <p className="electronics-error top-error">Недостатньо коштів для оплати</p>
+                        <p className="electronics-error top-error">Недостатньо коштів для оплати</p>
                     )}
                 </div>
 
@@ -186,7 +260,7 @@ const ElectronicsShopForm: React.FC = () => {
                                                 <button
                                                     type="button"
                                                     onClick={() => updateCartQuantity(product.id, quantity - 1)}
-                                                    disabled={isLoading}
+                                                    disabled={isBlockingAction}
                                                 >
                                                     -
                                                 </button>
@@ -194,7 +268,7 @@ const ElectronicsShopForm: React.FC = () => {
                                                 <button
                                                     type="button"
                                                     onClick={() => updateCartQuantity(product.id, quantity + 1)}
-                                                    disabled={isLoading}
+                                                    disabled={isBlockingAction}
                                                 >
                                                     +
                                                 </button>
@@ -204,7 +278,7 @@ const ElectronicsShopForm: React.FC = () => {
                                                 type="button"
                                                 className="electronics-buy-btn"
                                                 onClick={() => updateCartQuantity(product.id, 1)}
-                                                disabled={isLoading}
+                                                disabled={isBlockingAction}
                                             >
                                                 Купити
                                             </button>
@@ -218,31 +292,29 @@ const ElectronicsShopForm: React.FC = () => {
 
                 {!isCartOpen && totalItemsCount > 0 && (
                     <div className="electronics-sticky-bar-wrap">
-                        <div className="electronics-sticky-bar" onClick={() => setIsCartOpen(true)}>
+                        <div className="electronics-sticky-bar" onClick={() => {
+                            if (!isBlockingAction) {
+                                setIsCartOpen(true);
+                            }
+                        }}>
                             <div className="electronics-total">
                                 <span>{totalItemsCount} товарів на суму: </span>
                                 <strong>{totalAmount.toLocaleString('uk-UA')} UAH</strong>
                             </div>
-                            <button
-                                type="button"
-                                className="electronics-view-cart-btn"
-                            >
-                                 Переглянути кошик
-                            </button>
+                            <button type="button" className="electronics-view-cart-btn">Переглянути кошик</button>
                         </div>
                     </div>
                 )}
             </div>
 
-            {/* Cart Modal / Drawer */}
             {isCartOpen && (
                 <div className="cart-overlay" onClick={() => setIsCartOpen(false)}>
-                    <div className="cart-drawer" onClick={(e) => e.stopPropagation()}>
+                    <div className="cart-drawer" onClick={(event) => event.stopPropagation()}>
                         <div className="cart-drawer-header">
                             <h3>Ваш кошик</h3>
-                            <button className="cart-close-btn" onClick={() => setIsCartOpen(false)}>✕</button>
+                            <button className="cart-close-btn" onClick={() => setIsCartOpen(false)} disabled={isBlockingAction}>✕</button>
                         </div>
-                        
+
                         <div className="cart-drawer-items">
                             {cartItemsList.length === 0 ? (
                                 <p className="cart-empty-msg">Кошик порожній</p>
@@ -254,9 +326,9 @@ const ElectronicsShopForm: React.FC = () => {
                                             <div className="cart-item-price">{item.price.toLocaleString('uk-UA')} UAH</div>
                                         </div>
                                         <div className="electronics-quantity-control compact">
-                                            <button onClick={() => updateCartQuantity(item.id, item.quantity - 1)}>-</button>
+                                            <button onClick={() => updateCartQuantity(item.id, item.quantity - 1)} disabled={isBlockingAction}>-</button>
                                             <span>{item.quantity}</span>
-                                            <button onClick={() => updateCartQuantity(item.id, item.quantity + 1)}>+</button>
+                                            <button onClick={() => updateCartQuantity(item.id, item.quantity + 1)} disabled={isBlockingAction}>+</button>
                                         </div>
                                     </div>
                                 ))
@@ -264,25 +336,40 @@ const ElectronicsShopForm: React.FC = () => {
                         </div>
 
                         <div className="cart-drawer-footer">
-                             <div className="cart-total-row">
+                            <div className="cart-total-row">
                                 <span>Разом:</span>
                                 <strong>{totalAmount.toLocaleString('uk-UA')} UAH</strong>
                             </div>
-                            {isInsufficientFunds && (
-                                <div className="cart-error-msg">Недостатньо коштів</div>
-                            )}
+                            {isInsufficientFunds && <div className="cart-error-msg">Недостатньо коштів</div>}
                             <button
                                 type="button"
                                 className="electronics-checkout-btn full-width"
                                 onClick={handleSubmit}
-                                disabled={isLoading || totalItemsCount === 0 || uahAccounts.length === 0 || isInsufficientFunds}
+                                disabled={isLoading || emailSending || totalItemsCount === 0 || uahAccounts.length === 0 || isInsufficientFunds}
                             >
-                                {isLoading ? 'Обробка...' : 'Оплатити'}
+                                {emailSending ? 'Відправка коду...' : isLoading ? 'Обробка...' : 'Оплатити'}
                             </button>
                         </div>
                     </div>
                 </div>
             )}
+
+            <PaymentVerificationModal
+                isOpen={showEmailVerification}
+                code={verificationCode}
+                onCodeChange={setVerificationCode}
+                onSubmit={handleConfirmPayment}
+                onClose={() => {
+                    if (codeVerifying) {
+                        return;
+                    }
+                    setShowEmailVerification(false);
+                    setVerificationCode('');
+                    setError('');
+                }}
+                isSubmitting={codeVerifying}
+                error={error || null}
+            />
         </div>
     );
 };

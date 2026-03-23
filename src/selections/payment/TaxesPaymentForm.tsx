@@ -1,15 +1,31 @@
 import React, { useEffect, useMemo, useState } from 'react';
 import { useQueryClient } from '@tanstack/react-query';
-import { createTaxPayment } from '../../api';
-import { useAccounts } from '../../hooks/useAccounts';
+import { createTaxPayment, sendEmailVerificationCode, verifyEmailVerificationCode } from '../../api';
+import type { Account, CustomerData } from '../../types';
+import { PaymentVerificationModal } from './PaymentVerificationModal';
 import './PaymentForms.css';
 
 const TAX_TYPES = ['Єдиний податок (5% від доходу)'];
 const RECEIVER_NAME = 'Державна податкова служба України';
 
-const TaxesPaymentForm: React.FC = () => {
+interface TaxesPaymentFormProps {
+    accounts: Account[];
+    customer: CustomerData | null;
+    onBack: () => void;
+    onPaymentFlowStateChange?: (state: 'idle' | 'sending-code' | 'awaiting-code' | 'verifying-code') => void;
+    onPaymentComplete?: () => Promise<void>;
+    onCopy?: (msg: string) => void;
+}
+
+const TaxesPaymentForm: React.FC<TaxesPaymentFormProps> = ({
+    accounts,
+    customer,
+    onBack,
+    onPaymentFlowStateChange,
+    onPaymentComplete,
+    onCopy,
+}) => {
     const queryClient = useQueryClient();
-    const { accounts } = useAccounts();
 
     const [selectedAccountId, setSelectedAccountId] = useState<number>(0);
     const [amount, setAmount] = useState('');
@@ -26,6 +42,10 @@ const TaxesPaymentForm: React.FC = () => {
 
     const [period, setPeriod] = useState(availablePeriods[0]);
     const [isLoading, setIsLoading] = useState(false);
+    const [emailSending, setEmailSending] = useState(false);
+    const [showEmailVerification, setShowEmailVerification] = useState(false);
+    const [verificationCode, setVerificationCode] = useState('');
+    const [codeVerifying, setCodeVerifying] = useState(false);
     const [error, setError] = useState('');
 
     const isPeriodValid = useMemo(() => {
@@ -38,13 +58,15 @@ const TaxesPaymentForm: React.FC = () => {
         const year = parseInt(parts[2], 10);
 
         const romanMap: Record<string, number> = { I: 1, II: 2, III: 3, IV: 4 };
-        const q = romanMap[roman] || 0;
+        const quarter = romanMap[roman] || 0;
 
         // Payment allowed only for finished quarters of the current year
         // We do not support past years here as requested ("don't take 25")
-        if (year !== currentYear) return false;
-        
-        return q < currentQuarter;
+        if (year !== currentYear) {
+            return false;
+        }
+
+        return quarter < currentQuarter;
     }, [period]);
 
     const uahAccounts = useMemo(() => accounts.filter((acc) => acc.currencyCode === 'UAH' && acc.accountType === 'FOP'), [accounts]);
@@ -59,52 +81,108 @@ const TaxesPaymentForm: React.FC = () => {
         }
     }, [selectedAccountId, visibleUahAccounts]);
 
+    const paymentFlowState = codeVerifying
+        ? 'verifying-code'
+        : emailSending
+            ? 'sending-code'
+            : showEmailVerification
+                ? 'awaiting-code'
+                : 'idle';
+
+    useEffect(() => {
+        onPaymentFlowStateChange?.(paymentFlowState);
+    }, [onPaymentFlowStateChange, paymentFlowState]);
+
+    useEffect(() => {
+        return () => {
+            onPaymentFlowStateChange?.('idle');
+        };
+    }, [onPaymentFlowStateChange]);
+
     const selectedAccount = visibleUahAccounts.find((acc) => acc.id === selectedAccountId);
     const parsedAmount = Number(amount);
-    const isSubmitDisabled = isLoading || !selectedAccountId || !Number.isFinite(parsedAmount) || parsedAmount <= 0 || !isPeriodValid;
+    const isSubmitDisabled = isLoading || emailSending || !selectedAccountId || !Number.isFinite(parsedAmount) || parsedAmount <= 0 || !isPeriodValid;
+
+    const buildPayload = () => {
+        if (!selectedAccountId) {
+            throw new Error('Оберіть ФОП рахунок для оплати');
+        }
+
+        if (!isPeriodValid) {
+            throw new Error('Сплата податку можлива лише за завершений період');
+        }
+
+        if (!Number.isFinite(parsedAmount) || parsedAmount <= 0) {
+            throw new Error('Вкажіть коректну суму оплати');
+        }
+
+        return {
+            accountId: selectedAccountId,
+            amount: parsedAmount,
+            taxType: TAX_TYPES[0],
+            period,
+            receiverName: RECEIVER_NAME,
+        };
+    };
 
     const handleSubmit = async (event: React.FormEvent) => {
         event.preventDefault();
         setError('');
 
-        if (!selectedAccountId) {
-            setError('Оберіть ФОП рахунок для оплати');
+        if (!customer) {
+            setError('Не знайдено дані користувача для підтвердження платежу');
             return;
         }
 
-        if (!isPeriodValid) {
-            setError('Сплата податку можлива лише за завершений період');
-            return;
-        }
-
-        if (!Number.isFinite(parsedAmount) || parsedAmount <= 0) {
-            setError('Вкажіть коректну суму оплати');
-            return;
-        }
-
-        setIsLoading(true);
         try {
-            await createTaxPayment({
-                accountId: selectedAccountId,
-                amount: parsedAmount,
-                taxType: TAX_TYPES[0],
-                period,
-                receiverName: RECEIVER_NAME,
-            });
-            await queryClient.invalidateQueries({ queryKey: ['transactions'] });
-            window.history.back();
+            buildPayload();
+            setEmailSending(true);
+            await sendEmailVerificationCode(customer.email);
+            setVerificationCode('');
+            setShowEmailVerification(true);
+            onCopy?.('Код підтвердження відправлено на пошту');
         } catch (err) {
             setError(err instanceof Error ? err.message : 'Помилка при оплаті податків');
         } finally {
+            setEmailSending(false);
+        }
+    };
+
+    const handleConfirmPayment = async () => {
+        if (!customer) {
+            setError('Не знайдено дані користувача для підтвердження платежу');
+            return;
+        }
+
+        try {
+            const payload = buildPayload();
+            setError('');
+            setCodeVerifying(true);
+            setIsLoading(true);
+
+            await verifyEmailVerificationCode(customer.email, verificationCode);
+            await createTaxPayment(payload);
+            await queryClient.invalidateQueries({ queryKey: ['transactions'] });
+            await onPaymentComplete?.();
+
+            setShowEmailVerification(false);
+            setVerificationCode('');
+            onBack();
+        } catch (err) {
+            setError(err instanceof Error ? err.message : 'Помилка при оплаті податків');
+        } finally {
+            setCodeVerifying(false);
             setIsLoading(false);
         }
     };
+
+    const isBlockingAction = isLoading || emailSending || codeVerifying || showEmailVerification;
 
     return (
         <div className="payment-form-wrapper">
             <div className="payment-form-container taxes-payment-root">
                 <div className="payment-header">
-                    <button type="button" className="back-button" onClick={() => window.history.back()}>
+                    <button type="button" className="back-button" onClick={onBack} disabled={isBlockingAction}>
                         <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><line x1="19" y1="12" x2="5" y2="12"></line><polyline points="12 19 5 12 12 5"></polyline></svg>
                     </button>
                     <h2>Оплата податків</h2>
@@ -131,7 +209,7 @@ const TaxesPaymentForm: React.FC = () => {
                             className="form-select taxes-hidden-select"
                             value={selectedAccountId}
                             onChange={(e) => setSelectedAccountId(Number(e.target.value))}
-                            disabled={isLoading || visibleUahAccounts.length === 0}
+                            disabled={isBlockingAction || visibleUahAccounts.length === 0}
                         >
                             {visibleUahAccounts.length > 0 ? (
                                 visibleUahAccounts.map((acc) => (
@@ -164,7 +242,7 @@ const TaxesPaymentForm: React.FC = () => {
                                     className="form-select"
                                     value={period}
                                     onChange={(e) => setPeriod(e.target.value)}
-                                    disabled={isLoading}
+                                    disabled={isBlockingAction}
                                 >
                                     {availablePeriods.map((p) => (
                                         <option key={p} value={p}>{p}</option>
@@ -184,7 +262,7 @@ const TaxesPaymentForm: React.FC = () => {
                                 min="0.01"
                                 step="0.01"
                                 required
-                                disabled={isLoading || visibleUahAccounts.length === 0}
+                                disabled={isBlockingAction || visibleUahAccounts.length === 0}
                             />
                             <span>₴</span>
                         </div>
@@ -200,10 +278,27 @@ const TaxesPaymentForm: React.FC = () => {
                         className="submit-payment-btn"
                         disabled={isSubmitDisabled || visibleUahAccounts.length === 0}
                     >
-                        {isLoading ? 'Обробка...' : 'Сплатити податок'}
+                        {emailSending ? 'Відправка коду...' : isLoading ? 'Обробка...' : 'Сплатити податок'}
                     </button>
                 </form>
             </div>
+
+            <PaymentVerificationModal
+                isOpen={showEmailVerification}
+                code={verificationCode}
+                onCodeChange={setVerificationCode}
+                onSubmit={handleConfirmPayment}
+                onClose={() => {
+                    if (codeVerifying) {
+                        return;
+                    }
+                    setShowEmailVerification(false);
+                    setVerificationCode('');
+                    setError('');
+                }}
+                isSubmitting={codeVerifying}
+                error={error || null}
+            />
         </div>
     );
 };
