@@ -320,6 +320,74 @@
     border: 0;
 }
 
+.train-ticket-root {
+    background: #eeeaf5;
+    border-radius: 16px;
+    padding: 1rem;
+}
+
+.train-card {
+    background: #eeeaf5;
+    border-radius: 14px;
+    display: grid;
+    gap: 0.65rem;
+}
+
+.train-section-title {
+    margin: 0;
+    font-size: 1rem;
+    font-weight: 600;
+    color: #1f2937;
+}
+
+.train-scroll-row {
+    display: flex;
+    gap: 0.75rem;
+    overflow-x: auto;
+    padding-bottom: 0.25rem;
+}
+
+.train-account-card,
+.train-ticket-card {
+    background: #fff;
+    border: 2px solid transparent;
+    border-radius: 12px;
+    padding: 0.8rem 1rem;
+    cursor: pointer;
+    color: #111827;
+    min-width: max-content;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.15rem;
+}
+
+.train-account-card.is-active,
+.train-ticket-card.is-active {
+    border-color: #7c3aed;
+}
+
+.train-ticket-card {
+    font-weight: 500;
+}
+
+.train-white-input {
+    background: #fff;
+}
+
+.train-empty {
+    margin: 0;
+    color: #6b7280;
+}
+
+.train-submit-btn {
+    background: #7c3aed;
+}
+
+.train-submit-btn:hover {
+    background: #6d28d9;
+}
+
 @media (max-width: 768px) {
     .payment-form-wrapper {
         background-color: #fff; /* White background for the whole form area on mobile */
@@ -382,5 +450,9 @@
 
     .taxes-account-balance {
         font-size: 1.3rem;
+    }
+
+    .train-ticket-root {
+        border-radius: 12px;
     }
 }

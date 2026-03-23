@@ -12,6 +12,7 @@ import type {
     MobilePaymentRequest,
     TaxPaymentRequest,
     ElectronicsPaymentRequest,
+    TrainPaymentRequest,
     ChangePasswordRequest,
     ChangeEmailRequest,
 } from './types';
@@ -268,6 +269,26 @@ export const createElectronicsPayment = async (data: ElectronicsPaymentRequest):
         }
     }
     return res;
+};
+
+export const createTrainPayment = async (data: TrainPaymentRequest): Promise<unknown> => {
+    const res = await fetch('/api/v1/payments/train', {
+        method: 'POST',
+        headers: getAuthHeaders(),
+        body: JSON.stringify(data),
+    });
+
+    if (!res.ok) {
+        const error = await res.json().catch(() => ({}));
+        throw new Error(error.message || 'Помилка при оплаті квитків на потяг');
+    }
+
+    const text = await res.text();
+    try {
+        return JSON.parse(text);
+    } catch {
+        return text;
+    }
 };
 
 // Profile settings: Password

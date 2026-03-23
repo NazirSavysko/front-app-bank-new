@@ -7,6 +7,7 @@ const RegisterForm = lazy(() => import('./RegisterForm').then(module => ({ defau
 const VerifyEmailForm = lazy(() => import('./VerifyEmailForm').then(module => ({ default: module.VerifyEmailForm })));
 const ForgotPasswordForm = lazy(() => import('./ForgotPasswordForm').then(module => ({ default: module.ForgotPasswordForm })));
 const UserDashboard = lazy(() => import('./UserDashboard'));
+const TrainTicketForm = lazy(() => import('./selections/payment/TrainTicketForm'));
 
 function App() {
     const navigate = useNavigate();
@@ -121,6 +122,12 @@ function App() {
                             <h1>🔐 Вітаємо! Ви увійшли як адміністратор</h1>
                             <p>Тут може бути адміністративна панель.</p>
                         </div>
+                    </ProtectedRoute>
+                } />
+
+                <Route path="/payments/train" element={
+                    <ProtectedRoute>
+                        <TrainTicketForm />
                     </ProtectedRoute>
                 } />
 

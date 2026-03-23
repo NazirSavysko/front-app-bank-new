@@ -7,6 +7,7 @@ import IBANPaymentForm from './IBANPaymentForm';
 import MobilePaymentForm from './MobilePaymentForm';
 import TaxesPaymentForm from './TaxesPaymentForm';
 import ElectronicsShopForm from './ElectronicsShopForm';
+import TrainTicketForm from './TrainTicketForm';
 
 // Import CSS
 import './PaymentForms.css';
@@ -24,6 +25,7 @@ const PaymentsHome: React.FC = () => {
         { id: 'travel', title: 'Подорожі', desc: 'Купуйте авіаквитки та бронюйте номер в готелі', color: 'bg-purple', size: 'tall' },
         { id: 'internet', title: 'Інтернет', desc: 'Переглянути послуги', color: 'bg-blue', size: 'short' },
         { id: 'electronics', title: 'Електроніка', desc: 'Купуйте смартфони, ноутбуки, електроніку для дому та саду', color: 'bg-indigo', size: 'tall' },
+        { id: 'train', title: 'Квитки на потяг', desc: 'Оберіть маршрут і придбайте квиток онлайн', color: 'bg-train', size: 'short' },
         { id: 'mobile', title: 'Мобільний', desc: 'Поповніть баланс', color: 'bg-indigo', size: 'short' },
         { id: 'utilities', title: 'Комунальні послуги', desc: 'Перевірте рахунки', color: 'bg-indigo', size: 'short' },
         { id: 'taxes', title: 'Податки', desc: 'Сплатіть податки', color: 'bg-indigo', size: 'short' },
@@ -34,6 +36,7 @@ const PaymentsHome: React.FC = () => {
             case 'travel': return <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"><path d="M22 2L11 13"/><path d="M22 2L15 22L11 13L2 9L22 2Z"/></svg>;
             case 'internet': return <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M5 12.55a11 11 0 0 1 14.08 0"/><path d="M1.42 9a16 16 0 0 1 21.16 0"/><path d="M8.53 16.11a6 6 0 0 1 6.95 0"/><line x1="12" y1="20" x2="12.01" y2="20"/></svg>;
             case 'electronics': return <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"><rect x="2" y="3" width="20" height="14" rx="2" ry="2" /><line x1="8" y1="21" x2="16" y2="21" /><line x1="12" y1="17" x2="12" y2="21" /></svg>;
+            case 'train': return <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="6" y="3" width="12" height="13" rx="3"/><path d="M8 16l-2 5"/><path d="M16 16l2 5"/><path d="M7 21h10"/><circle cx="10" cy="11" r="1"/><circle cx="14" cy="11" r="1"/><path d="M8 7h8"/></svg>;
             case 'mobile': return <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="5" y="2" width="14" height="20" rx="2" ry="2"/><line x1="12" y1="18" x2="12.01" y2="18"/></svg>;
             case 'utilities': return <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>;
             case 'taxes': return <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><line x1="3" x2="21" y1="21" y2="21"/><line x1="6" x2="6" y1="10" y2="18"/><line x1="10" x2="10" y1="10" y2="18"/><line x1="14" x2="14" y1="10" y2="18"/><line x1="18" x2="18" y1="10" y2="18"/><polygon points="12 2 20 7 4 7"/></svg>;
@@ -50,6 +53,8 @@ const PaymentsHome: React.FC = () => {
             navigate('mobile');
         } else if (id === 'taxes') {
             navigate('taxes');
+        } else if (id === 'train') {
+            navigate('train');
         } else if (id === 'travel') {
             // Do nothing as requested
         } else {
@@ -128,6 +133,7 @@ const PaymentsSection: React.FC<PaymentsSectionProps> = (props) => {
             <Route path="taxes" element={<TaxesPaymentForm />} />
             <Route path="mobile" element={<MobilePaymentForm />} />
             <Route path="electronics" element={<ElectronicsShopForm />} />
+            <Route path="train" element={<TrainTicketForm />} />
             <Route path="*" element={<PaymentsHome />} />
         </Routes>
         </div>

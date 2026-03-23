@@ -138,6 +138,15 @@ export interface ElectronicsPaymentRequest {
     items: CartItemDTO[];
 }
 
+export interface TrainPaymentRequest {
+    accountId: number;
+    amount: number;
+    fromCity: string;
+    toCity: string;
+    departureDate: string;
+    ticketType: string;
+}
+
 export interface ChangePasswordRequest {
     verificationCode: string;
     newPassword: string;
