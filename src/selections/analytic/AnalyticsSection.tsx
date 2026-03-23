@@ -258,9 +258,8 @@ const AnalyticsSection: React.FC<AnalyticsSectionProps> = ({
                             {pieData.map((item) => (
                                 <div key={item.name} className="legend-item">
                                     <span className="legend-dot" style={{ background: item.color }} />
-                                    <span>
-                                        {item.name}: {formatMoney(item.value, currencyCode)}
-                                    </span>
+                                    <span className="legend-name">{item.name}:</span>
+                                    <span className="legend-value">{formatMoney(item.value, currencyCode)}</span>
                                 </div>
                             ))}
                         </div>
