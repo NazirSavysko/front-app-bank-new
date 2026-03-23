@@ -10,11 +10,8 @@ import MobilePaymentForm from './MobilePaymentForm';
 import './PaymentForms.css';
 
 export interface PaymentsSectionProps {
-    /** List of user accounts */
     accounts: Account[];
-    /** Index of the currently selected account */
     selectedAccountIndex: number;
-    /** Callback to update selected account index */
     setSelectedAccountIndex: (index: number) => void;
 }
 
