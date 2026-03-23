@@ -4,17 +4,15 @@ import type { Account } from '../types';
 export interface AccountCardProps {
     /** Account to display */
     account: Account;
-    /** Callback invoked when a piece of information is copied */
-    onCopy?: (message: string) => void;
 }
 
 /**
  * AccountCard renders a visual representation of a bank account including
  * its card details, balance and account number. Sensitive information
  * like the card number and CVV are masked by default and revealed on
- * click. Copied items trigger the optional `onCopy` callback.
+ * click. Copy feedback is shown via native alert messages.
  */
-const AccountCard: React.FC<AccountCardProps> = ({ account, onCopy }) => {
+const AccountCard: React.FC<AccountCardProps> = ({ account }) => {
     const { card } = account;
     const [showCvv, setShowCvv] = useState(false);
     const [showNumber, setShowNumber] = useState(false);
@@ -72,7 +70,9 @@ const AccountCard: React.FC<AccountCardProps> = ({ account, onCopy }) => {
         setShowNumber(!showNumber);
         navigator.clipboard
             .writeText(card.cardNumber)
-            .then(() => onCopy?.('Номер картки скопійовано'))
+            .then(() => {
+                alert('Дані картки скопійовано');
+            })
             .catch(() => console.error('Не вдалося скопіювати номер картки'));
     };
 
@@ -81,7 +81,9 @@ const AccountCard: React.FC<AccountCardProps> = ({ account, onCopy }) => {
         setShowAccountNumber(!showAccountNumber);
         navigator.clipboard
             .writeText(account.accountNumber)
-            .then(() => onCopy?.('Номер рахунку скопійовано'))
+            .then(() => {
+                alert('Номер рахунку скопійовано');
+            })
             .catch(() => console.error('Не вдалося скопіювати номер рахунку'));
     };
 

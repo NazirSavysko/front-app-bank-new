@@ -8,7 +8,6 @@ export interface AccountsSectionProps {
     selectedIndex: number;
     onSelect: (index: number) => void;
     onAddAccount: () => void;
-    onCopy?: (message: string) => void;
 }
 
 /**
@@ -19,8 +18,7 @@ const AccountsSection: React.FC<AccountsSectionProps> = ({
                                                              accounts,
                                                              selectedIndex,
                                                              onSelect,
-                                                             onAddAccount,
-                                                             onCopy
+                                                             onAddAccount
                                                          }) => {
     const listRef = useRef<HTMLDivElement>(null);
 
@@ -67,7 +65,7 @@ const AccountsSection: React.FC<AccountsSectionProps> = ({
                         if (e.key === 'Enter' || e.key === ' ') onSelect(idx);
                     }}
                 >
-                    <AccountCard account={acc} onCopy={onCopy} />
+                    <AccountCard account={acc} />
                 </div>
             ))}
 

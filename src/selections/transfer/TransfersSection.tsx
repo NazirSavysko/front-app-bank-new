@@ -393,8 +393,12 @@ const TransfersSection: React.FC<TransfersSectionProps> = ({
                                     </div>
                                     <div className="card-number" onClick={(e) => {
                                         e.stopPropagation();
-                                        navigator.clipboard.writeText(account.card.cardNumber);
-                                        onCopy?.('Номер картки скопійовано');
+                                        navigator.clipboard
+                                            .writeText(account.card.cardNumber)
+                                            .then(() => {
+                                                alert('Дані картки скопійовано');
+                                            })
+                                            .catch(() => console.error('Не вдалося скопіювати номер картки'));
                                     }}>**** ****
                                         **** {account.card.cardNumber.slice(-4)}</div>
                                     <div className="card-info">

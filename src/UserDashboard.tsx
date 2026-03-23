@@ -287,7 +287,6 @@ const UserDashboard: React.FC = () => {
                                                 selectedIndex={selectedAccountIndex}
                                                 onSelect={setSelectedAccountIndex}
                                                 onAddAccount={() => setShowAddModal(true)}
-                                                onCopy={(msg: string) => setCopyMessage(msg)}
                                             />
                                         } />
                                         <Route path="transactions" element={
