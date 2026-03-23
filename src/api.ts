@@ -11,6 +11,7 @@ import type {
     InternetPaymentRequest,
     MobilePaymentRequest,
     TaxPaymentRequest,
+    CommunalPaymentRequest,
     ElectronicsPaymentRequest,
     TrainPaymentRequest,
     ChangePasswordRequest,
@@ -171,6 +172,7 @@ export const fetchAnalyticsSummary = async (
         totalTaxExpenses: Number(data.totalTaxExpenses ?? 0),
         totalElectronicsExpenses: Number(data.totalElectronicsExpenses ?? 0),
         totalCardToCardExpenses: Number(data.totalCardToCardExpenses ?? 0),
+        totalUtilityExpenses: Number(data.totalUtilityExpenses ?? 0),
     };
 };
 
@@ -307,6 +309,26 @@ export const createTrainPayment = async (data: TrainPaymentRequest): Promise<unk
     if (!res.ok) {
         const error = await res.json().catch(() => ({}));
         throw new Error(error.message || 'Помилка при оплаті квитків на потяг');
+    }
+
+    const text = await res.text();
+    try {
+        return JSON.parse(text);
+    } catch {
+        return text;
+    }
+};
+
+export const createCommunalPayment = async (data: CommunalPaymentRequest): Promise<unknown> => {
+    const res = await fetch('/api/v1/payments/communal', {
+        method: 'POST',
+        headers: getAuthHeaders(),
+        body: JSON.stringify(data),
+    });
+
+    if (!res.ok) {
+        const error = await res.json().catch(() => ({}));
+        throw new Error(error.message || 'Помилка при оплаті комунальних послуг');
     }
 
     const text = await res.text();
