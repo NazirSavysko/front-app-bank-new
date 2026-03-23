@@ -116,7 +116,7 @@ const AnalyticsSection: React.FC<AnalyticsSectionProps> = ({
         return [
             { name: 'Надходження', value: incomeValue, color: '#10B981' },
             { name: 'Витрати', value: expenseValue, color: '#EF4444' },
-        ];
+        ].filter((item) => item.value > 0);
     }, [incomeValue, expenseValue, totalFlow]);
 
     return (
