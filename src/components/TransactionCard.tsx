@@ -56,7 +56,53 @@ const maskCardNumber = (cardNumber?: string) => (
     cardNumber ? (cardNumber.length > 4 ? `**** ${cardNumber.slice(-4)}` : '****') : '—'
 );
 
-const TransactionTypeIcon: React.FC<{ transactionType: string; isMobileTopUp: boolean; isTaxPayment: boolean; isElectronicsPurchase: boolean; isTrainTicket: boolean }> = ({ transactionType, isMobileTopUp, isTaxPayment, isElectronicsPurchase, isTrainTicket }) => {
+const TransactionTypeIcon: React.FC<{
+    transactionType: string;
+    isMobileTopUp: boolean;
+    isTaxPayment: boolean;
+    isElectronicsPurchase: boolean;
+    isTrainTicket: boolean;
+    communalType: 'electricity' | 'water' | 'gas' | 'heating' | null;
+    isCommunalGeneral: boolean;
+}> = ({ transactionType, isMobileTopUp, isTaxPayment, isElectronicsPurchase, isTrainTicket, communalType, isCommunalGeneral }) => {
+    if (communalType === 'electricity') {
+        return (
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="gold" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"></polygon>
+            </svg>
+        );
+    }
+    if (communalType === 'water') {
+        return (
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="dodgerblue" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <path d="M12 2.69l5.66 5.66a8 8 0 1 1-11.31 0z"></path>
+            </svg>
+        );
+    }
+    if (communalType === 'gas') {
+        return (
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="orange" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <path d="M8.5 14.5A2.5 2.5 0 0 0 11 12c0-1.38-.5-2-1-3-1.072-2.143-.224-4.054 2-6 .5 2.5 2 4.9 4 6.5 2 1.6 3 3.5 3 5.5a7 7 0 1 1-14 0c0-1.1.2-2.2.6-3.3a9 9 0 0 0 2.9 2.8z"></path>
+            </svg>
+        );
+    }
+    if (communalType === 'heating') {
+        return (
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="crimson" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <path d="M14 4v10.54a4 4 0 1 1-4 0V4a2 2 0 0 1 4 0Z"></path>
+            </svg>
+        );
+    }
+
+    if (isCommunalGeneral) {
+        return (
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+               <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path>
+               <polyline points="9 22 9 12 15 12 15 22"></polyline>
+            </svg>
+        );
+    }
+
     if (isTrainTicket) {
         return (
             <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
@@ -182,7 +228,23 @@ const TransactionCard: React.FC<TransactionCardProps> = ({ transaction }) => {
         descriptionLower.includes('укрзалізниця') ||
         transaction.transactionType === 'TRAIN_PAYMENT';
 
+    const getCommunalType = (desc: string): 'electricity' | 'water' | 'gas' | 'heating' | null => {
+        if (desc.includes('yasno') || desc.includes('електроенергія')) return 'electricity';
+        if (desc.includes('водоканал') || desc.includes('водопостачання')) return 'water';
+        if (desc.includes('нафтогаз') || desc.includes('газопостачання')) return 'gas';
+        if (desc.includes('теплоенерго') || desc.includes('опалення')) return 'heating';
+        return null;
+    };
+    const communalType = getCommunalType(descriptionLower);
+    const isCommunalGeneral = descriptionLower.includes('оплата комунальних послуг');
+
     const shortTitle = (() => {
+        if (communalType === 'electricity') return 'YASNO (ДТЕК)';
+        if (communalType === 'water') return 'Київводоканал';
+        if (communalType === 'gas') return 'Нафтогаз України';
+        if (communalType === 'heating') return 'Київтеплоенерго';
+        if (isCommunalGeneral) return 'Комунальні платежі';
+
         if (isTrainTicket) {
             return 'Квиток на потяг';
         }
@@ -206,11 +268,30 @@ const TransactionCard: React.FC<TransactionCardProps> = ({ transaction }) => {
             case 'MOBILE_PAYMENT':
                 return 'Поповнення мобільного';
             default:
+                if (communalType) {
+                    if (communalType === 'electricity') return 'YASNO (ДТЕК)';
+                    if (communalType === 'water') return 'Київводоканал';
+                    if (communalType === 'gas') return 'Нафтогаз України';
+                    if (communalType === 'heating') return 'Київтеплоенерго';
+                }
+                if (isCommunalGeneral) return 'Комунальні платежі';
                 return isMobileTopUp ? 'Поповнення мобільного' : 'Транзакція';
         }
     })();
     const amountColor = isIncoming ? 'var(--green-600)' : 'var(--red-600)';
-    const iconVariant = isMobileTopUp ? 'mobile-payment' : (isElectronicsPurchase ? 'electronics' : (isTaxPayment ? 'tax-payment' : (isTrainTicket ? 'train-ticket' : (TRANSACTION_ICON_VARIANTS[transaction.transactionType] || 'transfer'))));
+    const iconVariant = isMobileTopUp ? 'mobile-payment' : (
+        isElectronicsPurchase ? 'electronics' : (
+            isTaxPayment ? 'tax-payment' : (
+                isTrainTicket ? 'train-ticket' : (
+                    communalType ? `communal-${communalType}` : (
+                         isCommunalGeneral ? 'communal-general' : (
+                            TRANSACTION_ICON_VARIANTS[transaction.transactionType] || 'transfer'
+                         )
+                    )
+                )
+            )
+        )
+    );
 
     const [expanded, setExpanded] = useState(false);
     const toggleExpanded = () => setExpanded(prevExpanded => !prevExpanded);
@@ -243,6 +324,8 @@ const TransactionCard: React.FC<TransactionCardProps> = ({ transaction }) => {
                         isTaxPayment={isTaxPayment}
                         isElectronicsPurchase={isElectronicsPurchase}
                         isTrainTicket={isTrainTicket}
+                        communalType={communalType}
+                        isCommunalGeneral={isCommunalGeneral}
                     />
                 </div>
                 <div className="transaction-summary">
@@ -268,7 +351,7 @@ const TransactionCard: React.FC<TransactionCardProps> = ({ transaction }) => {
                             <div>{transaction.description || '—'}</div>
                         </div>
                     </>
-                ) : (transaction.transactionType === 'INTERNET_PAYMENT' || isMobileTopUp || isTaxPayment || isElectronicsPurchase || isTrainTicket) ? (
+                ) : (transaction.transactionType === 'INTERNET_PAYMENT' || isMobileTopUp || isTaxPayment || isElectronicsPurchase || isTrainTicket || communalType || isCommunalGeneral) ? (
                     <div style={{ flexBasis: '100%' }}>
                         <strong>Опис:</strong>
                         <div>{transaction.description || '—'}</div>
