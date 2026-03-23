@@ -5,6 +5,7 @@ import './PaymentsSection.css';
 import InternetPaymentForm from './InternetPaymentForm';
 import IBANPaymentForm from './IBANPaymentForm';
 import MobilePaymentForm from './MobilePaymentForm';
+import TaxesPaymentForm from './TaxesPaymentForm';
 
 // Import CSS
 import './PaymentForms.css';
@@ -44,6 +45,8 @@ const PaymentsHome: React.FC = () => {
             navigate('internet');
         } else if (id === 'mobile') {
             navigate('mobile');
+        } else if (id === 'taxes') {
+            navigate('taxes');
         } else if (id === 'travel') {
             // Do nothing as requested
         } else {
@@ -119,6 +122,7 @@ const PaymentsSection: React.FC<PaymentsSectionProps> = (props) => {
                     onBack={() => navigate('/dashboard/payments')}
                 />
             } />
+            <Route path="taxes" element={<TaxesPaymentForm />} />
             <Route path="mobile" element={<MobilePaymentForm />} />
             <Route path="*" element={<PaymentsHome />} />
         </Routes>
