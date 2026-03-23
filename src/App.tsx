@@ -125,6 +125,7 @@ function App() {
                 } />
 
                 <Route path="/payments/train" element={<Navigate to="/dashboard/payments/train" replace />} />
+                <Route path="/payments/communal" element={<Navigate to="/dashboard/payments/communal" replace />} />
 
                 <Route path="/" element={<Navigate to="/dashboard/accounts" replace />} />
                 <Route path="*" element={<Navigate to="/login" replace />} />
