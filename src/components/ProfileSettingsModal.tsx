@@ -149,7 +149,13 @@ const ProfileSettingsModal: React.FC<ProfileSettingsModalProps> = ({ isOpen, onC
             setNewPassword('');
         } catch (err) {
             const backendMessage = (err as Error).message || 'Не вдалося змінити пароль';
-            setError(mapToInvalidCodeMessage(backendMessage) || backendMessage);
+            const mapped = mapToInvalidCodeMessage(backendMessage);
+            if (mapped) {
+                setStep('password-code');
+                setError(mapped);
+            } else {
+                setError(backendMessage);
+            }
         } finally {
             setLoading(false);
         }
@@ -176,7 +182,13 @@ const ProfileSettingsModal: React.FC<ProfileSettingsModalProps> = ({ isOpen, onC
             handleLogout();
         } catch (err) {
             const backendMessage = (err as Error).message || 'Не вдалося змінити пошту';
-            setError(mapToInvalidCodeMessage(backendMessage) || backendMessage);
+            const mapped = mapToInvalidCodeMessage(backendMessage);
+            if (mapped) {
+                setStep('email-code');
+                setError(mapped);
+            } else {
+                setError(backendMessage);
+            }
         } finally {
             setLoading(false);
         }
@@ -187,7 +199,17 @@ const ProfileSettingsModal: React.FC<ProfileSettingsModalProps> = ({ isOpen, onC
             <div className="modal-content profile-settings-modal" onClick={(e) => e.stopPropagation()}>
                 <div className="profile-settings-header">
                     <button className="profile-settings-back" onClick={resetAndClose} aria-label="Закрити налаштування">
-                        ←
+                        <svg
+                            viewBox="0 0 24 24"
+                            fill="none"
+                            stroke="currentColor"
+                            strokeWidth="2"
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                        >
+                            <line x1="19" y1="12" x2="5" y2="12" />
+                            <polyline points="12 19 5 12 12 5" />
+                        </svg>
                     </button>
                     <h3>{title}</h3>
                 </div>
