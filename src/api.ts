@@ -267,3 +267,83 @@ export const createElectronicsPayment = async (data: ElectronicsPaymentRequest):
     }
     return res;
 };
+
+// Profile settings: Password
+export const requestPasswordChangeCode = async (): Promise<unknown> => {
+    const res = await fetch('/api/v1/customers/me/settings/password/init', {
+        method: 'POST',
+        headers: getAuthHeaders(),
+    });
+
+    if (!res.ok) {
+        const body = await res.json().catch(() => ({}));
+        throw new Error(body.message || 'Failed to request password change code');
+    }
+
+    const text = await res.text();
+    try {
+        return JSON.parse(text);
+    } catch {
+        return text;
+    }
+};
+
+export const changePassword = async (verificationCode: string, newPassword: string): Promise<unknown> => {
+    const res = await fetch('/api/v1/customers/me/settings/password/change', {
+        method: 'POST',
+        headers: getAuthHeaders(),
+        body: JSON.stringify({ verificationCode, newPassword }),
+    });
+
+    if (!res.ok) {
+        const body = await res.json().catch(() => ({}));
+        throw new Error(body.message || 'Failed to change password');
+    }
+
+    const text = await res.text();
+    try {
+        return JSON.parse(text);
+    } catch {
+        return text;
+    }
+};
+
+// Profile settings: Email
+export const requestEmailChangeCode = async (): Promise<unknown> => {
+    const res = await fetch('/api/v1/customers/me/settings/email/init', {
+        method: 'POST',
+        headers: getAuthHeaders(),
+    });
+
+    if (!res.ok) {
+        const body = await res.json().catch(() => ({}));
+        throw new Error(body.message || 'Failed to request email change code');
+    }
+
+    const text = await res.text();
+    try {
+        return JSON.parse(text);
+    } catch {
+        return text;
+    }
+};
+
+export const changeEmail = async (verificationCode: string, newEmail: string): Promise<unknown> => {
+    const res = await fetch('/api/v1/customers/me/settings/email/change', {
+        method: 'POST',
+        headers: getAuthHeaders(),
+        body: JSON.stringify({ verificationCode, newEmail }),
+    });
+
+    if (!res.ok) {
+        const body = await res.json().catch(() => ({}));
+        throw new Error(body.message || 'Failed to change email');
+    }
+
+    const text = await res.text();
+    try {
+        return JSON.parse(text);
+    } catch {
+        return text;
+    }
+};
