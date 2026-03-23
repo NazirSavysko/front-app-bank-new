@@ -125,3 +125,15 @@ export interface TaxPaymentRequest {
     period: string;
     receiverName: string;
 }
+
+export interface CartItemDTO {
+    productName: string;
+    quantity: number;
+    price: number;
+}
+
+export interface ElectronicsPaymentRequest {
+    accountId: number;
+    totalAmount: number;
+    items: CartItemDTO[];
+}

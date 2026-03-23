@@ -11,6 +11,7 @@ import type {
     InternetPaymentRequest,
     MobilePaymentRequest,
     TaxPaymentRequest,
+    ElectronicsPaymentRequest,
 } from './types';
 
 const getAuthHeaders = () => {
@@ -242,4 +243,27 @@ export const createTaxPayment = async (data: TaxPaymentRequest): Promise<unknown
     } catch {
         return text;
     }
+};
+
+export const createElectronicsPayment = async (data: ElectronicsPaymentRequest): Promise<unknown> => {
+    const res = await fetch('/api/v1/payments/electronics', {
+        method: 'POST',
+        headers: getAuthHeaders(),
+        body: JSON.stringify(data),
+    });
+
+    if (!res.ok) {
+        const error = await res.json().catch(() => ({}));
+        throw new Error(error.message || 'Помилка при оплаті електроніки');
+    }
+
+    if (typeof res.text === 'function') {
+        const text = await res.text();
+        try {
+            return JSON.parse(text);
+        } catch {
+            return text;
+        }
+    }
+    return res;
 };
