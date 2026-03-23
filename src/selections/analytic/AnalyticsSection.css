@@ -177,20 +177,28 @@
 
 .legend-row {
     margin-top: 6px;
-    display: flex;
-    justify-content: center;
-    flex-wrap: wrap;
-    gap: 10px 16px;
+    display: grid;
+    grid-template-columns: auto max-content max-content;
+    justify-content: start;
+    align-items: center;
+    column-gap: 8px;
+    row-gap: 10px;
 }
 
 .legend-item {
-    display: flex;
-    align-items: center;
-    gap: 8px;
+    display: contents;
+}
+
+.legend-name,
+.legend-value {
     color: #374151;
     font-size: 15px;
     line-height: 1.4;
     white-space: nowrap;
+}
+
+.legend-name {
+    text-align: left;
 }
 
 .legend-dot {
