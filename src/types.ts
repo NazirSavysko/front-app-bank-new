@@ -57,6 +57,7 @@ export interface Account {
     accountType: AccountType;
     balance: number;
     currency: AccountCurrency;
+    currencyCode?: AccountCurrency;
     edrpou: string;
     status: string;
     card: {
@@ -103,4 +104,10 @@ export interface InternetPaymentRequest {
     amount: number;         // Сумма платежа
     providerName: string;   // Название провайдера (например, "Lanet")
     contractNumber: string; // Номер договора / лицевой счет
+}
+
+export interface MobilePaymentRequest {
+    accountId: number;
+    amount: number;
+    phoneNumber: string; // Must format as +380XXXXXXXXX
 }

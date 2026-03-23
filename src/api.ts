@@ -1,5 +1,16 @@
 // src/api.ts
-import type { CustomerData, Account, AccountType, AccountCurrency, Transaction, Page, AnalyticsSummary, IbanPaymentRequest, InternetPaymentRequest } from './types';
+import type {
+    CustomerData,
+    Account,
+    AccountType,
+    AccountCurrency,
+    Transaction,
+    Page,
+    AnalyticsSummary,
+    IbanPaymentRequest,
+    InternetPaymentRequest,
+    MobilePaymentRequest,
+} from './types';
 
 const getAuthHeaders = () => {
     const token = sessionStorage.getItem('accessToken') || localStorage.getItem('accessToken');
@@ -174,6 +185,19 @@ export const createInternetPayment = async (payload: InternetPaymentRequest) => 
     if (!res.ok) {
         const error = await res.json().catch(() => ({}));
         throw new Error(error.message || 'Помилка при оплаті Інтернету');
+    }
+    return res.json();
+};
+
+export const createMobilePayment = async (payload: MobilePaymentRequest) => {
+    const res = await fetch('/api/v1/payments/mobile', {
+        method: 'POST',
+        headers: getAuthHeaders(),
+        body: JSON.stringify(payload),
+    });
+    if (!res.ok) {
+        const error = await res.json().catch(() => ({}));
+        throw new Error(error.message || 'Помилка при поповненні мобільного');
     }
     return res.json();
 };
