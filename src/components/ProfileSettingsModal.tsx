@@ -15,8 +15,23 @@ interface ProfileSettingsModalProps {
 }
 
 const getCodeError = (value: string) => {
-    if (value.length !== VERIFICATION_CODE_LENGTH || !/^\d+$/.test(value)) {
+    const normalized = value.trim();
+    if (normalized.length !== VERIFICATION_CODE_LENGTH || !/^\d+$/.test(normalized)) {
         return `Код має містити ${VERIFICATION_CODE_LENGTH} цифр`;
+    }
+    return '';
+};
+
+const getEmailError = (value: string) => {
+    const normalized = value.trim();
+    if (!normalized) {
+        return 'Введіть нову пошту';
+    }
+    if (normalized.length > 254) {
+        return 'Пошта занадто довга';
+    }
+    if (!EMAIL_PATTERN.test(normalized) || normalized.includes('..')) {
+        return 'Введіть коректну пошту';
     }
     return '';
 };
@@ -82,13 +97,14 @@ const ProfileSettingsModal: React.FC<ProfileSettingsModalProps> = ({ isOpen, onC
     };
 
     const handleCodeSubmit = () => {
+        const normalizedCode = codeInput.trim();
         const currentError = getCodeError(codeInput);
         if (currentError) {
             setError(currentError);
             return;
         }
         setError('');
-        setStoredCode(codeInput);
+        setStoredCode(normalizedCode);
         if (step === 'password-code') {
             setStep('password-new');
         } else {
@@ -124,12 +140,9 @@ const ProfileSettingsModal: React.FC<ProfileSettingsModalProps> = ({ isOpen, onC
 
     const handleSubmitEmail = async () => {
         const normalizedEmail = newEmail.trim();
-        if (!normalizedEmail) {
-            setError('Введіть нову пошту');
-            return;
-        }
-        if (!EMAIL_PATTERN.test(normalizedEmail)) {
-            setError('Введіть коректну пошту');
+        const currentEmailError = getEmailError(normalizedEmail);
+        if (currentEmailError) {
+            setError(currentEmailError);
             return;
         }
         setError('');
@@ -159,12 +172,26 @@ const ProfileSettingsModal: React.FC<ProfileSettingsModalProps> = ({ isOpen, onC
                 <div className="profile-settings-body">
                     {step === 'idle' && (
                         <>
-                            <div className="profile-settings-user-card">
-                                <span className="profile-settings-user-name">
-                                    {customer ? `${customer.firstName} ${customer.lastName}` : 'Користувач'}
-                                </span>
-                                <span className="profile-settings-user-phone">{customer?.phoneNumber ?? ''}</span>
-                            </div>
+                            {customer && (
+                                <div className="profile-settings-user-data">
+                                    <div className="profile-settings-info-item">
+                                        <label>Ім'я:</label>
+                                        <span>{customer.firstName}</span>
+                                    </div>
+                                    <div className="profile-settings-info-item">
+                                        <label>Прізвище:</label>
+                                        <span>{customer.lastName}</span>
+                                    </div>
+                                    <div className="profile-settings-info-item">
+                                        <label>Пошта:</label>
+                                        <span>{customer.email}</span>
+                                    </div>
+                                    <div className="profile-settings-info-item">
+                                        <label>Телефон:</label>
+                                        <span>{customer.phoneNumber}</span>
+                                    </div>
+                                </div>
+                            )}
 
                             <button
                                 type="button"
