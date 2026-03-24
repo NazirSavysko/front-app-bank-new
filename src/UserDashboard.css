@@ -933,6 +933,25 @@
     }
 }
 
+@media (max-width: 576px) {
+    .profile-settings-modal {
+        height: 100dvh;
+        max-height: 100dvh;
+        display: flex;
+        flex-direction: column;
+    }
+
+    .profile-settings-body {
+        min-height: 0;
+        overflow-y: auto;
+        -webkit-overflow-scrolling: touch;
+    }
+
+    .profile-settings-footer {
+        padding-bottom: calc(1rem + env(safe-area-inset-bottom));
+    }
+}
+
 @keyframes profileSettingsSlideUp {
     from {
         transform: translateY(100%);
