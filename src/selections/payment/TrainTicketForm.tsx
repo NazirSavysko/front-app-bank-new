@@ -27,7 +27,6 @@ const TrainTicketForm: React.FC<TrainTicketFormProps> = ({
     onBack,
     onPaymentFlowStateChange,
     onPaymentComplete,
-    onCopy,
 }) => {
     const queryClient = useQueryClient();
 

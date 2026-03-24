@@ -48,7 +48,6 @@ const InternetPaymentForm: React.FC<InternetPaymentFormProps> = ({
     onBack,
     onPaymentFlowStateChange,
     onPaymentComplete,
-    onCopy,
 }) => {
     const queryClient = useQueryClient();
     const [providerName, setProviderName] = useState('');

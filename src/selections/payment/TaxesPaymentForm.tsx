@@ -23,7 +23,6 @@ const TaxesPaymentForm: React.FC<TaxesPaymentFormProps> = ({
     onBack,
     onPaymentFlowStateChange,
     onPaymentComplete,
-    onCopy,
 }) => {
     const queryClient = useQueryClient();
 

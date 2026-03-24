@@ -28,7 +28,6 @@ const IBANPaymentForm: React.FC<IBANPaymentFormProps> = ({
     onBack,
     onPaymentFlowStateChange,
     onPaymentComplete,
-    onCopy,
 }) => {
     const queryClient = useQueryClient();
     const selectedAccount = accounts[selectedAccountIndex];

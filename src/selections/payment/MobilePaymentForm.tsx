@@ -24,7 +24,6 @@ const MobilePaymentForm: React.FC<MobilePaymentFormProps> = ({
     onBack,
     onPaymentFlowStateChange,
     onPaymentComplete,
-    onCopy,
 }) => {
     const queryClient = useQueryClient();
 

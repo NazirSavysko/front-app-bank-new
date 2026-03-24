@@ -35,7 +35,6 @@ const ElectronicsShopForm: React.FC<ElectronicsShopFormProps> = ({
     onBack,
     onPaymentFlowStateChange,
     onPaymentComplete,
-    onCopy,
 }) => {
     const queryClient = useQueryClient();
 
