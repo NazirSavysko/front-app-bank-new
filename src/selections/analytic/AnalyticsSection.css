@@ -279,3 +279,11 @@
         font-size: 14px;
     }
 }
+
+@media (max-width: 768px) {
+    .analytics-container {
+        /* Reserve extra space so the last block is visible above fixed mobile controls. */
+        padding-bottom: calc(96px + env(safe-area-inset-bottom));
+    }
+}
+
