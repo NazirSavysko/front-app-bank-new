@@ -115,7 +115,6 @@ const MobilePaymentForm: React.FC<MobilePaymentFormProps> = ({
             await sendEmailVerificationCode(customer.email);
             setVerificationCode('');
             setShowEmailVerification(true);
-            onCopy?.('Код підтвердження відправлено на пошту');
         } catch (err) {
             const errorMessage = err instanceof Error ? err.message : 'Помилка при поповненні мобільного';
             setError(errorMessage);

@@ -133,7 +133,6 @@ const CommunalPaymentForm: React.FC<CommunalPaymentFormProps> = ({
             await sendEmailVerificationCode(customer.email);
             setVerificationCode('');
             setShowEmailVerification(true);
-            onCopy?.('Код підтвердження відправлено на пошту');
         } catch (err) {
             setError(err instanceof Error ? err.message : 'Помилка при оплаті комунальних послуг');
         } finally {

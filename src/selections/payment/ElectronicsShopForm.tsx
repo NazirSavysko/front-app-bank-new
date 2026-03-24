@@ -147,7 +147,6 @@ const ElectronicsShopForm: React.FC<ElectronicsShopFormProps> = ({
             await sendEmailVerificationCode(customer.email);
             setVerificationCode('');
             setShowEmailVerification(true);
-            onCopy?.('Код підтвердження відправлено на пошту');
         } catch (err) {
             setError(err instanceof Error ? err.message : 'Помилка при оплаті електроніки');
         } finally {
