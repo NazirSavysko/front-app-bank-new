@@ -183,6 +183,8 @@ const PaymentsSection: React.FC<PaymentsSectionProps> = (props) => {
             } />
             <Route path="communal" element={
                 <CommunalPaymentForm
+                    customer={props.customer}
+                    onPaymentFlowStateChange={props.onPaymentFlowStateChange}
                     onPaymentComplete={props.onPaymentComplete}
                     onCopy={props.onCopy}
                     onBack={() => navigate('/dashboard/payments')}
