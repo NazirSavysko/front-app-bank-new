@@ -334,6 +334,10 @@
     cursor: pointer;
 }
 
+.electronics-view-cart-btn-icon {
+    margin-right: 0.45rem;
+}
+
 /* Cart Modal/Drawer */
 .cart-overlay {
     position: fixed;
@@ -480,3 +484,43 @@
         margin-bottom: 0.5rem;
     }
 }
+
+@media (max-width: 576px) {
+    .electronics-sticky-bar-wrap {
+        display: none;
+    }
+
+    .electronics-products-list {
+        padding-bottom: 1rem;
+    }
+
+    .cart-overlay {
+        z-index: 1305;
+    }
+
+    .cart-drawer {
+        height: 100%;
+        max-height: 100%;
+        overflow: hidden;
+        display: flex;
+        flex-direction: column;
+    }
+
+    .cart-drawer-items {
+        flex: 1 1 auto;
+        min-height: 0;
+        overflow-y: auto;
+        padding-bottom: 0.75rem;
+        touch-action: pan-y;
+        overscroll-behavior-y: contain;
+        -webkit-overflow-scrolling: touch;
+    }
+
+    .cart-drawer-footer {
+        position: static;
+        flex-shrink: 0;
+        margin-top: auto;
+        padding-bottom: calc(1.25rem + env(safe-area-inset-bottom));
+    }
+}
+

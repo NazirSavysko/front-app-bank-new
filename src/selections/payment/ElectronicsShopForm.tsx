@@ -301,7 +301,14 @@ const ElectronicsShopForm: React.FC<ElectronicsShopFormProps> = ({
                                 <span>{totalItemsCount} товарів на суму: </span>
                                 <strong>{totalAmount.toLocaleString('uk-UA')} UAH</strong>
                             </div>
-                            <button type="button" className="electronics-view-cart-btn">Переглянути кошик</button>
+                            <button
+                                type="button"
+                                className="electronics-view-cart-btn"
+                                aria-label={`Відкрити кошик (${totalItemsCount})`}
+                            >
+                                <span className="electronics-view-cart-btn-icon" aria-hidden="true">🛒</span>
+                                <span className="electronics-view-cart-btn-text">Переглянути кошик</span>
+                            </button>
                         </div>
                     </div>
                 )}
