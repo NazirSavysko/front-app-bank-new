@@ -681,6 +681,12 @@
     }
 }
 
+@media (max-width: 576px) {
+    .recipient-section {
+        padding-bottom: calc(116px + env(safe-area-inset-bottom));
+    }
+}
+
 .btn-send:disabled, .btn-clear:disabled {
     opacity: .6;
     cursor: not-allowed;
